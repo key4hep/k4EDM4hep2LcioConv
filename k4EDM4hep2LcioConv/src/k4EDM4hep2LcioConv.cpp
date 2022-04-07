@@ -1,4 +1,4 @@
-#include "k4EDM4hep2LcioConv.h"
+#include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
 // Convert EDM4hep Tracks to LCIO
 // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
