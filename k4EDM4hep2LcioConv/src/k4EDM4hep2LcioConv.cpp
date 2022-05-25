@@ -435,30 +435,6 @@ lcio::LCCollectionVec* convClusters(
         }
       }
 
-      // Link multiple associated Calorimeter Hits, and Hit Contributions
-      // There must be same number of Calo Hits and Hit Contributions
-      if (edm_cluster.hits_size() == edm_cluster.hitContributions_size()) {
-        for (int j = 0; j < edm_cluster.hits_size(); ++j) { // use index to get same hit and contrib
-          if (edm_cluster.getHits(j).isAvailable()) {
-            bool conv_found = false;
-            for (const auto& [lcio_hit, edm_hit] : calohits_vec) {
-              if (edm_hit == edm_cluster.getHits(j)) {
-                lcio_cluster->addHit(lcio_hit, edm_cluster.getHitContributions(j));
-                conv_found = true;
-                break;
-              }
-            }
-            // If hit avilable, but not found in converted vec, add nullptr
-            if (not conv_found) lcio_cluster->addHit(nullptr, 0);
-          }
-        }
-      }
-      else {
-        std::cerr << "There must be the same number of hits and hit contributions to convert clusters and the "
-                     "associated Calorimiter Hits"
-                  << std::endl;
-      }
-
       // Add LCIO and EDM4hep pair collections to vec
       cluster_vec.emplace_back(std::make_pair(lcio_cluster, edm_cluster));
 
@@ -814,24 +790,6 @@ void FillMissingCollections(CollectionsPairVectors& collection_pairs)
 
   } // vertices
 
-  // Fill missing Cluster collections
-  for (auto& [lcio_cluster, edm_cluster] : collection_pairs.clusters) {
-    // Link associated Calorimeter Hits, and Hit Contributions
-    if (lcio_cluster->getCalorimeterHits().size() != edm_cluster.hits_size()) {
-      assert(lcio_cluster->getCalorimeterHits().size() == 0);
-      for (int i = 0; i < edm_cluster.hits_size(); ++i) { // use index for to get same hit and contrib
-        const auto edm_cluster_hit = edm_cluster.getHits(i);
-        const auto edm_cluster_contribution = edm_cluster.getHitContributions(i);
-        for (const auto& [lcio_hit, edm_hit] : collection_pairs.calohits) {
-          if (edm_hit == edm_cluster_hit) {
-            lcio_cluster->addHit(lcio_hit, edm_cluster_contribution);
-            break;
-          }
-        }
-      }
-    }
-
-  } // clusters
 
   // Fill missing SimCaloHit collections
   for (auto& [lcio_sch, edm_sch] : collection_pairs.simcalohits) {
