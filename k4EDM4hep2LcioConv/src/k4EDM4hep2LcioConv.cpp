@@ -790,7 +790,6 @@ void FillMissingCollections(CollectionsPairVectors& collection_pairs)
 
   } // vertices
 
-
   // Fill missing SimCaloHit collections
   for (auto& [lcio_sch, edm_sch] : collection_pairs.simcalohits) {
     // Link associated Contributions (MCParticles)
