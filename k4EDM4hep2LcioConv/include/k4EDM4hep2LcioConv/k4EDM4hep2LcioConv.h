@@ -142,6 +142,6 @@ lcio::LCCollectionVec* convMCParticles(
 
 void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
-bool collectionExist(const std::string& collection_name, lcio::LCEventImpl* lcio_event);
+bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 
 #endif
