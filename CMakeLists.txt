@@ -27,4 +27,4 @@ find_package(EDM4HEP REQUIRED)
 
 add_subdirectory(k4EDM4hep2LcioConv)
 
-include(cmake/CreateProjectConfig.cmake)
+include(cmake/k4EDM4hep2LcioConvCreateConfig.cmake)
