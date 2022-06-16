@@ -52,7 +52,7 @@ lcio::LCCollectionVec* convTracks(
       // Loop over the track states in the track
       const podio::RelationRange<edm4hep::TrackState> edm_track_states = edm_tr.getTrackStates();
       for (const auto& tr_state : edm_track_states) {
-        std::array<float, 15> cov = tr_state.covMatrix;
+        const auto& cov = tr_state.covMatrix;
         std::array<float, 3> refP = {tr_state.referencePoint.x, tr_state.referencePoint.y, tr_state.referencePoint.z};
 
         auto* lcio_tr_state = new lcio::TrackStateImpl(
