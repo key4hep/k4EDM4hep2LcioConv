@@ -1,5 +1,9 @@
 # EDM4hep to LCIO in-memory converter
 
+<p align="center">
+  <img src="doc/k4EDM4hep2LcioConv_logo.svg"/>
+</p>
+
 Sample usage:
 
 ```cpp
