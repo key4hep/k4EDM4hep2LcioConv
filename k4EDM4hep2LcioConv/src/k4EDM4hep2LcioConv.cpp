@@ -14,8 +14,13 @@ lcio::LCCollectionVec* convTracks(
   for (const auto& edm_tr : (*tracks_coll)) {
     if (edm_tr.isAvailable()) {
       auto* lcio_tr = new lcio::TrackImpl();
-
-      lcio_tr->setTypeBit(edm_tr.getType());
+      int type = edm_tr.getType();
+      for (int i = 0; i<sizeof(int)*8;i++){
+	if (type & (1<<i)){
+	   lcio_tr->setTypeBit(i);	  
+	}
+      }
+      std::cout<<"using new conversion method"<<std::endl;
       lcio_tr->setChi2(edm_tr.getChi2());
       lcio_tr->setNdf(edm_tr.getNdf());
       lcio_tr->setdEdx(edm_tr.getDEdx());
