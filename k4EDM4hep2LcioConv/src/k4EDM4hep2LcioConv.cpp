@@ -647,8 +647,6 @@ lcio::LCCollectionVec* convMCParticles(
       int status = edm_mcp.getGeneratorStatus();
       lcio_mcp->setSimulatorStatus(status);
 
-         }
-       }
 
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
       lcio_mcp->setVertex(vertex);
