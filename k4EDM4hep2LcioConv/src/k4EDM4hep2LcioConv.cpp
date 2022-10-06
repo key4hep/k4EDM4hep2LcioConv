@@ -10,17 +10,18 @@ lcio::LCCollectionVec* convTracks(
 {
   auto* tracks = new lcio::LCCollectionVec(lcio::LCIO::TRACK);
 
-  // Loop over EDM4hep tracks converting them to lcio tracks
+  // Loop over EDM4hep tracks converting them to lcio tracks.
   
   for (const auto& edm_tr : (*tracks_coll)) {
     if (edm_tr.isAvailable()) {
       auto* lcio_tr = new lcio::TrackImpl();
-      // The Type of the Tracks need to be set bitwise in LCIO since the setType(int) function is private for the LCIO TrackImpl and only a setTypeBit(bitnumber) function can be used to set the Tzpe bit by bit.
+      // The Type of the Tracks need to be set bitwise in LCIO since the setType(int) function is private for the LCIO TrackImpl
+      // and only a setTypeBit(bitnumber) function can be used to set the Tzpe bit by bit.
       int type = edm_tr.getType();
-      for (int i = 0; i<sizeof(int)*8;i++){
-	if (type & (1<<i)){
-	   lcio_tr->setTypeBit(i);	  
-	}
+      for (int i = 0; i < sizeof(int) * 8; i++) {
+        if (type & (1 << i)) {
+          lcio_tr->setTypeBit(i);
+        }
       }
       lcio_tr->setChi2(edm_tr.getChi2());
       lcio_tr->setNdf(edm_tr.getNdf());
@@ -646,7 +647,6 @@ lcio::LCCollectionVec* convMCParticles(
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
       int status = edm_mcp.getGeneratorStatus();
       lcio_mcp->setSimulatorStatus(status);
-
 
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
       lcio_mcp->setVertex(vertex);
