@@ -11,9 +11,11 @@ lcio::LCCollectionVec* convTracks(
   auto* tracks = new lcio::LCCollectionVec(lcio::LCIO::TRACK);
 
   // Loop over EDM4hep tracks converting them to lcio tracks
+  
   for (const auto& edm_tr : (*tracks_coll)) {
     if (edm_tr.isAvailable()) {
       auto* lcio_tr = new lcio::TrackImpl();
+      // The Type of the Tracks need to be set bitwise in LCIO since the setType(int) function is private for the LCIO TrackImpl and only a setTypeBit(bitnumber) function can be used to set the Tzpe bit by bit.
       int type = edm_tr.getType();
       for (int i = 0; i<sizeof(int)*8;i++){
 	if (type & (1<<i)){
@@ -643,10 +645,7 @@ lcio::LCCollectionVec* convMCParticles(
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
       int status = edm_mcp.getGeneratorStatus();
-//	std::cout<<"Simulator status read "<<status<<std::endl;
-          lcio_mcp->setSimulatorStatus(status);
-          auto lcio_status =lcio_mcp->getSimulatorStatus();
-// 	  std::cout<<"Simulator status read by lcio "<<lcio_status<<std::endl;
+      lcio_mcp->setSimulatorStatus(status);
 
          }
        }
