@@ -4,12 +4,10 @@ repos:
     hooks:
       - id: mixed-line-ending
       - id: trailing-whitespace
-        exclude: (doc/ReleaseNotes.md)
   - repo: local
     hooks:
       - id: clang-format
         name: clang-format
         entry: .github/scripts/clang-format-hook
-        exclude: (k4SimDelphesVersion.h)
         types: [c++]
         language: system
