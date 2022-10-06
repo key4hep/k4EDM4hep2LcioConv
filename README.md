@@ -27,9 +27,9 @@ edm4hep::SimTrackerHitCollection* sth_collection;
 const auto collID    = sth_collection->getID();
 const auto cellIDstr = simtrackerhits_handle.getCollMetadataCellID(collID);
 auto* lcio_converted_sim_tracker_hit_ptr = convSimTrackerHits(
-  sth_collection, 
-  cellIDstr, 
-  collection_pairs.simtrackerhits, 
+  sth_collection,
+  cellIDstr,
+  collection_pairs.simtrackerhits,
   collection_pairs.mcparticles);
 
 // Run function to fix missing associations between collections.
