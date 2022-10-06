@@ -20,7 +20,6 @@ lcio::LCCollectionVec* convTracks(
 	   lcio_tr->setTypeBit(i);	  
 	}
       }
-      std::cout<<"using new conversion method"<<std::endl;
       lcio_tr->setChi2(edm_tr.getChi2());
       lcio_tr->setNdf(edm_tr.getNdf());
       lcio_tr->setdEdx(edm_tr.getDEdx());
@@ -643,7 +642,15 @@ lcio::LCCollectionVec* convMCParticles(
     if (edm_mcp.isAvailable()) {
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
-      // lcio_mcp->setSimulatorStatus(edm_mcp.getSimulatorStatus());
+      int status = edm_mcp.getGeneratorStatus();
+//	std::cout<<"Simulator status read "<<status<<std::endl;
+          lcio_mcp->setSimulatorStatus(status);
+          auto lcio_status =lcio_mcp->getSimulatorStatus();
+// 	  std::cout<<"Simulator status read by lcio "<<lcio_status<<std::endl;
+
+         }
+       }
+
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
       lcio_mcp->setVertex(vertex);
       lcio_mcp->setTime(edm_mcp.getTime());
