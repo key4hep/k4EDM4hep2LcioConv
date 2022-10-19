@@ -19,9 +19,7 @@ lcio::LCCollectionVec* convTracks(
       // TrackImpl and only a setTypeBit(bitnumber) function can be used to set the Type bit by bit.
       int type = edm_tr.getType();
       for (int i = 0; i < sizeof(int) * 8; i++) {
-        if (type & (1 << i)) {
-          lcio_tr->setTypeBit(i);
-        }
+        lcio_tr->setTypeBit(i, type & (1 << i));
       }
       lcio_tr->setChi2(edm_tr.getChi2());
       lcio_tr->setNdf(edm_tr.getNdf());
@@ -645,7 +643,8 @@ lcio::LCCollectionVec* convMCParticles(
     if (edm_mcp.isAvailable()) {
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
-      int status = edm_mcp.getGeneratorStatus();
+      // Note LCIO sets some Bits during writing which makes a trivial integer conversion afterwards not work
+      int status = edm_mcp.getSimulatorStatus(); 
       lcio_mcp->setSimulatorStatus(status);
 
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
