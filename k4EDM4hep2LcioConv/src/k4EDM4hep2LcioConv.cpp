@@ -305,31 +305,8 @@ lcio::LCCollectionVec* convSimCalorimeterHits(
         edm_sim_calohit.getPosition()[0], edm_sim_calohit.getPosition()[1], edm_sim_calohit.getPosition()[2]};
       lcio_simcalohit->setPosition(positions.data());
 
-      // Get CaloHitContributions
-      for (const auto& contrib : edm_sim_calohit.getContributions()) {
-        if (contrib.isAvailable()) {
-          auto contrib_mcp = contrib.getParticle();
-          if (contrib_mcp.isAvailable()) {
-            bool conv_found = false;
-            // Search for that particle in mcparticles vector
-            for (auto& [lcio_mcp, edm_mcp] : mcparticles) {
-              if (edm_mcp == contrib_mcp) {
-                std::array<float, 3> step_position {
-                  contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
-                lcio_simcalohit->addMCParticleContribution(
-                  lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
-                conv_found = true;
-                break;
-              }
-            }
-            // If mc particle available, but not found in mcparticle vec, add
-            // nullptr
-            if (not conv_found) {
-              lcio_simcalohit->addMCParticleContribution(nullptr, 0, 0, 0, nullptr);
-            }
-          }
-        }
-      }
+      // Contributions are converted in FillMissingCollections to make it a higher probability that we have the
+      // MCParticles converted
 
       // Save Sim Calorimeter Hits LCIO and EDM4hep collections
       sim_calo_hits_vec.emplace_back(std::make_pair(lcio_simcalohit, edm_sim_calohit));
@@ -790,33 +767,48 @@ void FillMissingCollections(CollectionsPairVectors& collection_pairs)
 
   } // vertices
 
-  // Fill missing SimCaloHit collections
+  // Fill SimCaloHit collections with contributions
+  //
+  // We loop over all pairs of lcio and edm4hep simcalo hits and add the contributions, by now MCParticle collection(s)
+  // should be converted!
   for (auto& [lcio_sch, edm_sch] : collection_pairs.simcalohits) {
-    // Link associated Contributions (MCParticles)
-    if (lcio_sch->getNMCContributions() != edm_sch.contributions_size()) {
-      assert(lcio_sch->getNMCContributions() == 0);
-      for (int i = 0; i < edm_sch.contributions_size(); ++i) {
-        const auto& contrib = edm_sch.getContributions(i);
-        if (contrib.isAvailable()) {
-          auto edm_contrib_mcp = contrib.getParticle();
-          if (edm_contrib_mcp.isAvailable()) {
-            // Check for nullptr to add missing link
-            if (lcio_sch->getParticleCont(i) == nullptr) {
-              for (auto& [lcio_mcp, edm_mcp] : collection_pairs.mcparticles) {
-                if (edm_mcp == edm_contrib_mcp) {
-                  std::array<float, 3> step_position {
-                    contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
-                  lcio_sch->addMCParticleContribution(
-                    lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
-                }
-              }
-            }
-          }
-        }
+    // add associated Contributions (MCParticles)
+    for (int i = 0; i < edm_sch.contributions_size(); ++i) {
+      const auto& contrib = edm_sch.getContributions(i);
+      if (not contrib.isAvailable()) {
+        // We need a logging library independent of Gaudi for this!
+        // std::cout << "WARNING: CaloHit Contribution is not available!" << std::endl;
+        continue;
       }
-    }
-
-  } // SimCaloHit
+      auto edm_contrib_mcp = contrib.getParticle();
+      std::array<float, 3> step_position {
+        contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
+      bool mcp_found = false;
+      if (edm_contrib_mcp.isAvailable()) {
+        // if we have the MCParticle we look for its partner
+        for (auto& [lcio_mcp, edm_mcp] : collection_pairs.mcparticles) {
+          if (edm_mcp == edm_contrib_mcp) {
+            mcp_found = true;
+            lcio_sch->addMCParticleContribution(
+              lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
+            break;
+          }
+        } // all mcparticles
+      }
+      else { // edm mcp available
+        // std::cout << "WARNING: edm4hep contribution is not available!"  << std::endl;
+      }
+      if (not mcp_found) {
+        // we add contribution with nullptr
+        lcio_sch->addMCParticleContribution(
+          nullptr, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
+        // std::cout << "WARNING: No MCParticle found for this contribution."
+        //           << "Make Sure MCParticles are converted! "
+        //           << edm_contrib_mcp.id()
+        //           << std::endl;
+      }
+    } // all emd4hep contributions
+  }   // SimCaloHit
 
   // Fill missing SimTrackerHit collections
   for (auto& [lcio_strh, edm_strh] : collection_pairs.simtrackerhits) {
