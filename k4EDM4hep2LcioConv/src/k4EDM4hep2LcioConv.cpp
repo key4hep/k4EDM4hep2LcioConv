@@ -644,7 +644,7 @@ lcio::LCCollectionVec* convMCParticles(
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
       // Note LCIO sets some Bits during writing which makes a trivial integer conversion afterwards not work
-      int status = edm_mcp.getSimulatorStatus(); 
+      int status = edm_mcp.getSimulatorStatus();
       lcio_mcp->setSimulatorStatus(status);
 
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
