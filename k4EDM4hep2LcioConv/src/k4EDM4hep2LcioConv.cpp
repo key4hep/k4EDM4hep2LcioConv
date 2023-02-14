@@ -327,8 +327,8 @@ lcio::LCCollectionVec* convSimCalorimeterHits(
 // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
 // Add converted LCIO Collection Vector to LCIO event
 lcio::LCCollectionVec* convTPCHits(
-  const edm4hep::TPCHitCollection* const tpchit_coll,
-  vec_pair<lcio::TPCHitImpl*, edm4hep::TPCHit>& tpc_hits_vec)
+  const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
+  vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries>& tpc_hits_vec)
 {
   auto* tpchits = new lcio::LCCollectionVec(lcio::LCIO::TPCHIT);
 
@@ -343,7 +343,7 @@ lcio::LCCollectionVec* convTPCHits(
       lcio_tpchit->setQuality(edm_tpchit.getQuality());
 
       std::vector<int> rawdata;
-      for (int i = 0; i < edm_tpchit.rawDataWords_size(); ++i) {
+      for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
         rawdata.push_back(edm_tpchit.getRawDataWords(i));
       }
 

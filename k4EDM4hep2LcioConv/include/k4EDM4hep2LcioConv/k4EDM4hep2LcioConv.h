@@ -77,7 +77,7 @@ struct CollectionsPairVectors {
   vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> calohits;
   vec_pair<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawcalohits;
   vec_pair<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit> simcalohits;
-  vec_pair<lcio::TPCHitImpl*, edm4hep::TPCHit> tpchits;
+  vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries> tpchits;
   vec_pair<lcio::ClusterImpl*, edm4hep::Cluster> clusters;
   vec_pair<lcio::VertexImpl*, edm4hep::Vertex> vertices;
   vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoparticles;
@@ -116,8 +116,8 @@ lcio::LCCollectionVec* convSimCalorimeterHits(
   const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles);
 
 lcio::LCCollectionVec* convTPCHits(
-  const edm4hep::TPCHitCollection* const tpchit_coll,
-  vec_pair<lcio::TPCHitImpl*, edm4hep::TPCHit>& tpc_hits_vec);
+  const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
+  vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries>& tpc_hits_vec);
 
 lcio::LCCollectionVec* convClusters(
   const edm4hep::ClusterCollection* const cluster_coll,
