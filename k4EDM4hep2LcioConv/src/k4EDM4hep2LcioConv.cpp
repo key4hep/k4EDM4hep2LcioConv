@@ -344,7 +344,7 @@ lcio::LCCollectionVec* convTPCHits(
 
       std::vector<int> rawdata;
       for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
-        rawdata.push_back(edm_tpchit.getRawDataWords(i));
+        rawdata.push_back(edm_tpchit.getAdcCounts(i));
       }
 
       lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.rawDataWords_size());
