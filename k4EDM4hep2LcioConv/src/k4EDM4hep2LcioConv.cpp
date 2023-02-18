@@ -343,7 +343,7 @@ lcio::LCCollectionVec* convTPCHits(
         rawdata.push_back(edm_tpchit.getAdcCounts(i));
       }
 
-      lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.rawDataWords_size());
+      lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.adcCounts_size());
 
       // Save TPC Hits LCIO and EDM4hep collections
       tpc_hits_vec.emplace_back(std::make_pair(lcio_tpchit, edm_tpchit));
