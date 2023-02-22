@@ -10,13 +10,14 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v2
     - uses: aidasoft/run-lcg-view@v3
       with:
-        release-platform: LCG_101/x86_64-centos7-clang12-opt
+        release-platform: LCG_102/x86_64-centos7-clang12-opt
         run: |
           echo "::group::Setup"
           export PYTHONPATH=$(python -m site --user-site):$PYTHONPATH
           export PATH=/root/.local/bin:$PATH
-          pip install --upgrade --user pip
-          pip install argparse pre-commit --user
+          pip install pre-commit
+          # Use virtualenv from the LCG release
+          pip uninstall --yes virtualenv
           echo "::group::ClangFormat"
           pre-commit run --show-diff-on-failure \
             --color=always \
