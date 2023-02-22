@@ -11,7 +11,6 @@ lcio::LCCollectionVec* convTracks(
   auto* tracks = new lcio::LCCollectionVec(lcio::LCIO::TRACK);
 
   // Loop over EDM4hep tracks converting them to lcio tracks.
-
   for (const auto& edm_tr : (*tracks_coll)) {
     if (edm_tr.isAvailable()) {
       auto* lcio_tr = new lcio::TrackImpl();
