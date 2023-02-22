@@ -14,9 +14,9 @@ namespace LCIO2EDM4hepConv {
     edmtrackState.tanLambda = trackState->getTanLambda();
     // not available in lcio
     edmtrackState.time = -1;
-    auto refPoint = trackState->getReferencePoint();
+    const auto refPoint = trackState->getReferencePoint();
     edmtrackState.referencePoint = Vector3fFrom({refPoint[0], refPoint[1], refPoint[2]});
-    auto& covMatrix = trackState->getCovMatrix();
+    const auto& covMatrix = trackState->getCovMatrix();
     edmtrackState.covMatrix = {
       covMatrix[0],
       covMatrix[1],
@@ -82,7 +82,6 @@ namespace LCIO2EDM4hepConv {
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap)
   {
-
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       const auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
@@ -149,7 +148,6 @@ namespace LCIO2EDM4hepConv {
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap)
   {
-
     auto dest = std::make_unique<edm4hep::SimTrackerHitCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -399,7 +397,6 @@ namespace LCIO2EDM4hepConv {
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
   {
-
     auto dest = std::make_unique<edm4hep::CalorimeterHitCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -485,7 +482,7 @@ namespace LCIO2EDM4hepConv {
   std::vector<CollNamePair>
   convertCollection(const std::string& name, EVENT::LCCollection* LCCollection, LcioEdmTypeMapping& typeMapping)
   {
-    std::string type = LCCollection->getTypeName();
+    const auto& type = LCCollection->getTypeName();
     std::vector<CollNamePair> retColls;
     if (type == "MCParticle") {
       retColls.emplace_back(name, convertMCParticle(name, LCCollection, typeMapping.mcparticles));
@@ -532,7 +529,7 @@ namespace LCIO2EDM4hepConv {
   podio::Frame convertEvent(EVENT::LCEvent* evt)
   {
     auto typeMapping = LcioEdmTypeMapping {};
-    std::vector<std::pair<std::string, std::unique_ptr<podio::CollectionBase>>> edmevent;
+    std::vector<CollNamePair> edmevent;
     std::vector<std::pair<std::string, EVENT::LCCollection*>> LCRelations;
     const auto& lcnames = evt->getCollectionNames();
     // In this loop the data gets converted.
@@ -584,7 +581,6 @@ namespace LCIO2EDM4hepConv {
 
   void resolveRelationsMCParticle(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
-
     int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
       edmnum++;
@@ -622,7 +618,6 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
     TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
-
     for (auto& [lcio, edm] : SimTrHitMap) {
       auto mcps = lcio->getMCParticle();
       const auto it = mcparticlesMap.find(mcps);
@@ -643,7 +638,6 @@ namespace LCIO2EDM4hepConv {
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
     const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap)
   {
-
     int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
       edmnum++;
@@ -843,9 +837,8 @@ namespace LCIO2EDM4hepConv {
     const LcioEdmTypeMapping& typeMapping,
     const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation)
   {
-
     std::vector<CollNamePair> assoCollVec;
-    for (const auto [name, relations] : LCRelation) {
+    for (const auto& [name, relations] : LCRelation) {
       const auto& params = relations->getParameters();
 
       const auto& fromType = params.getStringVal("FromType");
