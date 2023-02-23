@@ -791,35 +791,35 @@ namespace LCIO2EDM4hepConv {
         if (it != trackerHitMap.end()) {
           edm.addToTrackerHits(it->second);
         }
-        else {
-          //         std::cerr << "Couldn't find trackerHit to add to Relations for tracks in edm\n"
-          //         <<" This is due to it being a TrackerHitPlane or TPCHit" << std::endl;
+        // else {
+        //   std::cerr << "Couldn't find trackerHit to add to Relations for tracks in edm\n"
+        //             << " This is due to it being a TrackerHitPlane or TPCHit" << std::endl;
 
-          /*
-          // This Code looks for the trackerHit in the TPCHit Map aswell as the trackerHitPlane Map. Those relations can
-          not be set for a track in edm4HEP. In all tests the missing trackerHits were located in either of these maps.
-                const auto tpchit = dynamic_cast<lcio::TPCHit*>(th);
-                const auto trackerhitplane = dynamic_cast<lcio::TrackerHitPlane*>(th);
-                  if (tpchit != nullptr){
-                    const auto it = TPCHitMap.find(tpchit);
-                    if (it != TPCHitMap.end()) {
-                      std::cout << "trackerHit found in TPCHit map !" << std::endl;
-                      }
-                      else {
-                        std::cerr << "TRACKERHIT also could not be found in TPCHit Map" << std::endl;
-                      }
-                    }
-                  else if(trackerhitplane != nullptr){
-                    const auto it = trackerhitplaneMap.find(trackerhitplane);
-                    if (it != trackerhitplaneMap.end()) {
-                      std::cout << "trackerHit found in TrackerHitPlane map !" << std::endl;
-                      }
-                      else {
-                        std::cerr << "TRACKERHIT also could not be found in TrackerHitPlane Map" << std::endl;
-                        }
-                     }
-          */
-        }
+        //   // This Code looks for the trackerHit in the TPCHit Map aswell as the
+        //   // trackerHitPlane Map. Those relations can not be set for a track in
+        //   // edm4HEP. In all tests the missing trackerHits were located in
+        //   // either of these maps.
+        //   const auto tpchit = dynamic_cast<lcio::TPCHit*>(th);
+        //   const auto trackerhitplane = dynamic_cast<lcio::TrackerHitPlane*>(th);
+        //   if (tpchit != nullptr) {
+        //     const auto it = TPCHitMap.find(tpchit);
+        //     if (it != TPCHitMap.end()) {
+        //       std::cout << "trackerHit found in TPCHit map !" << std::endl;
+        //     }
+        //     else {
+        //       std::cerr << "TRACKERHIT also could not be found in TPCHit Map" << std::endl;
+        //     }
+        //   }
+        //   else if (trackerhitplane != nullptr) {
+        //     const auto it = trackerhitplaneMap.find(trackerhitplane);
+        //     if (it != trackerhitplaneMap.end()) {
+        //       std::cout << "trackerHit found in TrackerHitPlane map !" << std::endl;
+        //     }
+        //     else {
+        //       std::cerr << "TRACKERHIT also could not be found in TrackerHitPlane Map" << std::endl;
+        //     }
+        //   }
+        // }
       }
     }
   }
