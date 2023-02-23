@@ -923,52 +923,40 @@ namespace LCIO2EDM4hepConv {
   fillSubSet(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type)
   {
     if (type == "MCParticle") {
-      const auto& map = typeMapping.mcParticles;
-      return handleSubsetColl<edm4hep::MCParticleCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::MCParticleCollection>(LCCollection, typeMapping.mcParticles);
     }
     else if (type == "ReconstructedParticle") {
-      const auto& map = typeMapping.recoParticles;
-      return handleSubsetColl<edm4hep::ReconstructedParticleCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::ReconstructedParticleCollection>(LCCollection, typeMapping.recoParticles);
     }
     else if (type == "Vertex") {
-      const auto& map = typeMapping.vertices;
-      return handleSubsetColl<edm4hep::VertexCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::VertexCollection>(LCCollection, typeMapping.vertices);
     }
     else if (type == "Track") {
-      const auto& map = typeMapping.tracks;
-      return handleSubsetColl<edm4hep::TrackCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::TrackCollection>(LCCollection, typeMapping.tracks);
     }
     else if (type == "Cluster") {
-      const auto& map = typeMapping.clusters;
-      return handleSubsetColl<edm4hep::ClusterCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::ClusterCollection>(LCCollection, typeMapping.clusters);
     }
     else if (type == "SimCalorimeterHit") {
-      const auto& map = typeMapping.simCaloHits;
-      return handleSubsetColl<edm4hep::SimCalorimeterHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::SimCalorimeterHitCollection>(LCCollection, typeMapping.simCaloHits);
     }
     else if (type == "RawCalorimeterHit") {
-      const auto& map = typeMapping.rawCaloHits;
-      return handleSubsetColl<edm4hep::RawCalorimeterHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::RawCalorimeterHitCollection>(LCCollection, typeMapping.rawCaloHits);
     }
     else if (type == "CalorimeterHit") {
-      const auto& map = typeMapping.caloHits;
-      return handleSubsetColl<edm4hep::CalorimeterHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::CalorimeterHitCollection>(LCCollection, typeMapping.caloHits);
     }
     else if (type == "SimTrackerHit") {
-      const auto& map = typeMapping.simTrackerHits;
-      return handleSubsetColl<edm4hep::SimTrackerHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::SimTrackerHitCollection>(LCCollection, typeMapping.simTrackerHits);
     }
     else if (type == "TPCHit") {
-      const auto& map = typeMapping.tpcHits;
-      return handleSubsetColl<edm4hep::TPCHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::TPCHitCollection>(LCCollection, typeMapping.tpcHits);
     }
     else if (type == "TrackerHit") {
-      const auto& map = typeMapping.trackerHits;
-      return handleSubsetColl<edm4hep::TrackerHitCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::TrackerHitCollection>(LCCollection, typeMapping.trackerHits);
     }
     else if (type == "TrackerHitPlane") {
-      const auto& map = typeMapping.trackerHitPlanes;
-      return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, map);
+      return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, typeMapping.trackerHitPlanes);
     }
     else {
       return nullptr;
