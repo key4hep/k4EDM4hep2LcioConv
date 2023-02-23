@@ -651,11 +651,9 @@ namespace LCIO2EDM4hepConv {
         edm.setStartVertex(it->second);
       }
       else {
-        if (it != nullptr) {
-          std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
-                       "while trying to resolve the ReconstructedParticle Relations"
-                    << std::endl;
-        }
+        std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
+                     "while trying to resolve the ReconstructedParticle Relations"
+                  << std::endl;
       }
       for (auto c : clusters) {
         const auto it = clusterMap.find(c);
