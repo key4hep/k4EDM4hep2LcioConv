@@ -73,6 +73,7 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
     TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
     TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
+    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID> particleIDs {};
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
@@ -359,7 +360,8 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap);
+    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
+    const TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
 
   /**
    * Resolve the relations for SimCalorimeterHits

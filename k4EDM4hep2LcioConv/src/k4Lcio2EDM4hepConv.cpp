@@ -636,18 +636,15 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap)
+    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
+    const TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
       edmnum++;
-      auto vertex = lcio->getStartVertex();
-      auto clusters = lcio->getClusters();
-      auto tracks = lcio->getTracks();
-      auto parents = lcio->getParticles();
 
-      const auto it = vertexMap.find(vertex);
-      if (it != vertexMap.end()) {
+      auto vertex = lcio->getStartVertex();
+      if (const auto it = vertexMap.find(vertex); it != vertexMap.end()) {
         edm.setStartVertex(it->second);
       }
       else {
@@ -655,6 +652,8 @@ namespace LCIO2EDM4hepConv {
                      "while trying to resolve the ReconstructedParticle Relations"
                   << std::endl;
       }
+
+      auto clusters = lcio->getClusters();
       for (auto c : clusters) {
         const auto it = clusterMap.find(c);
         if (it != clusterMap.end()) {
@@ -666,6 +665,8 @@ namespace LCIO2EDM4hepConv {
                     << std::endl;
         }
       }
+
+      auto tracks = lcio->getTracks();
       for (auto t : tracks) {
         const auto it = tracksMap.find(t);
         if (it != tracksMap.end()) {
@@ -677,6 +678,8 @@ namespace LCIO2EDM4hepConv {
                     << std::endl;
         }
       }
+
+      auto parents = lcio->getParticles();
       for (auto p : parents) {
         const auto it = recoparticlesMap.find(p);
         if (it != recoparticlesMap.end()) {
@@ -686,6 +689,23 @@ namespace LCIO2EDM4hepConv {
           std::cerr << "Cannot find corresponding EDM4hep RecoParticle for a LCIO RecoParticle, "
                        "while trying to resolve the ReconstructedParticles parents Relations"
                     << std::endl;
+        }
+      }
+
+      auto particleIDUsed = lcio->getParticleIDUsed();
+      if (const auto it = particleIDMap.find(particleIDUsed); it != particleIDMap.end()) {
+        edm.setParticleIDUsed(it->second);
+      }
+      else {
+        std::cerr << "Cannot find corresponding ParticleIDUsed for a LCIO RecoParticle" << std::endl;
+      }
+
+      for (auto pid : lcio->getParticleIDs()) {
+        if (const auto it = particleIDMap.find(pid); it != particleIDMap.end()) {
+          edm.addToParticleIDs(it->second);
+        }
+        else {
+          std::cerr << "Cannot find corresponding ParticleID for a LCIO Recoparticle" << std::endl;
         }
       }
     }
@@ -822,7 +842,11 @@ namespace LCIO2EDM4hepConv {
   {
     resolveRelationsMCParticle(typeMapping.mcParticles);
     resolveRelationsRecoParticle(
-      typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
+      typeMapping.recoParticles,
+      typeMapping.vertices,
+      typeMapping.clusters,
+      typeMapping.tracks,
+      typeMapping.particleIDs);
     resolveRelationsSimTrackerHit(typeMapping.simTrackerHits, typeMapping.mcParticles);
     resolveRelationsSimCalorimeterHit(typeMapping.simCaloHits, typeMapping.mcParticles);
     resolveRelationsCluster(typeMapping.clusters, typeMapping.caloHits);
@@ -955,6 +979,9 @@ namespace LCIO2EDM4hepConv {
     }
     else if (type == "TrackerHitPlane") {
       return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, typeMapping.trackerHitPlanes);
+    }
+    else if (type == "ParticleID") {
+      return handleSubsetColl<edm4hep::ParticleIDCollection>(LCCollection, typeMapping.particleIDs);
     }
     else {
       return nullptr;
