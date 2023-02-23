@@ -136,6 +136,9 @@ namespace LCIO2EDM4hepConv {
       }
 
       const auto lcioPidUsed = rval->getParticleIDUsed();
+      if (lcioPidUsed == nullptr) {
+        continue;
+      }
       if (const auto it = particleIDMap.find(lcioPidUsed); it != particleIDMap.end()) {
         lval.setParticleIDUsed(it->second);
       }
