@@ -651,7 +651,7 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelationsRecocParticle(
+  void resolveRelationsRecoParticle(
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
