@@ -62,17 +62,17 @@ namespace LCIO2EDM4hepConv {
    */
   struct LcioEdmTypeMapping {
     TypeMapT<const lcio::Track*, edm4hep::MutableTrack> tracks {};
-    TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit> trackerhits {};
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit> simtrackerhits {};
-    TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> calohits {};
-    TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawcalohits {};
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit> simcalohits {};
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit> tpchits {};
+    TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit> trackerHits {};
+    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit> simTrackerHits {};
+    TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> caloHits {};
+    TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawCaloHits {};
+    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit> simCaloHits {};
+    TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit> tpcHits {};
     TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster> clusters {};
     TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex> vertices {};
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoparticles {};
-    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle> mcparticles {};
-    TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerhitplane {};
+    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
+    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
+    TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;

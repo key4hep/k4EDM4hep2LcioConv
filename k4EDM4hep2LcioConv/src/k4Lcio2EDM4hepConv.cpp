@@ -485,10 +485,10 @@ namespace LCIO2EDM4hepConv {
     const auto& type = LCCollection->getTypeName();
     std::vector<CollNamePair> retColls;
     if (type == "MCParticle") {
-      retColls.emplace_back(name, convertMCParticle(name, LCCollection, typeMapping.mcparticles));
+      retColls.emplace_back(name, convertMCParticle(name, LCCollection, typeMapping.mcParticles));
     }
     else if (type == "ReconstructedParticle") {
-      retColls.emplace_back(name, convertReconstructedParticle(name, LCCollection, typeMapping.recoparticles));
+      retColls.emplace_back(name, convertReconstructedParticle(name, LCCollection, typeMapping.recoParticles));
     }
     else if (type == "Vertex") {
       retColls.emplace_back(name, convertVertex(name, LCCollection, typeMapping.vertices));
@@ -500,25 +500,25 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertCluster(name, LCCollection, typeMapping.clusters));
     }
     else if (type == "SimCalorimeterHit") {
-      return convertSimCalorimeterHit(name, LCCollection, typeMapping.simcalohits);
+      return convertSimCalorimeterHit(name, LCCollection, typeMapping.simCaloHits);
     }
     else if (type == "RawCalorimeterHit") {
-      retColls.emplace_back(name, convertRawCalorimeterHit(name, LCCollection, typeMapping.rawcalohits));
+      retColls.emplace_back(name, convertRawCalorimeterHit(name, LCCollection, typeMapping.rawCaloHits));
     }
     else if (type == "CalorimeterHit") {
-      retColls.emplace_back(name, convertCalorimeterHit(name, LCCollection, typeMapping.calohits));
+      retColls.emplace_back(name, convertCalorimeterHit(name, LCCollection, typeMapping.caloHits));
     }
     else if (type == "SimTrackerHit") {
-      retColls.emplace_back(name, convertSimTrackerHit(name, LCCollection, typeMapping.simtrackerhits));
+      retColls.emplace_back(name, convertSimTrackerHit(name, LCCollection, typeMapping.simTrackerHits));
     }
     else if (type == "TPCHit") {
-      retColls.emplace_back(name, convertTPCHit(name, LCCollection, typeMapping.tpchits));
+      retColls.emplace_back(name, convertTPCHit(name, LCCollection, typeMapping.tpcHits));
     }
     else if (type == "TrackerHit") {
-      retColls.emplace_back(name, convertTrackerHit(name, LCCollection, typeMapping.trackerhits));
+      retColls.emplace_back(name, convertTrackerHit(name, LCCollection, typeMapping.trackerHits));
     }
     else if (type == "TrackerHitPlane") {
-      retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerhitplane));
+      retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerHitPlanes));
     }
     else if (type == "ParticleID") {
       retColls.emplace_back(name, convertParticleID(name, LCCollection));
@@ -822,15 +822,15 @@ namespace LCIO2EDM4hepConv {
 
   void resolveRelations(LcioEdmTypeMapping& typeMapping)
   {
-    resolveRelationsMCParticle(typeMapping.mcparticles);
+    resolveRelationsMCParticle(typeMapping.mcParticles);
     resolveRelationsRecoParticle(
-      typeMapping.recoparticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
-    resolveRelationsSimTrackerHit(typeMapping.simtrackerhits, typeMapping.mcparticles);
-    resolveRelationsSimCalorimeterHit(typeMapping.simcalohits, typeMapping.mcparticles);
-    resolveRelationsCluster(typeMapping.clusters, typeMapping.calohits);
+      typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
+    resolveRelationsSimTrackerHit(typeMapping.simTrackerHits, typeMapping.mcParticles);
+    resolveRelationsSimCalorimeterHit(typeMapping.simCaloHits, typeMapping.mcParticles);
+    resolveRelationsCluster(typeMapping.clusters, typeMapping.caloHits);
     resolveRelationsTrack(
-      typeMapping.tracks, typeMapping.trackerhits, typeMapping.tpchits, typeMapping.trackerhitplane);
-    resolveRelationsVertex(typeMapping.vertices, typeMapping.recoparticles);
+      typeMapping.tracks, typeMapping.trackerHits, typeMapping.tpcHits, typeMapping.trackerHitPlanes);
+    resolveRelationsVertex(typeMapping.vertices, typeMapping.recoParticles);
   }
 
   std::vector<CollNamePair> createAssociations(
@@ -846,72 +846,72 @@ namespace LCIO2EDM4hepConv {
 
       if (fromType == "MCParticle" && toType == "ReconstructedParticle") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection, false>(
-          relations, typeMapping.mcparticles, typeMapping.recoparticles);
+          relations, typeMapping.mcParticles, typeMapping.recoParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "ReconstructedParticle" && toType == "MCParticle") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection, true>(
-          relations, typeMapping.recoparticles, typeMapping.mcparticles);
+          relations, typeMapping.recoParticles, typeMapping.mcParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "CalorimeterHit" && toType == "SimCalorimeterHit") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection, true>(
-          relations, typeMapping.calohits, typeMapping.simcalohits);
+          relations, typeMapping.caloHits, typeMapping.simCaloHits);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "SimCalorimeterHit" && toType == "CalorimeterHit") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection, false>(
-          relations, typeMapping.simcalohits, typeMapping.calohits);
+          relations, typeMapping.simCaloHits, typeMapping.caloHits);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "Cluster" && toType == "MCParticle") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoClusterParticleAssociationCollection, true>(
-          relations, typeMapping.clusters, typeMapping.mcparticles);
+          relations, typeMapping.clusters, typeMapping.mcParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "MCParticle" && toType == "Cluster") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoClusterParticleAssociationCollection, false>(
-          relations, typeMapping.mcparticles, typeMapping.clusters);
+          relations, typeMapping.mcParticles, typeMapping.clusters);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "MCParticle" && toType == "Track") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackParticleAssociationCollection, false>(
-          relations, typeMapping.mcparticles, typeMapping.tracks);
+          relations, typeMapping.mcParticles, typeMapping.tracks);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "Track" && toType == "MCParticle") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackParticleAssociationCollection, true>(
-          relations, typeMapping.tracks, typeMapping.mcparticles);
+          relations, typeMapping.tracks, typeMapping.mcParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "TrackerHit" && toType == "SimTrackerHit") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, true>(
-          relations, typeMapping.trackerhits, typeMapping.simtrackerhits);
+          relations, typeMapping.trackerHits, typeMapping.simTrackerHits);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "SimTrackerHit" && toType == "TrackerHit") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, false>(
-          relations, typeMapping.simtrackerhits, typeMapping.trackerhits);
+          relations, typeMapping.simTrackerHits, typeMapping.trackerHits);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "SimTrackerHit" && toType == "TrackerHitPlane") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerHitPlaneAssociationCollection, false>(
-          relations, typeMapping.simtrackerhits, typeMapping.trackerhitplane);
+          relations, typeMapping.simTrackerHits, typeMapping.trackerHitPlanes);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "TrackerHitPlane" && toType == "SimTrackerHit") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerHitPlaneAssociationCollection, true>(
-          relations, typeMapping.trackerhitplane, typeMapping.simtrackerhits);
+          relations, typeMapping.trackerHitPlanes, typeMapping.simTrackerHits);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "ReconstructedParticle" && toType == "Vertex") {
         auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, true>(
-          relations, typeMapping.recoparticles, typeMapping.vertices);
+          relations, typeMapping.recoParticles, typeMapping.vertices);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else if (fromType == "Vertex" && toType == "reconstructedparticle") {
         auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, false>(
-          relations, typeMapping.vertices, typeMapping.recoparticles);
+          relations, typeMapping.vertices, typeMapping.recoParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
     }
@@ -923,11 +923,11 @@ namespace LCIO2EDM4hepConv {
   fillSubSet(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type)
   {
     if (type == "MCParticle") {
-      const auto& map = typeMapping.mcparticles;
+      const auto& map = typeMapping.mcParticles;
       return handleSubsetColl<edm4hep::MCParticleCollection>(LCCollection, map);
     }
     else if (type == "ReconstructedParticle") {
-      const auto& map = typeMapping.recoparticles;
+      const auto& map = typeMapping.recoParticles;
       return handleSubsetColl<edm4hep::ReconstructedParticleCollection>(LCCollection, map);
     }
     else if (type == "Vertex") {
@@ -943,31 +943,31 @@ namespace LCIO2EDM4hepConv {
       return handleSubsetColl<edm4hep::ClusterCollection>(LCCollection, map);
     }
     else if (type == "SimCalorimeterHit") {
-      const auto& map = typeMapping.simcalohits;
+      const auto& map = typeMapping.simCaloHits;
       return handleSubsetColl<edm4hep::SimCalorimeterHitCollection>(LCCollection, map);
     }
     else if (type == "RawCalorimeterHit") {
-      const auto& map = typeMapping.rawcalohits;
+      const auto& map = typeMapping.rawCaloHits;
       return handleSubsetColl<edm4hep::RawCalorimeterHitCollection>(LCCollection, map);
     }
     else if (type == "CalorimeterHit") {
-      const auto& map = typeMapping.calohits;
+      const auto& map = typeMapping.caloHits;
       return handleSubsetColl<edm4hep::CalorimeterHitCollection>(LCCollection, map);
     }
     else if (type == "SimTrackerHit") {
-      const auto& map = typeMapping.simtrackerhits;
+      const auto& map = typeMapping.simTrackerHits;
       return handleSubsetColl<edm4hep::SimTrackerHitCollection>(LCCollection, map);
     }
     else if (type == "TPCHit") {
-      const auto& map = typeMapping.tpchits;
+      const auto& map = typeMapping.tpcHits;
       return handleSubsetColl<edm4hep::TPCHitCollection>(LCCollection, map);
     }
     else if (type == "TrackerHit") {
-      const auto& map = typeMapping.trackerhits;
+      const auto& map = typeMapping.trackerHits;
       return handleSubsetColl<edm4hep::TrackerHitCollection>(LCCollection, map);
     }
     else if (type == "TrackerHitPlane") {
-      const auto& map = typeMapping.trackerhitplane;
+      const auto& map = typeMapping.trackerHitPlanes;
       return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, map);
     }
     else {
