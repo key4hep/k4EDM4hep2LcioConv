@@ -1,3 +1,6 @@
+#ifndef K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
+#define K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
+
 // EDM4hep
 #include "edm4hep/CaloHitContributionCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -401,3 +404,5 @@ namespace LCIO2EDM4hepConv {
     const TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap);
 
 } // namespace LCIO2EDM4hepConv
+
+#endif // K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
