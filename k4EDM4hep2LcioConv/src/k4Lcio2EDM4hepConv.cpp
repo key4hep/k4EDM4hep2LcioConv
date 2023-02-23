@@ -715,17 +715,20 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
     const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
-    for (auto& [lcio, edm] : SimCaloHitMap) {
-      auto contributionLen = lcio->getNMCParticles();
-      for (auto i = 0; i < contributionLen; i++) {
-        auto mcp = lcio->getParticleCont(i);
-        const auto it = mcparticlesMap.find(mcp);
-        //       if (it != mcparticlesMap.end()) {
-        //         edm.getContributions(i).setParticle(it->second);
-        //         see https://github.com/AIDASoft/podio/issues/347
-        //       }
-      }
-    }
+    // TODO: Currently not doing anything here because we cannot get a mutable
+    // CaloHitContribution from the SimCalorimeterHit via the podio generated
+    // interface. The underlying issue is https://github.com/AIDASoft/podio/issues/347
+
+    // for (auto& [lcio, edm] : SimCaloHitMap) {
+    //   auto contributionLen = lcio->getNMCParticles();
+    //   for (auto i = 0; i < contributionLen; i++) {
+    //     auto mcp = lcio->getParticleCont(i);
+    //     const auto it = mcparticlesMap.find(mcp);
+    //     if (it != mcparticlesMap.end()) {
+    //       edm.getContributions(i).setParticle(it->second); // This breaks
+    //     }
+    //   }
+    // }
   }
 
   void resolveRelationsCluster(
