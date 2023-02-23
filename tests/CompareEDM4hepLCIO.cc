@@ -63,20 +63,10 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::ClusterCol
 
 bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4hepElem)
 {
-  static const std::vector<int> BITno {23, 24, 25, 26, 27, 28, 29, 30, 31};
-
-  const std::vector<std::string> BITname {
-    "BITOverlay",
-    "BITStopped",
-    "BITLeftDetector",
-    "BITDecayedInCalorimeter",
-    "BITDecayedInTracker",
-    "BITVertexIsNotEndpointOfParent",
-    "BITBackscatter",
-    "BITCreatedInSimulation",
-    "BITEndpoint"};
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPDG, "PDG in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getGeneratorStatus, "generatorStatus in MCParticle");
+  // LCIO changes the SimulatorStatus during I/O, so here we have to check the
+  // individual bits  which are untouched instead of just doing one comparison for the SimulatorStatus
   ASSERT_COMPARE(lcioElem, edm4hepElem, isCreatedInSimulation, "Created in Simulation");
   ASSERT_COMPARE(lcioElem, edm4hepElem, isBackscatter, "particle is from backscatter of calorimeter shower");
   ASSERT_COMPARE(lcioElem, edm4hepElem, vertexIsNotEndpointOfParent, "checks vertex, enpoint of parent");
