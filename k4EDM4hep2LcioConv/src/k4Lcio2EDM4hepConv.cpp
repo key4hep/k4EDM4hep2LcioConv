@@ -43,6 +43,21 @@ namespace LCIO2EDM4hepConv {
     return edmtrackState;
   }
 
+  edm4hep::MutableParticleID convertParticleID(const EVENT::ParticleID* pid)
+  {
+    auto result = edm4hep::MutableParticleID {};
+    result.setType(pid->getType());
+    result.setPDG(pid->getPDG());
+    result.setAlgorithmType(pid->getAlgorithmType());
+    result.setLikelihood(pid->getLikelihood());
+
+    for (auto v : pid->getParameters()) {
+      result.addToParameters(v);
+    }
+
+    return result;
+  }
+
   std::unique_ptr<edm4hep::MCParticleCollection> convertMCParticle(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
@@ -77,12 +92,14 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::ReconstructedParticleCollection> convertReconstructedParticle(
+  std::vector<CollNamePair> convertReconstructedParticle(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap)
+    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
+    auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       const auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
@@ -104,8 +121,36 @@ namespace LCIO2EDM4hepConv {
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
       }
+
+      // Need to convert the particle IDs here, since they are part of the reco
+      // particle collection in LCIO
+      for (const auto lcioPid : rval->getParticleIDs()) {
+        auto pid = convertParticleID(lcioPid);
+        const auto [pidIt, pidInserted] = particleIDMap.emplace(lcioPid, pid);
+        if (pidInserted) {
+          lval.addToParticleIDs(pid);
+        }
+        else {
+          lval.addToParticleIDs(pidIt->second);
+        }
+      }
+
+      const auto lcioPidUsed = rval->getParticleIDUsed();
+      if (const auto it = particleIDMap.find(lcioPidUsed); it != particleIDMap.end()) {
+        lval.setParticleIDUsed(it->second);
+      }
+      else {
+        auto pid = convertParticleID(lcioPidUsed);
+        particleIDMap.emplace(lcioPidUsed, pid);
+        lval.setParticleIDUsed(pid);
+      }
     }
-    return dest;
+
+    std::vector<CollNamePair> results;
+    results.reserve(2);
+    results.emplace_back(name, std::move(dest));
+    results.emplace_back(name + "_particleIDs", std::move(particleIDs));
+    return results;
   }
 
   std::unique_ptr<edm4hep::VertexCollection> convertVertex(
@@ -423,29 +468,6 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::ParticleIDCollection> convertParticleID(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection)
-  {
-    auto dest = std::make_unique<edm4hep::ParticleIDCollection>();
-
-    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::ParticleID*>(LCCollection->getElementAt(i));
-      auto lval = dest->create();
-
-      lval.setType(rval->getType());
-      lval.setPDG(rval->getPDG());
-      lval.setAlgorithmType(rval->getAlgorithmType());
-      lval.setLikelihood(rval->getLikelihood());
-
-      for (auto v : rval->getParameters()) {
-        lval.addToParameters(v);
-      }
-    }
-
-    return dest;
-  }
-
   std::unique_ptr<edm4hep::ClusterCollection> convertCluster(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
@@ -488,7 +510,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertMCParticle(name, LCCollection, typeMapping.mcParticles));
     }
     else if (type == "ReconstructedParticle") {
-      retColls.emplace_back(name, convertReconstructedParticle(name, LCCollection, typeMapping.recoParticles));
+      return convertReconstructedParticle(name, LCCollection, typeMapping.recoParticles, typeMapping.particleIDs);
     }
     else if (type == "Vertex") {
       retColls.emplace_back(name, convertVertex(name, LCCollection, typeMapping.vertices));
@@ -519,9 +541,6 @@ namespace LCIO2EDM4hepConv {
     }
     else if (type == "TrackerHitPlane") {
       retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerHitPlanes));
-    }
-    else if (type == "ParticleID") {
-      retColls.emplace_back(name, convertParticleID(name, LCCollection));
     }
     return retColls;
   }
@@ -636,8 +655,7 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
-    const TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
+    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
@@ -689,23 +707,6 @@ namespace LCIO2EDM4hepConv {
           std::cerr << "Cannot find corresponding EDM4hep RecoParticle for a LCIO RecoParticle, "
                        "while trying to resolve the ReconstructedParticles parents Relations"
                     << std::endl;
-        }
-      }
-
-      auto particleIDUsed = lcio->getParticleIDUsed();
-      if (const auto it = particleIDMap.find(particleIDUsed); it != particleIDMap.end()) {
-        edm.setParticleIDUsed(it->second);
-      }
-      else {
-        std::cerr << "Cannot find corresponding ParticleIDUsed for a LCIO RecoParticle" << std::endl;
-      }
-
-      for (auto pid : lcio->getParticleIDs()) {
-        if (const auto it = particleIDMap.find(pid); it != particleIDMap.end()) {
-          edm.addToParticleIDs(it->second);
-        }
-        else {
-          std::cerr << "Cannot find corresponding ParticleID for a LCIO Recoparticle" << std::endl;
         }
       }
     }
@@ -845,11 +846,7 @@ namespace LCIO2EDM4hepConv {
   {
     resolveRelationsMCParticle(typeMapping.mcParticles);
     resolveRelationsRecoParticle(
-      typeMapping.recoParticles,
-      typeMapping.vertices,
-      typeMapping.clusters,
-      typeMapping.tracks,
-      typeMapping.particleIDs);
+      typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
     resolveRelationsSimTrackerHit(typeMapping.simTrackerHits, typeMapping.mcParticles);
     resolveRelationsSimCalorimeterHit(typeMapping.simCaloHits, typeMapping.mcParticles);
     resolveRelationsCluster(typeMapping.clusters, typeMapping.caloHits);
@@ -982,9 +979,6 @@ namespace LCIO2EDM4hepConv {
     }
     else if (type == "TrackerHitPlane") {
       return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, typeMapping.trackerHitPlanes);
-    }
-    else if (type == "ParticleID") {
-      return handleSubsetColl<edm4hep::ParticleIDCollection>(LCCollection, typeMapping.particleIDs);
     }
     else {
       return nullptr;

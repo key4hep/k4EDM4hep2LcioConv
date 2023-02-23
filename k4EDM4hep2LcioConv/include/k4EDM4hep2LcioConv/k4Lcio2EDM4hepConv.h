@@ -125,6 +125,17 @@ namespace LCIO2EDM4hepConv {
   edm4hep::TrackState convertTrackState(const EVENT::TrackState* trackState);
 
   /**
+   * Convert a ParticleID object.
+   *
+   * In LCIO ParticleIDs are persisted as part of the ReconstructedParticle they
+   * are attached to. There are no ParticleID collections in the event. Hence,
+   * this function converts single particle ID objects and the management of
+   * putting them into a collection and of creating the LCIO to EDM4hep mapping
+   * is done in the conversion of the ReconstructedParticles.
+   */
+  edm4hep::MutableParticleID convertPaticleID(const EVENT::ParticleID* pid);
+
+  /**
    * Convert an MCParticle collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    */
@@ -136,11 +147,16 @@ namespace LCIO2EDM4hepConv {
   /**
    * Convert a ReconstructedParticle collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
+   *
+   * NOTE: Also populates a ParticleID collection, as those are persisted as
+   * part of the ReconstructedParticles in LCIO. The name of this collection is
+   * <name>_particleIDs
    */
-  std::unique_ptr<edm4hep::ReconstructedParticleCollection> convertReconstructedParticle(
+  std::vector<CollNamePair> convertReconstructedParticle(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap);
+    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
 
   /**
    * Convert a Vertex collection and return the resulting collection.
@@ -226,14 +242,6 @@ namespace LCIO2EDM4hepConv {
     const std::string& name,
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap);
-
-  /**
-   * Convert a ParticleID collection and return the resulting collection.
-   * Simultaneously populates the mapping from LCIO to EDM4hep objects.
-   */
-  std::unique_ptr<edm4hep::ParticleIDCollection> convertParticleID(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection);
 
   /**
    * Convert a Cluster collection and return the resulting collection.
@@ -360,8 +368,7 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
-    const TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
+    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap);
 
   /**
    * Resolve the relations for SimCalorimeterHits
