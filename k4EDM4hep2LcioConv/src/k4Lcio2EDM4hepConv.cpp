@@ -129,6 +129,7 @@ namespace LCIO2EDM4hepConv {
         const auto [pidIt, pidInserted] = particleIDMap.emplace(lcioPid, pid);
         if (pidInserted) {
           lval.addToParticleIDs(pid);
+          particleIDs->push_back(pid);
         }
         else {
           lval.addToParticleIDs(pidIt->second);
@@ -144,6 +145,7 @@ namespace LCIO2EDM4hepConv {
       }
       else {
         auto pid = convertParticleID(lcioPidUsed);
+        particleIDs->push_back(pid);
         particleIDMap.emplace(lcioPidUsed, pid);
         lval.setParticleIDUsed(pid);
       }
@@ -543,7 +545,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertTrackerHit(name, LCCollection, typeMapping.trackerHits));
     }
     else if (type == "TrackerHitPlane") {
-      retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerHitPlanes));
+      retColls.emplace_back(name, convertTrackerHit(name, LCCollection, typeMapping.trackerHits));
     }
     return retColls;
   }
