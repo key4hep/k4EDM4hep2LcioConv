@@ -86,8 +86,10 @@ int main(int argc, char* argv[])
 
   std::cout << "starting Conversion" << std::endl;
   for (auto i = 0u; i < lcreader->getNumberOfEvents(); ++i) {
-    // std::cout << "processing Event: " << i << std::endl;
-
+  //for (auto i = 0u; i < 10; ++i) {
+    if (i % 100 == 0){
+      std::cout << "processing Event: " << i << std::endl;
+    }
     auto evt = lcreader->readNextEvent();
     // Patching the Event to make sure all events contain the same Collections.
     if (patching == true) {
