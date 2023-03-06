@@ -187,7 +187,7 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimTracker
 
 // ================= TPCHit ================
 
-bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::TPCHit& edm4hepElem)
+bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4hepElem)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in TPCHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in TPCHit");
@@ -196,7 +196,7 @@ bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::TPCHit& edm4hepElem)
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TPCHitCollection& edm4hepCollection)
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawTimeSeriesCollection& edm4hepCollection)
 {
   return compareCollection<EVENT::TPCHit>(lcioCollection, edm4hepCollection);
 }

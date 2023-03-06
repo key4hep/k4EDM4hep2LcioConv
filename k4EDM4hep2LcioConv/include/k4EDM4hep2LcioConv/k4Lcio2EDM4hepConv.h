@@ -20,7 +20,7 @@
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
-#include "edm4hep/TPCHitCollection.h"
+#include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
@@ -70,7 +70,7 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> caloHits {};
     TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawCaloHits {};
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit> simCaloHits {};
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit> tpcHits {};
+    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries> tpcHits {};
     TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster> clusters {};
     TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex> vertices {};
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
@@ -183,10 +183,10 @@ namespace LCIO2EDM4hepConv {
    * Convert a TPCHit collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    */
-  std::unique_ptr<edm4hep::TPCHitCollection> convertTPCHit(
+  std::unique_ptr<edm4hep::RawTimeSeriesCollection> convertTPCHit(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit>& TPCHitMap);
+    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap);
 
   /**
    * Convert a TrackerHit collection and return the resulting collection.

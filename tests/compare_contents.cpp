@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
       ASSERT_COMPARE_OR_EXIT(edm4hep::CalorimeterHitCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::RawCalorimeterHitCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::SimCalorimeterHitCollection)
-      ASSERT_COMPARE_OR_EXIT(edm4hep::TPCHitCollection)
+      ASSERT_COMPARE_OR_EXIT(edm4hep::RawTimeSeriesCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::ClusterCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::VertexCollection)
     }

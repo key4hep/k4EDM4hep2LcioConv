@@ -19,7 +19,7 @@
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
-#include "edm4hep/TPCHitCollection.h"
+#include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
@@ -77,8 +77,8 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimCalorim
 bool compare(const EVENT::SimTrackerHit* lcio, const edm4hep::SimTrackerHit& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimTrackerHitCollection& edm4hepCollection);
 
-bool compare(const EVENT::TPCHit* lcio, const edm4hep::TPCHit& edm4hep);
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TPCHitCollection& edm4hepCollection);
+bool compare(const EVENT::TPCHit* lcio, const edm4hep::RawTimeSeries& edm4hep);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawTimeSeriesCollection& edm4hepCollection);
 
 bool compare(const EVENT::TrackerHit* lcio, const edm4hep::TrackerHit& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHitCollection& edm4hepCollection);

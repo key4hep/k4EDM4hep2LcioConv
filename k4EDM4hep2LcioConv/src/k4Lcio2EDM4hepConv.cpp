@@ -223,12 +223,12 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::TPCHitCollection> convertTPCHit(
+  std::unique_ptr<edm4hep::RawTimeSeriesCollection> convertTPCHit(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit>& TPCHitMap)
+    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap)
   {
-    auto dest = std::make_unique<edm4hep::TPCHitCollection>();
+    auto dest = std::make_unique<edm4hep::RawTimeSeriesCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       const auto* rval = static_cast<EVENT::TPCHit*>(LCCollection->getElementAt(i));
@@ -239,7 +239,7 @@ namespace LCIO2EDM4hepConv {
       lval.setCharge(rval->getCharge());
       lval.setQuality(rval->getQuality());
       for (unsigned j = 0, M = rval->getNRawDataWords(); j < M; j++) {
-        lval.addToRawDataWords(rval->getRawDataWord(j));
+        lval.addToAdcCounts(rval->getRawDataWord(j));
       }
       const auto [iterator, inserted] = TPCHitMap.emplace(rval, lval);
       if (!inserted) {
@@ -774,7 +774,7 @@ namespace LCIO2EDM4hepConv {
   void resolveRelationsTrack(
     TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
     const TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap,
-    const TypeMapT<const lcio::TPCHit*, edm4hep::MutableTPCHit>& TPCHitMap,
+    const TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap,
     const TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& trackerhitplaneMap)
   {
     for (auto& [lcio, edm] : tracksMap) {
@@ -975,7 +975,7 @@ namespace LCIO2EDM4hepConv {
       return handleSubsetColl<edm4hep::SimTrackerHitCollection>(LCCollection, typeMapping.simTrackerHits);
     }
     else if (type == "TPCHit") {
-      return handleSubsetColl<edm4hep::TPCHitCollection>(LCCollection, typeMapping.tpcHits);
+      return handleSubsetColl<edm4hep::RawTimeSeriesCollection>(LCCollection, typeMapping.tpcHits);
     }
     else if (type == "TrackerHit") {
       return handleSubsetColl<edm4hep::TrackerHitCollection>(LCCollection, typeMapping.trackerHits);
