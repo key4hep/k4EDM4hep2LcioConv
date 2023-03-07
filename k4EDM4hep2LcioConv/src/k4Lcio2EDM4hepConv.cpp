@@ -651,8 +651,8 @@ namespace LCIO2EDM4hepConv {
     for (auto& [lcio, edm] : SimTrHitMap) {
       auto mcps = lcio->getMCParticle();
       if (mcps == nullptr) {
-          continue;
-        }
+        continue;
+      }
       const auto it = mcparticlesMap.find(mcps);
       if (it != mcparticlesMap.end()) {
         edm.setMCParticle(it->second);
@@ -677,8 +677,8 @@ namespace LCIO2EDM4hepConv {
 
       auto vertex = lcio->getStartVertex();
       if (vertex == nullptr) {
-          continue;
-        }
+        continue;
+      }
       if (const auto it = vertexMap.find(vertex); it != vertexMap.end()) {
         edm.setStartVertex(it->second);
       }
@@ -715,7 +715,7 @@ namespace LCIO2EDM4hepConv {
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep Tracks for a LCIO Tracks, "
-                        "while trying to resolve the ReconstructedParticle Relations"
+                       "while trying to resolve the ReconstructedParticle Relations"
                     << std::endl;
         }
       }
@@ -818,7 +818,7 @@ namespace LCIO2EDM4hepConv {
           edm.addToTracks(it->second);
         }
         else {
-          //std::cerr << "Couldn't find tracks to add to Tracks Relations in edm" << std::endl;
+          // std::cerr << "Couldn't find tracks to add to Tracks Relations in edm" << std::endl;
         }
       }
       for (auto th : trackerHits) {
@@ -869,8 +869,8 @@ namespace LCIO2EDM4hepConv {
     for (auto& [lcio, edm] : vertexMap) {
       auto recoparticle = lcio->getAssociatedParticle();
       if (recoparticle == nullptr) {
-          continue;
-        }
+        continue;
+      }
       const auto it = recoparticleMap.find(recoparticle);
       if (it != recoparticleMap.end()) {
         edm.setAssociatedParticle(it->second);

@@ -86,8 +86,8 @@ int main(int argc, char* argv[])
 
   std::cout << "starting Conversion" << std::endl;
   for (auto i = 0u; i < lcreader->getNumberOfEvents(); ++i) {
-  //for (auto i = 0u; i < 10; ++i) {
-    if (i % 100 == 0){
+    // for (auto i = 0u; i < 10; ++i) {
+    if (i % 100 == 0) {
       std::cout << "processing Event: " << i << std::endl;
     }
     auto evt = lcreader->readNextEvent();
