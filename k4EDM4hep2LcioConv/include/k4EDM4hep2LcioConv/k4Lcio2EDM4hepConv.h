@@ -353,6 +353,14 @@ namespace LCIO2EDM4hepConv {
   }
 
   /**
+  * Creates the CaloHitContributions for all SimCaloHits.
+  * has to be done this way, since the converted McParticles are needeed.
+  */
+ std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
+    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
+    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
+  
+  /**
    * Resolve the relations for the MCParticles.
    */
   void resolveRelationsMCParticle(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
@@ -372,15 +380,6 @@ namespace LCIO2EDM4hepConv {
     const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
     const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap);
-
-  /**
-   * Resolve the relations for SimCalorimeterHits
-   *
-   * TODO: Handle the Contributions correctly
-   */
-  void resolveRelationsSimCalorimeterHit(
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
 
   /**
    * Resolve the relations for Clusters
