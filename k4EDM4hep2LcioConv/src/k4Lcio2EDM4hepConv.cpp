@@ -539,41 +539,40 @@ namespace LCIO2EDM4hepConv {
 
   std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap){
+    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
-    auto contrCollection = std::make_unique<edm4hep::CaloHitContributionCollection>();
-    for (auto& [lcioHit,edmHit] : SimCaloHitMap) {
+    {
+      auto contrCollection = std::make_unique<edm4hep::CaloHitContributionCollection>();
+      for (auto& [lcioHit, edmHit] : SimCaloHitMap) {
 
-      auto NMCParticle = lcioHit->getNMCParticles();
-      for (unsigned j = 0; j < NMCParticle; j++) {
-        auto edm_contr = contrCollection->create();
+        auto NMCParticle = lcioHit->getNMCParticles();
+        for (unsigned j = 0; j < NMCParticle; j++) {
+          auto edm_contr = contrCollection->create();
 
-        edm_contr.setPDG(lcioHit->getPDGCont(j));
-        edm_contr.setTime(lcioHit->getTimeCont(j));
-        edm_contr.setEnergy(lcioHit->getEnergyCont(j));
-        edm_contr.setStepPosition(lcioHit->getStepPosition(j));
-        auto lcioParticle = (lcioHit -> getParticleCont(j));
-        if (lcioParticle == nullptr){
-          edm_contr.setParticle(nullptr);
-        }
-        else{
-          const auto it = mcparticlesMap.find(lcioParticle);
-          if (it != mcparticlesMap.end()) {
-            edm_contr.setParticle(it->second);
+          edm_contr.setPDG(lcioHit->getPDGCont(j));
+          edm_contr.setTime(lcioHit->getTimeCont(j));
+          edm_contr.setEnergy(lcioHit->getEnergyCont(j));
+          edm_contr.setStepPosition(lcioHit->getStepPosition(j));
+          auto lcioParticle = (lcioHit->getParticleCont(j));
+          if (lcioParticle == nullptr) {
+            edm_contr.setParticle(nullptr);
           }
           else {
-            std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "
-                       "while trying to resolve the parents of MCParticles Collections"
-                    << std::endl;
+            const auto it = mcparticlesMap.find(lcioParticle);
+            if (it != mcparticlesMap.end()) {
+              edm_contr.setParticle(it->second);
+            }
+            else {
+              std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "
+                           "while trying to resolve the parents of MCParticles Collections"
+                        << std::endl;
+            }
           }
+          edmHit.addToContributions(edm_contr);
         }
-        edmHit.addToContributions(edm_contr);
       }
+      return contrCollection;
     }
-    return contrCollection;
-  }
-
-
   }
 
   podio::Frame convertEvent(EVENT::LCEvent* evt)
@@ -615,13 +614,13 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling all the OneToMany and OnToOne Relations and creating the AssociationCollections.
-    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits,typeMapping.mcParticles);
+    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
 
     podio::Frame event;
     // Now everything is done and we simply populate a Frame
-    event.put(std::move(calocontr),"CaloHitContribution");
+    event.put(std::move(calocontr), "CaloHitContribution");
     for (auto& [name, coll] : edmevent) {
       event.put(std::move(coll), name);
     }
@@ -631,8 +630,6 @@ namespace LCIO2EDM4hepConv {
     return event;
   }
 
- 
- 
   void resolveRelationsMCParticle(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
     int edmnum = 1;

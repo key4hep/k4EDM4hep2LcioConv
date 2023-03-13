@@ -353,13 +353,13 @@ namespace LCIO2EDM4hepConv {
   }
 
   /**
-  * Creates the CaloHitContributions for all SimCaloHits.
-  * has to be done this way, since the converted McParticles are needeed.
-  */
- std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
+   * Creates the CaloHitContributions for all SimCaloHits.
+   * has to be done this way, since the converted McParticles are needeed.
+   */
+  std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
     const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
-  
+
   /**
    * Resolve the relations for the MCParticles.
    */
