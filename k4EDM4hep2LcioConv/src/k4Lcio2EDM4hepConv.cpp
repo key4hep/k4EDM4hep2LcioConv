@@ -375,7 +375,6 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap)
   {
     auto dest = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
-    auto contr = std::make_unique<edm4hep::CaloHitContributionCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       const auto* rval = static_cast<EVENT::SimCalorimeterHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
@@ -386,17 +385,6 @@ namespace LCIO2EDM4hepConv {
       lval.setEnergy(rval->getEnergy());
       lval.setPosition(rval->getPosition());
 
-      auto NMCParticle = rval->getNMCParticles();
-      for (unsigned j = 0; j < NMCParticle; j++) {
-        auto edm_contr = contr->create();
-
-        edm_contr.setPDG(rval->getPDGCont(j));
-        edm_contr.setTime(rval->getTimeCont(j));
-        edm_contr.setEnergy(rval->getEnergyCont(j));
-        edm_contr.setStepPosition(rval->getStepPosition(j));
-
-        lval.addToContributions(edm_contr);
-      }
       const auto [iterator, inserted] = SimCaloHitMap.emplace(rval, lval);
       if (!inserted) {
         auto existing = iterator->second;
@@ -408,7 +396,6 @@ namespace LCIO2EDM4hepConv {
 
     std::vector<CollNamePair> results;
     results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_contribution", std::move(contr));
 
     return results;
   }
@@ -550,7 +537,7 @@ namespace LCIO2EDM4hepConv {
     return retColls;
   }
 
-  std::unique_ptr<edm4hep::CaloHitContributionCollection> create_calo_contrColl(
+  std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
     const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap){
   {
@@ -628,7 +615,7 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling all the OneToMany and OnToOne Relations and creating the AssociationCollections.
-    auto calocontr = create_calo_contrColl(typeMapping.simCaloHits,typeMapping.mcParticles);
+    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits,typeMapping.mcParticles);
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
 
@@ -781,26 +768,6 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelationsSimCalorimeterHit(
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
-  {
-    // TODO: Currently not doing anything here because we cannot get a mutable
-    // CaloHitContribution from the SimCalorimeterHit via the podio generated
-    // interface. The underlying issue is https://github.com/AIDASoft/podio/issues/347
-
-    // for (auto& [lcio, edm] : SimCaloHitMap) {
-    //   auto contributionLen = lcio->getNMCParticles();
-    //   for (auto i = 0; i < contributionLen; i++) {
-    //     auto mcp = lcio->getParticleCont(i);
-    //     const auto it = mcparticlesMap.find(mcp);
-    //     if (it != mcparticlesMap.end()) {
-    //       edm.getContributions(i).setParticle(it->second); // This breaks
-    //     }
-    //   }
-    // }
-  }
-
   void resolveRelationsCluster(
     TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
     const TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
@@ -931,7 +898,6 @@ namespace LCIO2EDM4hepConv {
     resolveRelationsRecoParticle(
       typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
     resolveRelationsSimTrackerHit(typeMapping.simTrackerHits, typeMapping.mcParticles);
-    resolveRelationsSimCalorimeterHit(typeMapping.simCaloHits, typeMapping.mcParticles);
     resolveRelationsCluster(typeMapping.clusters, typeMapping.caloHits);
     resolveRelationsTrack(
       typeMapping.tracks, typeMapping.trackerHits, typeMapping.tpcHits, typeMapping.trackerHitPlanes);
