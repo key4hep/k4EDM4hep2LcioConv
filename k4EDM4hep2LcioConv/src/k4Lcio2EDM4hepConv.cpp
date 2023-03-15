@@ -585,7 +585,7 @@ namespace LCIO2EDM4hepConv {
     for (const auto& lcioname : *lcnames) {
       const auto& lcioColl = evt->getCollection(lcioname);
       const auto& lciotype = lcioColl->getTypeName();
-      if (lciotype == "LCRelations") {
+      if (lciotype == "LCRelation") {
         LCRelations.push_back(std::make_pair(lcioname, lcioColl));
         // We handle Relations (aka Associations) once we have converted all the
         // data parts.
