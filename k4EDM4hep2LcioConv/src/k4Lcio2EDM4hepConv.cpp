@@ -564,7 +564,7 @@ namespace LCIO2EDM4hepConv {
             }
             else {
               std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "
-                           "while trying to resolve the parents of MCParticles Collections"
+                           "while trying to build CaloHitContributions "
                         << std::endl;
             }
           }
@@ -614,13 +614,15 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling all the OneToMany and OnToOne Relations and creating the AssociationCollections.
-    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
+    
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
+    // creating the CaloHitContributions to fill them into the Frame
+    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
 
     podio::Frame event;
     // Now everything is done and we simply populate a Frame
-    event.put(std::move(calocontr), "CaloHitContribution");
+    event.put(std::move(calocontr), "combinedCaloHitContribution");
     for (auto& [name, coll] : edmevent) {
       event.put(std::move(coll), name);
     }
