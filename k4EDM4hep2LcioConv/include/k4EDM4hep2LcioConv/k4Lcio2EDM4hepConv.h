@@ -218,10 +218,6 @@ namespace LCIO2EDM4hepConv {
   /**
    * Convert a SimCalorimeterHit collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
-   *
-   * NOTE: Returns two collections, since the contributions are a separate
-   * CaloHitContributions are a separate collection in EDM4hep. The name for the
-   * contributions is simply <name>_contributions
    */
   std::vector<CollNamePair> convertSimCalorimeterHit(
     const std::string& name,
