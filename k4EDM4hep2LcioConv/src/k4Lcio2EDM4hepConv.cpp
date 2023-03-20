@@ -369,7 +369,7 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::vector<CollNamePair> convertSimCalorimeterHit(
+  std::unique_ptr<edm4hep::SimCalorimeterHitCollection> convertSimCalorimeterHit(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap)
@@ -394,10 +394,7 @@ namespace LCIO2EDM4hepConv {
       }
     }
 
-    std::vector<CollNamePair> results;
-    results.emplace_back(name, std::move(dest));
-
-    return results;
+    return dest;
   }
 
   std::unique_ptr<edm4hep::RawCalorimeterHitCollection> convertRawCalorimeterHit(
@@ -514,7 +511,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertCluster(name, LCCollection, typeMapping.clusters));
     }
     else if (type == "SimCalorimeterHit") {
-      return convertSimCalorimeterHit(name, LCCollection, typeMapping.simCaloHits);
+      retColls.emplace_back(name, convertSimCalorimeterHit(name, LCCollection, typeMapping.simCaloHits));
     }
     else if (type == "RawCalorimeterHit") {
       retColls.emplace_back(name, convertRawCalorimeterHit(name, LCCollection, typeMapping.rawCaloHits));
@@ -614,7 +611,6 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling all the OneToMany and OnToOne Relations and creating the AssociationCollections.
-    
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
     // creating the CaloHitContributions to fill them into the Frame

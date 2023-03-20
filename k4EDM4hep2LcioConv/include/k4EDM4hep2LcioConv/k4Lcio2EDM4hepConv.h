@@ -219,7 +219,7 @@ namespace LCIO2EDM4hepConv {
    * Convert a SimCalorimeterHit collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    */
-  std::vector<CollNamePair> convertSimCalorimeterHit(
+  std::unique_ptr<edm4hep::SimCalorimeterHitCollection> convertSimCalorimeterHit(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap);
@@ -351,6 +351,7 @@ namespace LCIO2EDM4hepConv {
   /**
    * Creates the CaloHitContributions for all SimCaloHits.
    * has to be done this way, since the converted McParticles are needeed.
+   * The contributions are also attached to their corresponding SimCalorimeterHits.
    */
   std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
     TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
