@@ -543,6 +543,7 @@ namespace LCIO2EDM4hepConv {
       auto NMCParticle = lcioHit->getNMCParticles();
       for (unsigned j = 0; j < NMCParticle; j++) {
         auto edm_contr = contrCollection->create();
+        edmHit.addToContributions(edm_contr);
 
         edm_contr.setPDG(lcioHit->getPDGCont(j));
         edm_contr.setTime(lcioHit->getTimeCont(j));
@@ -559,8 +560,6 @@ namespace LCIO2EDM4hepConv {
                       << "while trying to build CaloHitContributions " << std::endl;
           }
         }
-
-        edmHit.addToContributions(edm_contr);
       }
     }
     return contrCollection;
@@ -612,7 +611,7 @@ namespace LCIO2EDM4hepConv {
 
     podio::Frame event;
     // Now everything is done and we simply populate a Frame
-    event.put(std::move(calocontr), "combinedCaloHitContribution");
+    event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
     for (auto& [name, coll] : edmevent) {
       event.put(std::move(coll), name);
     }
