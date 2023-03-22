@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   // collection with the same name exists in the edm file.
   std::cout << "number of Events" << edmreader.getEntries("events") << std::endl;
   for (size_t n = 0; n < edmreader.getEntries("events"); ++n) {
-    if (n % 1000 == 0) {
+    if (n % 10 == 0) {
       std::cout << "Event number: " << n << std::endl;
     }
 
@@ -46,6 +46,15 @@ int main(int argc, char* argv[])
       const auto lcioColl = lcEvent->getCollection(name);
       // TODO: The Frame needs to improve here in order to get to the type
       // without retrieving the collection
+      if (lcioColl->getTypeName() == "LCRelation"){
+
+        const auto& params = lcioColl->getParameters();
+        const auto& fromType = params.getStringVal("FromType");
+        if (fromType.length() == 0){
+          //std::cout<<"WARNING: LCRelations "<< name <<" has no 'to' or 'from' set!"<< std::endl;
+          continue;
+       }
+      }
       const auto& type = [&edmEvent, &name]() {
         const auto coll = edmEvent.get(name);
         if (coll) {
@@ -63,6 +72,7 @@ int main(int argc, char* argv[])
       ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::TrackCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::TrackerHitCollection)
+      ASSERT_COMPARE_OR_EXIT(edm4hep::TrackerHitPlaneCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::SimTrackerHitCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::CalorimeterHitCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::RawCalorimeterHitCollection)
