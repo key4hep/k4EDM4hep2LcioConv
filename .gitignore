@@ -35,3 +35,6 @@ install*
 
 # CMake generated
 Testing
+
+# Tooling
+.vscode
