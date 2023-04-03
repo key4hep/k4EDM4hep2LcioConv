@@ -252,6 +252,13 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap);
 
   /**
+  * Create an EventHeaderCollection and fills it with the Metadata.
+  */
+
+  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt);
+  
+  
+  /**
    * Helper function to create a subset collection from an existing (LCIO)
    * subset collection. Needs the object mapping as input to resolve to the
    * correct EDM4hep object for a given LCIO object.

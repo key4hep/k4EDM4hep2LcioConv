@@ -564,6 +564,17 @@ namespace LCIO2EDM4hepConv {
     }
     return contrCollection;
   }
+  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt){
+    auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header = headerColl -> create();
+
+    header.setEventNumber(evt->getEventNumber());
+    header.setRunNumber(evt->getRunNumber());
+    header.setTimeStamp(evt->getTimeStamp());
+    header.setWeight(evt->getWeight());
+    return headerColl;
+  }
+
 
   podio::Frame convertEvent(EVENT::LCEvent* evt)
   {
@@ -608,10 +619,11 @@ namespace LCIO2EDM4hepConv {
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
     // creating the CaloHitContributions to fill them into the Frame
     auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
-
+    auto headerColl = createEventHeader(evt);
     podio::Frame event;
     // Now everything is done and we simply populate a Frame
     event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
+    event.put(std::move(headerColl), "EventHeader");
     for (auto& [name, coll] : edmevent) {
       event.put(std::move(coll), name);
     }
