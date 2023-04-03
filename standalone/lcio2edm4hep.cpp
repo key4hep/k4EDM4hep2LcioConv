@@ -94,9 +94,7 @@ int main(int argc, char* argv[])
     std::cout<<"read Event"<<std::endl;
     // Patching the Event to make sure all events contain the same Collections.
     if (patching == true) {
-      std::cout<<"starting to patch"<<std::endl;
       colPatcher.patchCollections(evt);
-      std::cout<<"patched"<<std::endl;
     }
     const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt);
     writer.writeFrame(edmEvent, "events");
