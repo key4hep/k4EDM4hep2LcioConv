@@ -288,3 +288,15 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::VertexColl
 {
   return compareCollection<EVENT::Vertex>(lcioCollection, edm4hepCollection);
 }
+
+bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent){
+
+  const auto& edmEventHeader = edmEvent->get<edm4hep::EventHeaderCollection>("EventHeader")[0];
+
+  ASSERT_COMPARE(lcevt,edmEventHeader,getEventNumber, "Event Number is not the same");
+  ASSERT_COMPARE(lcevt,edmEventHeader,getRunNumber, "Run Number is not the same");
+  ASSERT_COMPARE(lcevt,edmEventHeader,getTimeStamp, "TimeStamp in EventHeader is not the same");
+  ASSERT_COMPARE(lcevt,edmEventHeader,getWeight, "Weight in EventHeader is not the same");
+  
+  return true;
+}

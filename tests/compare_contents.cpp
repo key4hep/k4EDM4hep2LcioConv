@@ -18,6 +18,7 @@
 
 constexpr auto usageMsg = R"(usage: compare-contents lciofile edm4hepfile)";
 
+
 int main(int argc, char* argv[])
 {
   if (argc != 3) {
@@ -41,6 +42,10 @@ int main(int argc, char* argv[])
 
     auto lcEvent = lcreader->readNextEvent();
     auto edmEvent = podio::Frame(edmreader.readNextEntry("events"));
+
+    if (!compareEventHeader(lcEvent,&edmEvent)){
+      return 1;
+    }
 
     for (const auto& name : *(lcEvent->getCollectionNames())) {
       const auto lcioColl = lcEvent->getCollection(name);

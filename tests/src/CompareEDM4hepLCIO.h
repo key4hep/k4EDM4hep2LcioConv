@@ -24,6 +24,7 @@
 #include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include "podio/Frame.h"
 
 #include <EVENT/CalorimeterHit.h>
 #include <EVENT/Cluster.h>
@@ -43,6 +44,8 @@
 #include <EVENT/TrackerHitPlane.h>
 #include <EVENT/Vertex.h>
 #include <lcio.h>
+
+
 
 // bool compare(const EVENT::CaloHitContribution *lcio,
 //             const edm4hep::CaloHitContribution &edm4hep);
@@ -92,4 +95,5 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackColle
 bool compare(const EVENT::Vertex* lcio, const edm4hep::Vertex& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::VertexCollection& edm4hepCollection);
 
+bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent);
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H

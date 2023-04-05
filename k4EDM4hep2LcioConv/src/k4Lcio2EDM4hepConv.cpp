@@ -568,7 +568,7 @@ namespace LCIO2EDM4hepConv {
     auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
     auto header = headerColl -> create();
 
-    header.setEventNumber(evt->getEventNumber());
+    header.setEventNumber(evt->getEventNumber()+1);
     header.setRunNumber(evt->getRunNumber());
     header.setTimeStamp(evt->getTimeStamp());
     header.setWeight(evt->getWeight());
