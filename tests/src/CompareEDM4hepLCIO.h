@@ -45,8 +45,6 @@
 #include <EVENT/Vertex.h>
 #include <lcio.h>
 
-
-
 // bool compare(const EVENT::CaloHitContribution *lcio,
 //             const edm4hep::CaloHitContribution &edm4hep);
 // bool compare(const lcio::LCCollection *lcioCollection,

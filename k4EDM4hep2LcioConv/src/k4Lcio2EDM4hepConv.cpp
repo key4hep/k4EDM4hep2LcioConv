@@ -564,17 +564,17 @@ namespace LCIO2EDM4hepConv {
     }
     return contrCollection;
   }
-  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt){
+  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt)
+  {
     auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
-    auto header = headerColl -> create();
+    auto header = headerColl->create();
 
-    header.setEventNumber(evt->getEventNumber()+1);
+    header.setEventNumber(evt->getEventNumber() + 1);
     header.setRunNumber(evt->getRunNumber());
     header.setTimeStamp(evt->getTimeStamp());
     header.setWeight(evt->getWeight());
     return headerColl;
   }
-
 
   podio::Frame convertEvent(EVENT::LCEvent* evt)
   {

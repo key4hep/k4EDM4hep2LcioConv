@@ -18,7 +18,6 @@
 
 constexpr auto usageMsg = R"(usage: compare-contents lciofile edm4hepfile)";
 
-
 int main(int argc, char* argv[])
 {
   if (argc != 3) {
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
     auto lcEvent = lcreader->readNextEvent();
     auto edmEvent = podio::Frame(edmreader.readNextEntry("events"));
 
-    if (!compareEventHeader(lcEvent,&edmEvent)){
+    if (!compareEventHeader(lcEvent, &edmEvent)) {
       return 1;
     }
 
@@ -51,14 +50,14 @@ int main(int argc, char* argv[])
       const auto lcioColl = lcEvent->getCollection(name);
       // TODO: The Frame needs to improve here in order to get to the type
       // without retrieving the collection
-      if (lcioColl->getTypeName() == "LCRelation"){
+      if (lcioColl->getTypeName() == "LCRelation") {
 
         const auto& params = lcioColl->getParameters();
         const auto& fromType = params.getStringVal("FromType");
-        if (fromType.length() == 0){
-          //std::cout<<"WARNING: LCRelations "<< name <<" has no 'to' or 'from' set!"<< std::endl;
+        if (fromType.length() == 0) {
+          // std::cout<<"WARNING: LCRelations "<< name <<" has no 'to' or 'from' set!"<< std::endl;
           continue;
-       }
+        }
       }
       const auto& type = [&edmEvent, &name]() {
         const auto coll = edmEvent.get(name);

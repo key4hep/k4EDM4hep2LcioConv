@@ -61,25 +61,26 @@ bool operator!=(const std::vector<T>& vec, const std::array<T, N>& arr)
 }
 
 template<typename T, typename U>
-bool nanSafeComp(T x,U y){
+bool nanSafeComp(T x, U y)
+{
   return (x == y) || (std::isnan(x) && std::isnan(y));
 }
 
 // Macro for defining the comparison operators for edm4hep::Vector3X and
 // different return types (X* or vector<X> from LCIO)
-#define VECTOR3_COMPARE(FT, VT)                                             \
-  bool operator==(const FT* vals, const VT& vec)                            \
-  {                                                                         \
-    return nanSafeComp(vals[0],vec[0]) && nanSafeComp(vals[1],vec[1]) && nanSafeComp(vals[2],vec[2]); \
-  }                                                                         \
-  bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); } \
-  bool operator==(const std::vector<FT>& vals, const VT& vec)               \
-  {                                                                         \
-    if (vals.size() != 3) {                                                 \
-      return false;                                                         \
-    }                                                                       \
-    return vals.data() == vec;                                              \
-  }                                                                         \
+#define VECTOR3_COMPARE(FT, VT)                                                                          \
+  bool operator==(const FT* vals, const VT& vec)                                                         \
+  {                                                                                                      \
+    return nanSafeComp(vals[0], vec[0]) && nanSafeComp(vals[1], vec[1]) && nanSafeComp(vals[2], vec[2]); \
+  }                                                                                                      \
+  bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); }                              \
+  bool operator==(const std::vector<FT>& vals, const VT& vec)                                            \
+  {                                                                                                      \
+    if (vals.size() != 3) {                                                                              \
+      return false;                                                                                      \
+    }                                                                                                    \
+    return vals.data() == vec;                                                                           \
+  }                                                                                                      \
   bool operator!=(const std::vector<FT>& vals, const VT& vec) { return !(vals == vec); }
 
 VECTOR3_COMPARE(float, edm4hep::Vector3f)
