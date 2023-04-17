@@ -914,7 +914,6 @@ namespace LCIO2EDM4hepConv {
       const auto& fromType = params.getStringVal("FromType");
       const auto& toType = params.getStringVal("ToType");
       if (fromType.empty() or toType.empty()){
-        //std::cout << "From type or to type is not set in relation "<< name <<", while converting LCRelations" << std::endl;
         continue;
       }
 

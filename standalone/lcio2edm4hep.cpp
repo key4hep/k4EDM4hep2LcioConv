@@ -105,23 +105,18 @@ int main(int argc, char* argv[])
 
   podio::ROOTFrameWriter writer(outputFile);
 
-  //std::cout << "starting Conversion" << std::endl;
   for (auto i = 0u; i < lcreader->getNumberOfEvents(); ++i) {
-    // for (auto i = 0u; i < 4; ++i) {
     if (i % 10 == 0) {
       std::cout << "processing Event: " << i << std::endl;
     }
     auto evt = lcreader->readNextEvent();
-    //std::cout << "read Event" << std::endl;
     // Patching the Event to make sure all events contain the same Collections.
-    try {//std::cout<<"EcalEndcapRingRelationsSimRec before patching: "<< evt->getCollection("EcalEndcapRingRelationsSimRec")<<std::endl;
+    try {
     }
     catch(...){std::cout<<"EcalEndcapRingRelationsSimRec is not present"<<std::endl;}
     if (patching == true) {
-      //std::cout << "is indeed trying to patch" << std::endl;
       colPatcher.patchCollections(evt);
     }
-    //std::cout<<"EcalEndcapRingRelationsSimRec after patching: "<< evt->getCollection("EcalEndcapRingRelationsSimRec")<<std::endl;
     const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt);
     writer.writeFrame(edmEvent, "events");
   }
