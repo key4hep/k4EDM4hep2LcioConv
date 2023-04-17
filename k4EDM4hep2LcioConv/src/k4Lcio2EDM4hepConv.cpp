@@ -914,7 +914,9 @@ namespace LCIO2EDM4hepConv {
 
       const auto& fromType = params.getStringVal("FromType");
       const auto& toType = params.getStringVal("ToType");
-      if (fromType.empty() or toType.empty()) {
+      if (fromType.empty() || toType.empty()) {
+        std::cerr << "LCRelation collection has missing FromType or ToType parameters. "
+                  << "Cannot convert it without this information." << std::endl;
         continue;
       }
 
