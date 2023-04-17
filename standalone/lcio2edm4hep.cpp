@@ -21,29 +21,6 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
     std::cerr << "Failed to open file countaining the names and types of the LCIO Collections." << std::endl;
   }
   std::string line;
-  /**
-  while (std::getline(input_file, line)) {
-    size_t delimiter_pos = line.find(' ');
-    if (delimiter_pos == std::string::npos) {
-      std::cerr << "Invalid input format" << std::endl;
-      input_file.close();
-      return {};
-    }
-    std::string name = line.substr(0, delimiter_pos);
-    std::string type_space = line.substr(delimiter_pos + 1);
-    int first_letter;
-    for (auto elem :line.substr(delimiter_pos + 1)){
-      if (elem == ' '){ 
-        first_letter ++;
-      }
-      else{
-        continue;
-      }
-    }
-    std::string type line.substr(first_letter+delimiter_pos);
-    names_types.emplace_back(name, type);
-  }
-  */
   while(std::getline(input_file, line)) {
   std::stringstream sline(std::move(line));
   std::string name, type;
