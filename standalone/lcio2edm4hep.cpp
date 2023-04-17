@@ -30,8 +30,6 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
     }
     names_types.emplace_back(std::move(name), std::move(type));
   }
-  names_types.emplace_back(std::move(name), std::move(type));
-} 
 
   input_file.close();
 
