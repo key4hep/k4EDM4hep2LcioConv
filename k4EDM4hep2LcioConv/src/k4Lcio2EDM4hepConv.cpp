@@ -564,7 +564,8 @@ namespace LCIO2EDM4hepConv {
     }
     return contrCollection;
   }
-  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt){
+  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt)
+  {
     auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
     auto header = headerColl->create();
 
@@ -913,7 +914,7 @@ namespace LCIO2EDM4hepConv {
 
       const auto& fromType = params.getStringVal("FromType");
       const auto& toType = params.getStringVal("ToType");
-      if (fromType.empty() or toType.empty()){
+      if (fromType.empty() or toType.empty()) {
         continue;
       }
 
@@ -988,9 +989,9 @@ namespace LCIO2EDM4hepConv {
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
       else {
-        std::cout << "Relation from: "<<fromType<<" to: " <<toType<<" is not beeing handled during creation of associations" << std::endl;
+        std::cout << "Relation from: " << fromType << " to: " << toType
+                  << " is not beeing handled during creation of associations" << std::endl;
       }
-
     }
 
     return assoCollVec;

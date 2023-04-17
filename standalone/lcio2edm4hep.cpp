@@ -21,15 +21,15 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
     std::cerr << "Failed to open file countaining the names and types of the LCIO Collections." << std::endl;
   }
   std::string line;
-  while(std::getline(input_file, line)) {
-  std::stringstream sline(std::move(line));
-  std::string name, type;
-  if (!(sline >> name >> type && sline.eof())) {
-    std::cerr << "need a name and a type per line" << std::endl;
-    return{};
+  while (std::getline(input_file, line)) {
+    std::stringstream sline(std::move(line));
+    std::string name, type;
+    if (!(sline >> name >> type && sline.eof())) {
+      std::cerr << "need a name and a type per line" << std::endl;
+      return {};
+    }
+    names_types.emplace_back(std::move(name), std::move(type));
   }
-  names_types.emplace_back(std::move(name), std::move(type));
-} 
 
   input_file.close();
 
