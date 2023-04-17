@@ -88,9 +88,6 @@ int main(int argc, char* argv[])
     }
     auto evt = lcreader->readNextEvent();
     // Patching the Event to make sure all events contain the same Collections.
-    try {
-    }
-    catch(...){std::cout<<"EcalEndcapRingRelationsSimRec is not present"<<std::endl;}
     if (patching == true) {
       colPatcher.patchCollections(evt);
     }
