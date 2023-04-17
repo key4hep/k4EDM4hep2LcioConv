@@ -21,6 +21,7 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
     std::cerr << "Failed to open file countaining the names and types of the LCIO Collections." << std::endl;
   }
   std::string line;
+  /**
   while (std::getline(input_file, line)) {
     size_t delimiter_pos = line.find(' ');
     if (delimiter_pos == std::string::npos) {
@@ -29,9 +30,29 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
       return {};
     }
     std::string name = line.substr(0, delimiter_pos);
-    std::string type = line.substr(delimiter_pos + 1);
+    std::string type_space = line.substr(delimiter_pos + 1);
+    int first_letter;
+    for (auto elem :line.substr(delimiter_pos + 1)){
+      if (elem == ' '){ 
+        first_letter ++;
+      }
+      else{
+        continue;
+      }
+    }
+    std::string type line.substr(first_letter+delimiter_pos);
     names_types.emplace_back(name, type);
   }
+  */
+  while(std::getline(input_file, line)) {
+  std::stringstream sline(std::move(line));
+  std::string name, type;
+  if (!(sline >> name >> type && sline.eof())) {
+    std::cerr << "need a name and a type per line" << std::endl;
+    return{};
+  }
+  names_types.emplace_back(name, type);
+} 
 
   input_file.close();
 
@@ -84,18 +105,23 @@ int main(int argc, char* argv[])
 
   podio::ROOTFrameWriter writer(outputFile);
 
-  std::cout << "starting Conversion" << std::endl;
+  //std::cout << "starting Conversion" << std::endl;
   for (auto i = 0u; i < lcreader->getNumberOfEvents(); ++i) {
     // for (auto i = 0u; i < 4; ++i) {
     if (i % 10 == 0) {
       std::cout << "processing Event: " << i << std::endl;
     }
     auto evt = lcreader->readNextEvent();
-    std::cout << "read Event" << std::endl;
+    //std::cout << "read Event" << std::endl;
     // Patching the Event to make sure all events contain the same Collections.
+    try {//std::cout<<"EcalEndcapRingRelationsSimRec before patching: "<< evt->getCollection("EcalEndcapRingRelationsSimRec")<<std::endl;
+    }
+    catch(...){std::cout<<"EcalEndcapRingRelationsSimRec is not present"<<std::endl;}
     if (patching == true) {
+      //std::cout << "is indeed trying to patch" << std::endl;
       colPatcher.patchCollections(evt);
     }
+    //std::cout<<"EcalEndcapRingRelationsSimRec after patching: "<< evt->getCollection("EcalEndcapRingRelationsSimRec")<<std::endl;
     const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt);
     writer.writeFrame(edmEvent, "events");
   }

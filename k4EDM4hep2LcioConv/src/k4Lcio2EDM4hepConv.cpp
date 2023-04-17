@@ -564,12 +564,11 @@ namespace LCIO2EDM4hepConv {
     }
     return contrCollection;
   }
-  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt)
-  {
+  std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent* evt){
     auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
     auto header = headerColl->create();
 
-    header.setEventNumber(evt->getEventNumber() + 1);
+    header.setEventNumber(evt->getEventNumber());
     header.setRunNumber(evt->getRunNumber());
     header.setTimeStamp(evt->getTimeStamp());
     header.setWeight(evt->getWeight());
@@ -914,6 +913,10 @@ namespace LCIO2EDM4hepConv {
 
       const auto& fromType = params.getStringVal("FromType");
       const auto& toType = params.getStringVal("ToType");
+      if (fromType.empty() or toType.empty()){
+        //std::cout << "From type or to type is not set in relation "<< name <<", while converting LCRelations" << std::endl;
+        continue;
+      }
 
       if (fromType == "MCParticle" && toType == "ReconstructedParticle") {
         auto mc_a = createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection, false>(
@@ -980,11 +983,15 @@ namespace LCIO2EDM4hepConv {
           relations, typeMapping.recoParticles, typeMapping.vertices);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
-      else if (fromType == "Vertex" && toType == "reconstructedparticle") {
+      else if (fromType == "Vertex" && toType == "ReconstructedParticle") {
         auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, false>(
           relations, typeMapping.vertices, typeMapping.recoParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
+      else {
+        std::cout << "Relation from: "<<fromType<<" to: " <<toType<<" is not beeing handled during creation of associations" << std::endl;
+      }
+
     }
 
     return assoCollVec;
