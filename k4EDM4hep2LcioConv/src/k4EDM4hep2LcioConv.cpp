@@ -699,6 +699,21 @@ lcio::LCCollectionVec* convMCParticles(
   return mcparticles;
 }
 
+std::tuple<int, int, EVENT::long64, double> convEventHeader(const edm4hep::EventHeaderCollection* const header_coll)
+{
+  const auto& event_n = header_coll->eventNumber();
+  const auto& run_n = header_coll->runNumber();
+  const auto& timestamp = header_coll->timeStamp();
+  const auto& event_weight = header_coll->weight();
+
+  // the collection returns vectors but they should be of length 1
+  if (event_n.size() != 1 || run_n.size() != 1 || timestamp.size() != 1 || event_weight.size() != 1) {
+    // TODO: somehow warn about this?
+    return std::make_tuple(0, 0, 0, 0);
+  }
+  return std::make_tuple(event_n[0], run_n[0], timestamp[0], event_weight[0]);
+}
+
 // Depending on the order of the collections in the parameters,
 // and for the mutual dependencies between some collections,
 // go over the possible missing associated collections and fill them.
