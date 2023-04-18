@@ -140,7 +140,7 @@ lcio::LCCollectionVec* convMCParticles(
   const edm4hep::MCParticleCollection* const mcparticle_coll,
   vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mc_particles_vec);
 
-std::tuple<int, int, EVENT::long64, double> convEventHeader(const edm4hep::EventHeaderCollection* const header_coll);
+void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
 
 void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
