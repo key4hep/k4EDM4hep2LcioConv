@@ -1,3 +1,14 @@
+# v00-04
+
+* 2023-03-02 jmcarcell ([PR#8](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/8))
+  - Rename TPCHit -> RawTimeSeries
+
+* 2023-02-22 Thomas Madlener ([PR#9](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/9))
+  - Fix the pre-commit workflow and update it to run using a newer LCG release
+
+* 2023-02-22 Finn Johannsen ([PR#4](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/4))
+  - Fix the setting of the Track Type in the Tracks Collection in LCIO. It is now set bit wise as required by LCIO
+
 # v00-03
 
 * 2022-11-30 Andre Sailer ([PR#7](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/7))
