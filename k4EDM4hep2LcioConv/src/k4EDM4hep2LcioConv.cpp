@@ -702,6 +702,10 @@ lcio::LCCollectionVec* convMCParticles(
 // The EventHeaderCollection should be of length 1
 void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
 {
+  if (header_coll->size() != 1) {
+    return;
+  }
+
   const auto& header = header_coll->at(0);
   lcio_event->setEventNumber(header.getEventNumber());
   lcio_event->setRunNumber(header.getRunNumber());
