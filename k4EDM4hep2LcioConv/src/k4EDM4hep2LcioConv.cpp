@@ -699,6 +699,20 @@ lcio::LCCollectionVec* convMCParticles(
   return mcparticles;
 }
 
+// The EventHeaderCollection should be of length 1
+void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
+{
+  if (header_coll->size() != 1) {
+    return;
+  }
+
+  const auto& header = header_coll->at(0);
+  lcio_event->setEventNumber(header.getEventNumber());
+  lcio_event->setRunNumber(header.getRunNumber());
+  lcio_event->setTimeStamp(header.getTimeStamp());
+  lcio_event->setWeight(header.getWeight());
+}
+
 // Depending on the order of the collections in the parameters,
 // and for the mutual dependencies between some collections,
 // go over the possible missing associated collections and fill them.
