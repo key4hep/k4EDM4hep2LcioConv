@@ -24,7 +24,7 @@ std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::str
   while (std::getline(input_file, line)) {
     std::stringstream sline(std::move(line));
     std::string name, type;
-    //This only looks for the first two words in the line and ignores everything that comes after that.
+    // This only looks for the first two words in the line and ignores everything that comes after that.
     if (!(sline >> name >> type)) {
       std::cerr << "need a name and a type per line" << std::endl;
       return {};
