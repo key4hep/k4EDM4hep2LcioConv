@@ -140,6 +140,8 @@ lcio::LCCollectionVec* convMCParticles(
   const edm4hep::MCParticleCollection* const mcparticle_coll,
   vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mc_particles_vec);
 
+void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
+
 void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
 bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
