@@ -915,7 +915,7 @@ namespace LCIO2EDM4hepConv {
       const auto& fromType = params.getStringVal("FromType");
       const auto& toType = params.getStringVal("ToType");
       if (fromType.empty() || toType.empty()) {
-        std::cerr << "LCRelation collection has missing FromType or ToType parameters. "
+        std::cerr << "LCRelation collection "<< name <<" has missing FromType or ToType parameters. "
                   << "Cannot convert it without this information." << std::endl;
         continue;
       }
@@ -992,7 +992,7 @@ namespace LCIO2EDM4hepConv {
       }
       else {
         std::cout << "Relation from: " << fromType << " to: " << toType
-                  << " is not beeing handled during creation of associations" << std::endl;
+                  << " ("<<name<<") is not beeing handled during creation of associations" << std::endl;
       }
     }
 
