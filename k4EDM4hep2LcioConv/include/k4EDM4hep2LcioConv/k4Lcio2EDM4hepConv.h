@@ -116,7 +116,7 @@ namespace LCIO2EDM4hepConv {
    * type of the input collection
    */
   std::unique_ptr<podio::CollectionBase>
-  fillSubSet(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type);
+  fillSubset(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type);
 
   inline edm4hep::Vector3f Vector3fFrom(const double* v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
