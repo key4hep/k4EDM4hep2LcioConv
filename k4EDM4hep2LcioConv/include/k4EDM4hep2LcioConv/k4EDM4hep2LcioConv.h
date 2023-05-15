@@ -83,52 +83,101 @@ struct CollectionsPairVectors {
   vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoparticles;
   vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle> mcparticles;
 };
-
+/*
+* Convert EDM4hep Tracks to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convTracks(
   const edm4hep::TrackCollection* const tracks_coll,
   vec_pair<lcio::TrackImpl*, edm4hep::Track>& tracks_vec,
   const vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit>& trackerhits_vec);
 
+/*
+* Convert EDM4hep TrackerHits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add LCIO Collection Vector to LCIO event
+*/ 
 lcio::LCCollectionVec* convTrackerHits(
   const edm4hep::TrackerHitCollection* const trackerhits_coll,
   const std::string cellIDstr,
   vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit>& trackerhits_vec);
 
+/*
+* Convert EDM4hep SimTrackerHits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convSimTrackerHits(
   const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll,
   const std::string cellIDstr,
   vec_pair<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit>& simtrackerhits_vec,
   const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles_vec);
 
+/*
+* Convert EDM4hep Calorimeter Hits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convCalorimeterHits(
   const edm4hep::CalorimeterHitCollection* const calohit_coll,
   const std::string cellIDstr,
   vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>& calo_hits_vec);
 
+/*
+* Convert EDM4hep RAW Calorimeter Hits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convRawCalorimeterHits(
   const edm4hep::RawCalorimeterHitCollection* const rawcalohit_coll,
   vec_pair<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit>& raw_calo_hits_vec);
 
+/*
+* Convert EDM4hep Sim Calorimeter Hits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convSimCalorimeterHits(
   const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
   const std::string cellIDstr,
   vec_pair<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit>& sim_calo_hits_vec,
   const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles);
 
+/*
+* Convert EDM4hep TPC Hits to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convTPCHits(
   const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
   vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries>& tpc_hits_vec);
 
+/*
+* Convert EDM4hep Clusters to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convClusters(
   const edm4hep::ClusterCollection* const cluster_coll,
   vec_pair<lcio::ClusterImpl*, edm4hep::Cluster>& cluster_vec,
   const vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>& calohits_vec);
 
+/*
+* Convert EDM4hep Vertices to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convVertices(
   const edm4hep::VertexCollection* const vertex_coll,
   vec_pair<lcio::VertexImpl*, edm4hep::Vertex>& vertex_vec,
   const vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>& recoparticles_vec);
 
+/*
+* Convert EDM4hep RecoParticles to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convReconstructedParticles(
   const edm4hep::ReconstructedParticleCollection* const recos_coll,
   vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>& recoparticles_vec,
@@ -136,14 +185,27 @@ lcio::LCCollectionVec* convReconstructedParticles(
   const vec_pair<lcio::VertexImpl*, edm4hep::Vertex>& vertex_vec,
   const vec_pair<lcio::ClusterImpl*, edm4hep::Cluster>& clusters_vec);
 
+/* 
+*Convert MC Particles to LCIO
+* Add converted LCIO ptr and original EDM4hep collection to vector of pairs
+* Add converted LCIO Collection Vector to LCIO event
+*/
 lcio::LCCollectionVec* convMCParticles(
   const edm4hep::MCParticleCollection* const mcparticle_coll,
   vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mc_particles_vec);
-
+/*
+*Creates a EventHeaderCollection and fills it with the data from the lcio event.
+*/
 void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
 
+/*
+* Depending on the order of the collections in the parameters,
+* and for the mutual dependencies between some collections,
+* go over the possible missing associated collections and fill them.
+*/
 void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
+// Checks if a collection is already in the event by its name
 bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 
 #endif
