@@ -608,13 +608,13 @@ namespace LCIO2EDM4hepConv {
       auto lcioColl = evt->getCollection(lcioname);
       if (lcioColl->isSubset()) {
         const auto& lciotype = lcioColl->getTypeName();
-        auto edmColl = fillSubSet(lcioColl, typeMapping, lciotype);
+        auto edmColl = fillSubset(lcioColl, typeMapping, lciotype);
         if (edmColl != nullptr) {
           edmevent.emplace_back(lcioname, std::move(edmColl));
         }
       }
     }
-    // Filling all the OneToMany and OnToOne Relations and creating the AssociationCollections.
+    // Filling all the OneToMany and OneToOne Relations and creating the AssociationCollections.
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
     // creating the CaloHitContributions to fill them into the Frame
@@ -1000,7 +1000,7 @@ namespace LCIO2EDM4hepConv {
   }
 
   std::unique_ptr<podio::CollectionBase>
-  fillSubSet(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type)
+  fillSubset(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type)
   {
     if (type == "MCParticle") {
       return handleSubsetColl<edm4hep::MCParticleCollection>(LCCollection, typeMapping.mcParticles);
