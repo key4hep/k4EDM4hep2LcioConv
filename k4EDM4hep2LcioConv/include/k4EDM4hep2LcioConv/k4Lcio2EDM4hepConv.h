@@ -44,10 +44,13 @@
 #include <EVENT/TrackerHit.h>
 #include <EVENT/TrackerHitPlane.h>
 #include <EVENT/Vertex.h>
+#include <EVENT/LCIntVec.h>
+#include <EVENT/LCFloatVec.h>
 #include <UTIL/LCIterator.h>
 #include <lcio.h>
 
 #include "podio/Frame.h"
+#include "podio/UserDataCollection.h"
 
 #include <memory>
 #include <optional>
