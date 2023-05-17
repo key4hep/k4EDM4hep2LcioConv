@@ -60,15 +60,25 @@ The functions can be used integrated, making the conversion a two step process. 
 
 There exists a conversion function for every collection that is not of `LCRelation` type (e.g. [`convertReconstructedParticle`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h)). These need to be called before the relations can be handled, since they fill the maps linking the particle in LCIO to their EDM4hep equivalents. Every type has a separate map. The maps are grouped in the `LcioEdmTypeMapping` struct for ease of use. It is also possible to use them directly without the helper struct.
 The order in which the data is converted does not matter because converting data and resolving relations are two differet steps that are carried out in sequence. 
-Subset collections are  handled similar to relations using the fuction [`fillSubset`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h). Internally this simply forwards to [`handleSubsetColl`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which handles all the type details and can obviously also be used directly.
 
-The OneToMany and OneToOne Relations can be resolved using [`resolveRelations`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).  There is a resolveRelations function for each type. `LCRelation` only exist in LCIOand there conversion is limited to what is available in EDM4hep. They use the `"FromType"` and `"ToType"` collection parameters to get the necessary type information. 
+## Handling of subset collections
+Subset collections are  handled similar to relations using the function [`fillSubset`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h). Internally this simply forwards to [`handleSubsetColl`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which handles all the type details and can obviously also be used directly.
+
+## Handling relations
+The OneToMany and OneToOne Relations can be resolved using [`resolveRelations`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).  There is a resolveRelations function for each type. 
+## Handling of `LCRelation`s
+`LCRelation` only exist in LCIO and their conversion is limited to what is available in EDM4hep. They use the `"FromType"` and `"ToType"` collection parameters to get the necessary type information. 
 
 The AssociationCollections in EDM4hep are then created using [`createAssociations`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h). 
 
-`CaloHitContributions` are treated separately, since they are part of the SimCalorimeterHits in LCIO while being a their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
+## Subtle differences between LCIO and EDM4hep
+There are a few small differences between LCIO and EDM4hep that shine through in the conversion, these are:
 
-The EventHeader Colletion can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
+`CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
+
+The event informaton like is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection.
+It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
+
 
 Particle IDs are converted during the conversion of the the reconstructed Particle collection.
 
@@ -77,19 +87,21 @@ Converting an entire event can be done calling the [`convertEvent`](../k4EDM4hep
 
 ## Example for a ReconstructedParticle Collection
 ```cpp
-//the structs defined in the header file are used for the maps linking Lcio particles to there EDM counterparts.
+
 
 #include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"  
+//the structs defined in the header file is used for the maps linking Lcio particles to there EDM counterparts.
+auto typeMapping = LcioEdmTypeMapping {};
+LCEVENT::LCCollection* LCCollection;
 
-auto convertedReconstructedParticleCollection = convertReconstructedParticle(name, LCCollection, typeMapping.recoParticles, typeMapping.particleIDs)
+auto EDMCollection = convertReconstructedParticle("name", LCCollection, typeMapping.recoParticles, typeMapping.particleIDs)
 
 //If the relations to other data types are supposed to be converted it is necessary that these are converted aswell by calling their convert function.
 //This needs to be done in order to fill the maps used in setting the relations.
 //For a collction of the type reconstructedparticle those are the vertex, cluster and track collections containing the data related to the reconstructed particles. 
 
 //next step is resolving the relations.
-resolveRelationsRecoParticle(
-      typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
+resolveRelations(typeMapping);
 
 //after this the reconstructed particles in `convertedReconstructedParticleCollection` that was created earlier got their vertecies, clusters and tracks attached.
 ```
