@@ -82,6 +82,9 @@ It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/
 
 Particle IDs are converted during the conversion of the the reconstructed Particle collection.
 
+## Converting Event parameters
+This can be done by calling `convertEventParameters`.
+
 
 Converting an entire event can be done calling the [`convertEvent`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
 

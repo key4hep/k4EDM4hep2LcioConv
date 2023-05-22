@@ -89,6 +89,12 @@ namespace LCIO2EDM4hepConv {
    */
   podio::Frame convertEvent(EVENT::LCEvent* evt);
 
+  /*
+  * Putting all the parameters of the event into the podio frame 
+  */
+  void convertEventParameters(EVENT::LCEvent* evt,podio::Frame*event);
+  
+
   /**
    * Convert an LCIOCollection by dispatching to the specific conversion
    * function for the corresponding type (after querying the input collection).
