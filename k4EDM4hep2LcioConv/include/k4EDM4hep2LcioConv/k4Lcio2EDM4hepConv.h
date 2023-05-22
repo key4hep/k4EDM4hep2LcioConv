@@ -165,6 +165,32 @@ namespace LCIO2EDM4hepConv {
     TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
 
   /**
+   * Converts a LCIntVec Collection.  
+
+   * NOTE: Since podio doesnt have a structure for vector of vector of int or
+   *a collection that can be filled with multiple vector<int>,
+   *a workaround had to be found to convert the LCIO data.
+   *All the data gets put into one Collection with an additional Collection 
+   *holding the beginnings and ends of the original vectors. 
+  */
+  std::vector<CollNamePair> convertLCIntVec(
+    const std::string& name, EVENT::LCCollection* LCCollection);
+  
+    
+    
+  /**
+   * Converts a LCFloatVec Collection.  
+
+   * NOTE: Since podio doesnt have a structure for vector of vector of float or
+   *a collection that can be filled with multiple vector<float>,
+   *a workaround had to be found to convert the LCIO data.
+   *All the data gets put into one Collection with an additional Collection 
+   *holding the beginnings and ends of the original vectors. 
+  */
+  std::vector<CollNamePair> convertLCFloatVec(
+   const std::string& name, EVENT::LCCollection* LCCollection);
+  
+  /**
    * Convert a Vertex collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    */

@@ -287,55 +287,53 @@ namespace LCIO2EDM4hepConv {
     }
     return dest;
   }
-  
-  std::unique_ptr<podio::UserDataCollection<int>> convertLCIntVec(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection) 
+
+  std::vector<CollNamePair> convertLCIntVec(const std::string& name, EVENT::LCCollection* LCCollection)
   {
-  auto dest = std::make_unique<podio::UserDataCollection<int>>();
-  for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i){
-    const auto* rval = static_cast<EVENT::LCIntVec*>(LCCollection->getElementAt(i));
-    for (unsigned j = 0; j<rval->size();j++){
-
-      //const auto* value = &rval[i][j];
-      //for(unsigned k = 0; k<veclayer1->size();k++){
-        //int value = veclayer1[k][0];
-
-
-        //gives syntax error if I just try to push rval[j], apperently still a LCIntVec.
-        //Need to find a resonable solution of access.
-        dest->push_back(rval[0][j]);
-      //}
+    auto dest = std::make_unique<podio::UserDataCollection<int>>();
+    auto vecSizes = std::make_unique<podio::UserDataCollection<int>>();
+    
+    if (LCCollection->getNumberOfElements() > 0) {
+      vecSizes->push_back(0);
     }
+    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
+      const auto* rval = static_cast<EVENT::LCIntVec*>(LCCollection->getElementAt(i));
+      for (unsigned j = 0; j < rval->size(); j++) {
+        dest->push_back((*rval)[j]);
+      }
+      vecSizes->push_back(dest->size());
+    }
+    std::vector<CollNamePair> results;
+    results.reserve(2);
+    results.emplace_back(name, std::move(dest));
+    results.emplace_back(name + "VecLenghts", std::move(vecSizes));
+    return results;
   }
-  return dest;  
+
+  
+  std::vector<CollNamePair> convertLCFloatVec(
+   const std::string& name,
+  EVENT::LCCollection* LCCollection)
+  {
+    auto dest = std::make_unique<podio::UserDataCollection<float>>();
+    auto vecSizes = std::make_unique<podio::UserDataCollection<int>>();
+    if (LCCollection->getNumberOfElements() > 0) {
+      vecSizes->push_back(0);
+    }
+    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
+      const auto* rval = static_cast<EVENT::LCFloatVec*>(LCCollection->getElementAt(i));
+      for (unsigned j = 0; j < rval->size(); j++) {
+        dest->push_back((*rval)[j]);
+      }
+      vecSizes->push_back(dest->size());
+    }
+    std::vector<CollNamePair> results;
+    results.reserve(2);
+    results.emplace_back(name, std::move(dest));
+    results.emplace_back(name + "VecLenghts", std::move(vecSizes));
+    return results;
   }
   
-
-  /*
-  std::unique_ptr<podio::UserDataCollections> convertLCFloatVec(
-   const std::string& name,
-  EVENT::LCCollection* LCCollection) 
-  {
-    
-  }
-  */
-  /*
-  std::unique_ptr<edm4hep::TrackerPulse> convertTrackerPulse(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection)
-  {
-    auto dest = std::make_unique<edm4hep::TrackerPulseCollection>();
-    
-    
-    
-    //needs Body
-    
-    
-    
-    return dest;
-  }
-  */
 
   std::unique_ptr<edm4hep::TrackerHitPlaneCollection> convertTrackerHitPlane(
     const std::string& name,
@@ -581,15 +579,13 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerHitPlanes));
     }
     else if (type == "LCIntVec") {
-      retColls.emplace_back(name, convertLCIntVec(name, LCCollection));
+      return convertLCIntVec(name, LCCollection);
     }
-    //else if (type == "LCFloatVec") {
-    //  retColls.emplace_back(name, convertLCFloatVec(name, LCCollection));
-    //}
-    else if(type != "LCRelation"){
-      std::cerr << type<<" is not a collction type that is not beein handled during data conversion."
-                      << std::endl;
-
+    else if (type == "LCFloatVec") {
+      return convertLCFloatVec(name, LCCollection);
+    }
+    else if (type != "LCRelation") {
+      std::cerr << type << " is not a collction type that is not beein handled during data conversion." << std::endl;
     }
     return retColls;
   }
@@ -661,7 +657,6 @@ namespace LCIO2EDM4hepConv {
         }
       }
     }
-
     // Filling of the Subset Colections
     for (const auto& lcioname : *lcnames) {
 
@@ -691,6 +686,7 @@ namespace LCIO2EDM4hepConv {
       event.put(std::move(coll), name);
     }
     return event;
+
   }
 
   void resolveRelationsMCParticle(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
