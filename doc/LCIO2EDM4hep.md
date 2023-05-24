@@ -30,7 +30,7 @@ The easiest way to obtain such a file is to use the `check_missing_cols`
 executable that comes with LCIO using the `--minimal` flag. The output of this
 can be directly consumed by `lcio2edm4hep`
 
-Example:
+#### Example:
 1. Get the patch file
 ```bash
 check_missing_cols --minimal \
@@ -46,8 +46,8 @@ lcio2edm4hep \
 ```
 
 ### Converting `LCRelation` collections
-For collections of `LCRelation` type it is necessary to define the `From` and
-`To` type as well, as otherwise the converter will not be able to create the
+For collections of `LCRelation` type it is necessary to define the `FromType` and
+`ToType` as well, as otherwise the converter will not be able to create the
 correct edm4hep file. The `check_missing_cols` executable will try to determine
 these types from the collection parameters and will warn if it cannot do it for
 certain collections. In this case it is the **users responsibility to provide
@@ -55,21 +55,43 @@ the missing types** as otherwise the conversion will simply skip these
 collections, or potentially even crash.
 
 
-# Integrated use of conversion
-The functions can be used integrated, making the conversion a two step process. Step one is converting the data and step two being the resolving of the relations and filling of subset collection.
+# Library usage of the conversion functions
+The conversion functions are designed to also be usable as a library. The overall design is to make the conversion a two step process. Step one is converting the data and step two being the resolving of the relations and filling of subset collection.
 
-There exists a conversion function for every collection that is not of `LCRelation` type (e.g. [`convertReconstructedParticle`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h)). These need to be called before the relations can be handled, since they fill the maps linking the particle in LCIO to their EDM4hep equivalents. Every type has a separate map. The maps are grouped in the `LcioEdmTypeMapping` struct for ease of use. It is also possible to use them directly without the helper struct.
-The order in which the data is converted does not matter because converting data and resolving relations are two differet steps that are carried out in sequence. 
-
-## Handling of subset collections
-Subset collections are  handled similar to relations using the function [`fillSubset`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h). Internally this simply forwards to [`handleSubsetColl`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which handles all the type details and can obviously also be used directly.
+## Converting collection (data)
+The main entry point is `convertCollection` which will automatically dispatch to
+the correct conversion function depending on the type information that is stored
+in the input `LCCollection`. It is also possible to access the individual
+conversion functions for each type. All of the conversion functions take a map
+of LCIO to EDM4hep objects of their specific type that will be filled during the
+conversion. for convenience all necessary maps are bundled in the
+`LcioEdmTypeMapping` struct. 
 
 ## Handling relations
-The OneToMany and OneToOne Relations can be resolved using [`resolveRelations`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).  There is a resolveRelations function for each type. 
-## Handling of `LCRelation`s
-`LCRelation` only exist in LCIO and their conversion is limited to what is available in EDM4hep. They use the `"FromType"` and `"ToType"` collection parameters to get the necessary type information. 
+**Once all necessary collections have been converted, it is necessary to resolve
+the relations between the obects.** This is done using the `resolveRelations`
+function. This will again dispatch to the correct relation resolving function
+for the corresponding types, which can obviously also be invoked directly.
 
-The AssociationCollections in EDM4hep are then created using [`createAssociations`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h). 
+## Handling of subset collections
+Subset collections are handled similar to relations using the function
+`fillSubset`. Internally this simply forwards to `handleSubsetColl` which
+handles all the type details and can obviously also be used directly.
+
+## Handling of `LCRelation`s
+`LCRelation` only exist in LCIO and their conversion is limited to what is
+available in EDM4hep. They use the `"FromType"` and `"ToType"` collection
+parameters to get the necessary type information.
+
+The AssociationCollections in EDM4hep are then created using `createAssociations`. 
+
+## Converting entire events
+Converting an entire event can be done calling the `convertEvent`. This can also
+be used as an example to guide the implementation of custom conversions using
+the available functionality.
+
+## Converting Event parameters
+This can be done by calling `convertObjectParameters` that will put all the event parameters into the passed `podio::Frame`.
 
 ## Subtle differences between LCIO and EDM4hep
 There are a few small differences between LCIO and EDM4hep that shine through in the conversion, these are:
@@ -77,12 +99,6 @@ There are a few small differences between LCIO and EDM4hep that shine through in
 - `CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
 - The event informaton like is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection. It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
 - Particle IDs are converted during the conversion of the the reconstructed Particle collection.
-
-## Converting Event parameters
-This can be done by calling `convertEventParameters`.
-
-
-Converting an entire event can be done calling the [`convertEvent`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
 
 ## Example for a ReconstructedParticle Collection
 ```cpp
