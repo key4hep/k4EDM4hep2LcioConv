@@ -525,6 +525,7 @@ namespace LCIO2EDM4hepConv {
     }
     return contrCollection;
   }
+
   std::unique_ptr<edm4hep::EventHeaderCollection> createEventHeader(const EVENT::LCEvent *evt) {
     auto headerColl = std::make_unique<edm4hep::EventHeaderCollection>();
     auto header = headerColl->create();
@@ -580,7 +581,7 @@ namespace LCIO2EDM4hepConv {
     auto headerColl = createEventHeader(evt);
     podio::Frame event;
     // convert put the event parameters into the frame
-    convertEventParameters(evt, &event);
+    convertObjectParameters<EVENT::LCEvent>(evt, event);
     // Now everything is done and we simply populate a Frame
     event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
     event.put(std::move(headerColl), "EventHeader");
@@ -591,42 +592,6 @@ namespace LCIO2EDM4hepConv {
       event.put(std::move(coll), name);
     }
     return event;
-  }
-
-  void convertEventParameters(EVENT::LCEvent *evt, podio::Frame *event) {
-    const auto &params = evt->getParameters();
-    // handle srting params
-    EVENT::StringVec keys;
-    const auto stringKeys = params.getStringKeys(keys);
-    for (int i = 0; i < stringKeys.size(); i++) {
-      EVENT::StringVec sValues;
-      const auto stringVals = params.getStringVals(stringKeys[i], sValues);
-      event->putParameter(stringKeys[i], stringVals);
-    }
-    // handle float params
-    EVENT::StringVec fkeys;
-    const auto floatKeys = params.getFloatKeys(fkeys);
-    for (int i = 0; i < floatKeys.size(); i++) {
-      EVENT::FloatVec fValues;
-      const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
-      event->putParameter(floatKeys[i], floatVals);
-    }
-    // handle int params
-    EVENT::StringVec ikeys;
-    const auto intKeys = params.getIntKeys(ikeys);
-    for (int i = 0; i < intKeys.size(); i++) {
-      EVENT::IntVec iValues;
-      const auto intVals = params.getIntVals(intKeys[i], iValues);
-      event->putParameter(intKeys[i], intVals);
-    }
-    // handle double params
-    EVENT::StringVec dkeys;
-    const auto dKeys = params.getDoubleKeys(dkeys);
-    for (int i = 0; i < dKeys.size(); i++) {
-      EVENT::DoubleVec dValues;
-      const auto dVals = params.getDoubleVals(dKeys[i], dValues);
-      event->putParameter(dKeys[i], dVals);
-    }
   }
 
   void resolveRelationsMCParticle(TypeMapT<const lcio::MCParticle *, edm4hep::MutableMCParticle> &mcparticlesMap) {
