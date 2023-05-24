@@ -83,75 +83,11 @@ namespace LCIO2EDM4hepConv {
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
-  
-  /*
-   * Converts a LCIntVec or LCFloatVec Collection into a podio::UserDataCollection of the appropriate type.
 
-   * NOTE: LC[Int|Float]Vec are nested, but podio::UserDataCollection are flat. Hence, this will put all
-   * contents into one collection, and the [begin, end) indices in this collection into a second (flat)
-   * collection (with the suffix "_VecLengths" added to its name), such that the elements at position i,
-   * resp. (i + 1) form the [begin, end) indices for each of the original vector collections.
+  /*
+   * Convert a LCRunHeader to EDM4hep as a frame.
    */
-  template<typename LCVecType>
-  std::vector<CollNamePair> convertLCVec(const std::string &name, EVENT::LCCollection *LCCollection) {
-  auto dest = std::make_unique<podio::UserDataCollection<typename LCVecType::value_type>>();
-  auto vecSizes = std::make_unique<podio::UserDataCollection<uint32_t>>();
-    if (LCCollection->getNumberOfElements() > 0) {
-      vecSizes->push_back(0);
-    }
-    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<LCVecType*>(LCCollection->getElementAt(i));
-      for (unsigned j = 0; j < rval->size(); j++) {
-        dest->push_back((*rval)[j]);
-      }
-      vecSizes->push_back(dest->size());
-    }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_VecLenghts", std::move(vecSizes));
-    return results;
-  }
-
-  /*
-  Converting all parameters of an LCIO Object and attaching them to the current podio Frame.
-  */
-  template<typename LCIOType>
-  void convertObjectParameters(LCIOType *lcioobj, podio::Frame &event) {
-    const auto &params = lcioobj->getParameters();
-    // handle srting params
-    EVENT::StringVec keys;
-    const auto stringKeys = params.getStringKeys(keys);
-    for (int i = 0; i < stringKeys.size(); i++) {
-      EVENT::StringVec sValues;
-      const auto stringVals = params.getStringVals(stringKeys[i], sValues);
-      event.putParameter(stringKeys[i], stringVals);
-    }
-    // handle float params
-    EVENT::StringVec fkeys;
-    const auto floatKeys = params.getFloatKeys(fkeys);
-    for (int i = 0; i < floatKeys.size(); i++) {
-      EVENT::FloatVec fValues;
-      const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
-      event.putParameter(floatKeys[i], floatVals);
-    }
-    // handle int params
-    EVENT::StringVec ikeys;
-    const auto intKeys = params.getIntKeys(ikeys);
-    for (int i = 0; i < intKeys.size(); i++) {
-      EVENT::IntVec iValues;
-      const auto intVals = params.getIntVals(intKeys[i], iValues);
-      event.putParameter(intKeys[i], intVals);
-    }
-    // handle double params
-    EVENT::StringVec dkeys;
-    const auto dKeys = params.getDoubleKeys(dkeys);
-    for (int i = 0; i < dKeys.size(); i++) {
-      EVENT::DoubleVec dValues;
-      const auto dVals = params.getDoubleVals(dKeys[i], dValues);
-      event.putParameter(dKeys[i], dVals);
-    }
-  }
+  podio::Frame convertRunHeader(EVENT::LCRunHeader* rheader);
 
   /**
    * Convert a complete LCEvent from LCIO to EDM4hep
@@ -189,6 +125,24 @@ namespace LCIO2EDM4hepConv {
    */
   std::unique_ptr<podio::CollectionBase>
   fillSubset(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type);
+
+  /*
+   * Converts a LCIntVec or LCFloatVec Collection into a podio::UserDataCollection of the appropriate type.
+   *
+   * NOTE: LC[Int|Float]Vec are nested, but podio::UserDataCollection are flat. Hence, this will put all
+   * contents into one collection, and the [begin, end) indices in this collection into a second (flat)
+   * collection (with the suffix "_VecLengths" added to its name), such that the elements at position i,
+   * resp. (i + 1) form the [begin, end) indices for each of the original vector collections.
+   */
+  template<typename LCVecType>
+  std::vector<CollNamePair> convertLCVec(const std::string& name, EVENT::LCCollection* LCCollection);
+
+  /**
+   * Converting all parameters of an LCIO Object and attaching them to the
+   * passed podio::Frame.
+   */
+  template<typename LCIOType>
+  void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event);
 
   inline edm4hep::Vector3f Vector3fFrom(const double* v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
@@ -232,7 +186,7 @@ namespace LCIO2EDM4hepConv {
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
-  
+
   /**
    * Convert a Vertex collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
@@ -476,6 +430,66 @@ namespace LCIO2EDM4hepConv {
   void resolveRelationsVertex(
     TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
     const TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap);
+
+  template<typename LCIOType>
+  void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event)
+  {
+    const auto& params = lcioobj->getParameters();
+    // handle srting params
+    EVENT::StringVec keys;
+    const auto stringKeys = params.getStringKeys(keys);
+    for (int i = 0; i < stringKeys.size(); i++) {
+      EVENT::StringVec sValues;
+      const auto stringVals = params.getStringVals(stringKeys[i], sValues);
+      event.putParameter(stringKeys[i], stringVals);
+    }
+    // handle float params
+    EVENT::StringVec fkeys;
+    const auto floatKeys = params.getFloatKeys(fkeys);
+    for (int i = 0; i < floatKeys.size(); i++) {
+      EVENT::FloatVec fValues;
+      const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
+      event.putParameter(floatKeys[i], floatVals);
+    }
+    // handle int params
+    EVENT::StringVec ikeys;
+    const auto intKeys = params.getIntKeys(ikeys);
+    for (int i = 0; i < intKeys.size(); i++) {
+      EVENT::IntVec iValues;
+      const auto intVals = params.getIntVals(intKeys[i], iValues);
+      event.putParameter(intKeys[i], intVals);
+    }
+    // handle double params
+    EVENT::StringVec dkeys;
+    const auto dKeys = params.getDoubleKeys(dkeys);
+    for (int i = 0; i < dKeys.size(); i++) {
+      EVENT::DoubleVec dValues;
+      const auto dVals = params.getDoubleVals(dKeys[i], dValues);
+      event.putParameter(dKeys[i], dVals);
+    }
+  }
+
+  template<typename LCVecType>
+  std::vector<CollNamePair> convertLCVec(const std::string& name, EVENT::LCCollection* LCCollection)
+  {
+    auto dest = std::make_unique<podio::UserDataCollection<typename LCVecType::value_type>>();
+    auto vecSizes = std::make_unique<podio::UserDataCollection<uint32_t>>();
+    if (LCCollection->getNumberOfElements() > 0) {
+      vecSizes->push_back(0);
+    }
+    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
+      const auto* rval = static_cast<LCVecType*>(LCCollection->getElementAt(i));
+      for (unsigned j = 0; j < rval->size(); j++) {
+        dest->push_back((*rval)[j]);
+      }
+      vecSizes->push_back(dest->size());
+    }
+    std::vector<CollNamePair> results;
+    results.reserve(2);
+    results.emplace_back(name, std::move(dest));
+    results.emplace_back(name + "_VecLenghts", std::move(vecSizes));
+    return results;
+  }
 
 } // namespace LCIO2EDM4hepConv
 

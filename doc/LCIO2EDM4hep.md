@@ -86,21 +86,24 @@ Converting an entire event can be done calling the [`convertEvent`](../k4EDM4hep
 
 ## Example for a ReconstructedParticle Collection
 ```cpp
+#include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"
 
+// the struct defined in the header file is used for the maps linking Lcio particles
+// to their EDM counterparts.
 
-#include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"  
-//the structs defined in the header file is used for the maps linking Lcio particles to there EDM counterparts.
-auto typeMapping = LcioEdmTypeMapping {};
-LCEVENT::LCCollection* LCCollection;
+auto typeMapping = LcioEdmTypeMapping{};
 
-auto EDMCollection = convertReconstructedParticle("name", LCCollection, typeMapping.recoParticles, typeMapping.particleIDs)
+// We assume that this is a collection of ReconstructedParticles!
+LCEVENT::LCCollection* lcCollection;
 
-//If the relations to other data types are supposed to be converted it is necessary that these are converted aswell by calling their convert function.
-//This needs to be done in order to fill the maps used in setting the relations.
-//For a collction of the type reconstructedparticle those are the vertex, cluster and track collections containing the data related to the reconstructed particles. 
+// Convert the data
+auto edmCollections = convertReconstructedParticle("name",
+                                                   lcCollection,
+                                                   typeMapping.recoParticles,
+                                                   typeMapping.particleIDs);
 
-//next step is resolving the relations.
+// Resolve relations (only converted objects will be available)
+// This has to be called at the very end, after all collection data has been
+// converted
 resolveRelations(typeMapping);
-
-//after this the reconstructed particles in `convertedReconstructedParticleCollection` that was created earlier got their vertecies, clusters and tracks attached.
 ```
