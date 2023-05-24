@@ -80,8 +80,19 @@ int main(int argc, char* argv[])
   auto lcreader = IOIMPL::LCFactory::getInstance()->createLCReader();
   lcreader->open(argv[1]);
   std::cout << "Number of events: " << lcreader->getNumberOfEvents() << '\n';
+  std::cout << "Number of runs: " << lcreader->getNumberOfRuns() << '\n';
 
   podio::ROOTFrameWriter writer(outputFile);
+
+  for (auto j = 0u; j < lcreader->getNumberOfRuns(); ++j) {
+    if (j % 1 == 0) {
+      std::cout << "processing RunHeader: " << j << std::endl;
+    }
+    auto rhead = lcreader->readNextRunHeader();
+
+    const auto edmRunHeader = LCIO2EDM4hepConv::convertRunHeader(rhead);
+    writer.writeFrame(edmRunHeader, "runs");
+  }
 
   for (auto i = 0u; i < lcreader->getNumberOfEvents(); ++i) {
     if (i % 10 == 0) {
