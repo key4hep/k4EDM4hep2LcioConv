@@ -260,56 +260,7 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::vector<CollNamePair> convertLCIntVec(const std::string &name, EVENT::LCCollection *LCCollection) {
-    // Since podio doesnt have a structure for vector of vector of int or
-    // a collection that can be filled with multiple vector<int>,
-    // a workaround had to be found to convert the LCIO data.
-    // All the data gets put into one Collection with an additional Collection
-    // holding the beginnings and ends of the original vectors.
-    auto dest = std::make_unique<podio::UserDataCollection<int>>();
-    auto vecSizes = std::make_unique<podio::UserDataCollection<int>>();
 
-    if (LCCollection->getNumberOfElements() > 0) {
-      vecSizes->push_back(0);
-    }
-    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto *rval = static_cast<EVENT::LCIntVec *>(LCCollection->getElementAt(i));
-      for (unsigned j = 0; j < rval->size(); j++) {
-        dest->push_back((*rval)[j]);
-      }
-      vecSizes->push_back(dest->size());
-    }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "VecLenghts", std::move(vecSizes));
-    return results;
-  }
-
-  std::vector<CollNamePair> convertLCFloatVec(const std::string &name, EVENT::LCCollection *LCCollection) {
-    // Since podio doesnt have a structure for vector of vector of int or
-    // a collection that can be filled with multiple vector<int>,
-    // a workaround had to be found to convert the LCIO data.
-    // All the data gets put into one Collection with an additional Collection
-    // holding the beginnings and ends of the original vectors.
-    auto dest = std::make_unique<podio::UserDataCollection<float>>();
-    auto vecSizes = std::make_unique<podio::UserDataCollection<int>>();
-    if (LCCollection->getNumberOfElements() > 0) {
-      vecSizes->push_back(0);
-    }
-    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto *rval = static_cast<EVENT::LCFloatVec *>(LCCollection->getElementAt(i));
-      for (unsigned j = 0; j < rval->size(); j++) {
-        dest->push_back((*rval)[j]);
-      }
-      vecSizes->push_back(dest->size());
-    }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "VecLenghts", std::move(vecSizes));
-    return results;
-  }
 
   std::unique_ptr<edm4hep::TrackerHitPlaneCollection> convertTrackerHitPlane(
       const std::string &name,
@@ -537,9 +488,9 @@ namespace LCIO2EDM4hepConv {
     } else if (type == "TrackerHitPlane") {
       retColls.emplace_back(name, convertTrackerHitPlane(name, LCCollection, typeMapping.trackerHitPlanes));
     } else if (type == "LCIntVec") {
-      return convertLCIntVec(name, LCCollection);
+      return convertLCVec<EVENT::LCIntVec>(name, LCCollection);
     } else if (type == "LCFloatVec") {
-      return convertLCFloatVec(name, LCCollection);
+      return convertLCVec<EVENT::LCFloatVec>(name, LCCollection);
     } else if (type != "LCRelation") {
       std::cerr << type << " is not a collction type that is not beein handled during data conversion." << std::endl;
     }

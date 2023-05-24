@@ -83,6 +83,36 @@ namespace LCIO2EDM4hepConv {
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
+  
+  /*
+  * Converts a LCIntVec or LCFloatVec Collection.  
+
+   * NOTE: Since podio doesnt have a structure for vector of vector of <datatype> or
+   *a collection that can be filled with multiple vector<int> or vector<float>,
+   *a workaround had to be found to convert the LCIO data.
+   *All the data gets put into one Collection with an additional Collection 
+   *holding the beginnings and ends of the original vectors. 
+  */
+  template<typename LCVecType>
+  std::vector<CollNamePair> convertLCVec(const std::string &name, EVENT::LCCollection *LCCollection) {
+  auto dest = std::make_unique<podio::UserDataCollection<typename LCVecType::value_type>>();
+  auto vecSizes = std::make_unique<podio::UserDataCollection<uint32_t>>();
+    if (LCCollection->getNumberOfElements() > 0) {
+      vecSizes->push_back(0);
+    }
+    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
+      const auto* rval = static_cast<LCVecType*>(LCCollection->getElementAt(i));
+      for (unsigned j = 0; j < rval->size(); j++) {
+        dest->push_back((*rval)[j]);
+      }
+      vecSizes->push_back(dest->size());
+    }
+    std::vector<CollNamePair> results;
+    results.reserve(2);
+    results.emplace_back(name, std::move(dest));
+    results.emplace_back(name + "_VecLenghts", std::move(vecSizes));
+    return results;
+}
 
   /**
    * Convert a complete LCEvent from LCIO to EDM4hep
@@ -169,32 +199,6 @@ namespace LCIO2EDM4hepConv {
     EVENT::LCCollection* LCCollection,
     TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
     TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
-
-  /**
-   * Converts a LCIntVec Collection.  
-
-   * NOTE: Since podio doesnt have a structure for vector of vector of int or
-   *a collection that can be filled with multiple vector<int>,
-   *a workaround had to be found to convert the LCIO data.
-   *All the data gets put into one Collection with an additional Collection 
-   *holding the beginnings and ends of the original vectors. 
-  */
-  std::vector<CollNamePair> convertLCIntVec(
-    const std::string& name, EVENT::LCCollection* LCCollection);
-  
-    
-    
-  /**
-   * Converts a LCFloatVec Collection.  
-
-   * NOTE: Since podio doesnt have a structure for vector of vector of float or
-   *a collection that can be filled with multiple vector<float>,
-   *a workaround had to be found to convert the LCIO data.
-   *All the data gets put into one Collection with an additional Collection 
-   *holding the beginnings and ends of the original vectors. 
-  */
-  std::vector<CollNamePair> convertLCFloatVec(
-   const std::string& name, EVENT::LCCollection* LCCollection);
   
   /**
    * Convert a Vertex collection and return the resulting collection.
