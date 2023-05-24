@@ -65,7 +65,7 @@ in the input `LCCollection`. It is also possible to access the individual
 conversion functions for each type. All of the conversion functions take a map
 of LCIO to EDM4hep objects of their specific type that will be filled during the
 conversion. for convenience all necessary maps are bundled in the
-`LcioEdmTypeMapping` struct. 
+`LcioEdmTypeMapping` struct.
 
 ## Handling relations
 **Once all necessary collections have been converted, it is necessary to resolve
@@ -83,7 +83,7 @@ handles all the type details and can obviously also be used directly.
 available in EDM4hep. They use the `"FromType"` and `"ToType"` collection
 parameters to get the necessary type information.
 
-The AssociationCollections in EDM4hep are then created using `createAssociations`. 
+The AssociationCollections in EDM4hep are then created using `createAssociations`.
 
 ## Converting entire events
 Converting an entire event can be done calling the `convertEvent`. This can also
