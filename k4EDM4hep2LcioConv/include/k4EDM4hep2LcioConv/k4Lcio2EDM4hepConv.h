@@ -85,14 +85,13 @@ namespace LCIO2EDM4hepConv {
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
   
   /*
-  * Converts a LCIntVec or LCFloatVec Collection.  
+   * Converts a LCIntVec or LCFloatVec Collection into a podio::UserDataCollection of the appropriate type.
 
-   * NOTE: Since podio doesnt have a structure for vector of vector of <datatype> or
-   *a collection that can be filled with multiple vector<int> or vector<float>,
-   *a workaround had to be found to convert the LCIO data.
-   *All the data gets put into one Collection with an additional Collection 
-   *holding the beginnings and ends of the original vectors. 
-  */
+   * NOTE: LC[Int|Float]Vec are nested, but podio::UserDataCollection are flat. Hence, this will put all
+   * contents into one collection, and the [begin, end) indices in this collection into a second (flat)
+   * collection (with the suffix "_VecLengths" added to its name), such that the elements at position i,
+   * resp. (i + 1) form the [begin, end) indices for each of the original vector collections.
+   */
   template<typename LCVecType>
   std::vector<CollNamePair> convertLCVec(const std::string &name, EVENT::LCCollection *LCCollection) {
   auto dest = std::make_unique<podio::UserDataCollection<typename LCVecType::value_type>>();
