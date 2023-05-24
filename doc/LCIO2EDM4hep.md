@@ -74,13 +74,9 @@ The AssociationCollections in EDM4hep are then created using [`createAssociation
 ## Subtle differences between LCIO and EDM4hep
 There are a few small differences between LCIO and EDM4hep that shine through in the conversion, these are:
 
-`CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
-
-The event informaton like is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection.
-It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
-
-
-Particle IDs are converted during the conversion of the the reconstructed Particle collection.
+- `CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
+- The event informaton like is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection. It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
+- Particle IDs are converted during the conversion of the the reconstructed Particle collection.
 
 ## Converting Event parameters
 This can be done by calling `convertEventParameters`.
