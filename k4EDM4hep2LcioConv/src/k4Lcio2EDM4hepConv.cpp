@@ -1001,6 +1001,16 @@ namespace LCIO2EDM4hepConv {
           relations, typeMapping.vertices, typeMapping.recoParticles);
         assoCollVec.emplace_back(name, std::move(mc_a));
       }
+      else if (fromType == "CalorimeterHit" && toType == "MCParticle") {
+        auto assoc = createAssociationCollection<edm4hep::MCRecoCaloParticleAssociationCollection, true>(
+          relations, typeMapping.caloHits, typeMapping.mcParticles);
+        assoCollVec.emplace_back(name, std::move(assoc));
+      }
+      else if (fromType == "MCParticle" && toType == "CalorimeterHit") {
+        auto assoc = createAssociationCollection<edm4hep::MCRecoCaloParticleAssociationCollection, false>(
+          relations, typeMapping.mcParticles, typeMapping.caloHits);
+        assoCollVec.emplace_back(name, std::move(assoc));
+      }
       else {
         std::cout << "Relation from: " << fromType << " to: " << toType << " (" << name
                   << ") is not beeing handled during creation of associations" << std::endl;
