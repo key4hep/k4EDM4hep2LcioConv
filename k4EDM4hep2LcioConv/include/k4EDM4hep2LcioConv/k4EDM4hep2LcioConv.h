@@ -20,7 +20,17 @@
 #include <edm4hep/ReconstructedParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#if __has_include("edm4hep/RawTimeSeriesCollection.h")
 #include <edm4hep/RawTimeSeriesCollection.h>
+#else
+#include <edm4hep/TPCHitCollection.h>
+namespace edm4hep {
+  using RawTimeSeries = TPCHit;
+  using MutableRawTimeSeries = MutableTPCHit;
+  using RawTimeSeriesCollection = TPCHitCollection;
+} // namespace edm4hep
+#endif
+
 #include <edm4hep/TrackCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
