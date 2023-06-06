@@ -9,8 +9,8 @@
 #if __has_include("edm4hep/TPCHitCollection.h")
 #define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 7, 2)
 #else
-// v00-08 is the last version without the capitalization change of the track vector members
-#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 8, 0)
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
 #endif
 #endif
 
@@ -40,7 +40,7 @@ lcio::LCCollectionVec* convTracks(
       lcio_tr->setdEdxError(edm_tr.getDEdxError());
       lcio_tr->setRadiusOfInnermostHit(edm_tr.getRadiusOfInnermostHit());
 
-#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 8, 0)
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
       // Loop over the hit Numbers in the track
       lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
       for (int i = 0; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
