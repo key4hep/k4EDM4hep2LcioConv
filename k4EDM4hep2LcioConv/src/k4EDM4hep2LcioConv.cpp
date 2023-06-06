@@ -27,16 +27,16 @@ lcio::LCCollectionVec* convTracks(
       lcio_tr->setRadiusOfInnermostHit(edm_tr.getRadiusOfInnermostHit());
 
       // Loop over the hit Numbers in the track
-      lcio_tr->subdetectorHitNumbers().resize(edm_tr.subDetectorHitNumbers_size());
-      for (int i = 0; i < edm_tr.subDetectorHitNumbers_size(); ++i) {
-        lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubDetectorHitNumbers(i);
+      lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
+      for (int i = 0; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
+        lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubdetectorHitNumbers(i);
       }
 
       // Pad until 50 hitnumbers are resized
       const int hit_number_limit = 50;
       if (edm_tr.subDetectorHitNumbers_size() < hit_number_limit) {
         lcio_tr->subdetectorHitNumbers().resize(hit_number_limit);
-        for (int i = edm_tr.subDetectorHitNumbers_size(); i < hit_number_limit; ++i) {
+        for (int i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit; ++i) {
           lcio_tr->subdetectorHitNumbers()[i] = 0;
         }
       }
