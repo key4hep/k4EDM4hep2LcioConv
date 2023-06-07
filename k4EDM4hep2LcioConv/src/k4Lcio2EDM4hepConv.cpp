@@ -347,7 +347,7 @@ namespace LCIO2EDM4hepConv {
 
       auto subdetectorHitNum = rval->getSubdetectorHitNumbers();
       for (auto hitNum : subdetectorHitNum) {
-        lval.addToSubDetectorHitNumbers(hitNum);
+        lval.addToSubdetectorHitNumbers(hitNum);
       }
       auto& trackStates = rval->getTrackStates();
       for (auto& trackState : trackStates) {
