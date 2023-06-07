@@ -1,5 +1,19 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+// Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+// v00-07-02 is the last version without that still has TPCHits
+#if __has_include("edm4hep/TPCHitCollection.h")
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 7, 2)
+#else
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
+#endif
+
 // Convert EDM4hep Tracks to LCIO
 // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
 // Add LCIO Collection Vector to LCIO event
@@ -26,6 +40,22 @@ lcio::LCCollectionVec* convTracks(
       lcio_tr->setdEdxError(edm_tr.getDEdxError());
       lcio_tr->setRadiusOfInnermostHit(edm_tr.getRadiusOfInnermostHit());
 
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
+      // Loop over the hit Numbers in the track
+      lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
+      for (int i = 0; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
+        lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubdetectorHitNumbers(i);
+      }
+
+      // Pad until 50 hitnumbers are resized
+      const int hit_number_limit = 50;
+      if (edm_tr.subdetectorHitNumbers_size() < hit_number_limit) {
+        lcio_tr->subdetectorHitNumbers().resize(hit_number_limit);
+        for (int i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit; ++i) {
+          lcio_tr->subdetectorHitNumbers()[i] = 0;
+        }
+      }
+#else
       // Loop over the hit Numbers in the track
       lcio_tr->subdetectorHitNumbers().resize(edm_tr.subDetectorHitNumbers_size());
       for (int i = 0; i < edm_tr.subDetectorHitNumbers_size(); ++i) {
@@ -40,6 +70,7 @@ lcio::LCCollectionVec* convTracks(
           lcio_tr->subdetectorHitNumbers()[i] = 0;
         }
       }
+#endif
 
       // Link multiple associated TrackerHits if found in converted ones
       for (const auto& edm_rp_trh : edm_tr.getTrackerHits()) {
@@ -343,11 +374,19 @@ lcio::LCCollectionVec* convTPCHits(
       lcio_tpchit->setQuality(edm_tpchit.getQuality());
 
       std::vector<int> rawdata;
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 7, 2)
       for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
         rawdata.push_back(edm_tpchit.getAdcCounts(i));
       }
 
       lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.adcCounts_size());
+#else
+      for (int i = 0; i < edm_tpchit.rawDataWords_size(); ++i) {
+        rawdata.push_back(edm_tpchit.getRawDataWords(i));
+      }
+
+      lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.rawDataWords_size());
+#endif
 
       // Save TPC Hits LCIO and EDM4hep collections
       tpc_hits_vec.emplace_back(std::make_pair(lcio_tpchit, edm_tpchit));
