@@ -6,6 +6,7 @@
 #include <IOIMPL/LCFactory.h>
 
 #include <iostream>
+#include <string_view>
 
 #define ASSERT_COMPARE_OR_EXIT(collType)                   \
   if (type == #collType) {                                 \
@@ -59,12 +60,12 @@ int main(int argc, char* argv[])
           continue;
         }
       }
-      const auto& type = [&edmEvent, &name]() {
+      const auto type = [&edmEvent, &name]() {
         const auto coll = edmEvent.get(name);
         if (coll) {
           return coll->getTypeName();
         }
-        static std::string empty = "";
+        static constexpr std::string_view empty = "";
         return empty;
       }();
       if (type.empty()) {
