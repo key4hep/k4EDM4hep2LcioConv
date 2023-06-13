@@ -26,5 +26,11 @@ find_package(LCIO REQUIRED)
 find_package(EDM4HEP REQUIRED)
 
 add_subdirectory(k4EDM4hep2LcioConv)
+add_subdirectory(standalone)
+
+include(CTest)
+if (BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
 
 include(cmake/k4EDM4hep2LcioConvCreateConfig.cmake)

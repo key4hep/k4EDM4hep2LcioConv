@@ -1,5 +1,7 @@
 add_library(k4EDM4hep2LcioConv SHARED
-  src/k4EDM4hep2LcioConv.cpp)
+  src/k4EDM4hep2LcioConv.cpp
+  src/k4Lcio2EDM4hepConv.cpp
+  )
 
 target_include_directories(k4EDM4hep2LcioConv PUBLIC
   ${LCIO_INCLUDE_DIRS}
@@ -12,7 +14,8 @@ target_link_libraries(k4EDM4hep2LcioConv PUBLIC
 
 set_target_properties(${CMAKE_PROJECT_NAME}
   PROPERTIES
-  PUBLIC_HEADER "include/${CMAKE_PROJECT_NAME}/k4EDM4hep2LcioConv.h")
+  PUBLIC_HEADER "include/${CMAKE_PROJECT_NAME}/k4EDM4hep2LcioConv.h;include/${CMAKE_PROJECT_NAME}/k4Lcio2EDM4hepConv.h"
+  )
 
 install(TARGETS k4EDM4hep2LcioConv
   EXPORT ${CMAKE_PROJECT_NAME}Targets
