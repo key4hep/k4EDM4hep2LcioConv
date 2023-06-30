@@ -1,6 +1,8 @@
 #ifndef K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
 #define K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
 
+#include "MappingUtils.h"
+
 // EDM4hep
 #include "edm4hep/CaloHitContributionCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
@@ -323,18 +325,6 @@ namespace LCIO2EDM4hepConv {
     return edm4hepColl;
   }
 
-  namespace detail {
-    /// Helper function for generic map lookup
-    template<typename LCIOT, typename EDM4hepT>
-    std::optional<EDM4hepT> mapLookup(LCIOT* elem, const TypeMapT<LCIOT*, EDM4hepT>& map)
-    {
-      if (const auto& it = map.find(elem); it != map.end()) {
-        return std::optional(it->second);
-      }
-      return std::nullopt;
-    }
-  } // namespace detail
-
   /**
    * Create an Association collection from an LCRelations collection. Templated
    * on the From and To types as well as the direction of the relations in the
@@ -365,8 +355,8 @@ namespace LCIO2EDM4hepConv {
       assoc.setWeight(rel->getWeight());
       const auto lcioTo = static_cast<ToLCIOT*>(rel->getTo());
       const auto lcioFrom = static_cast<FromLCIOT*>(rel->getFrom());
-      const auto edm4hepTo = detail::mapLookup(lcioTo, toMap);
-      const auto edm4hepFrom = detail::mapLookup(lcioFrom, fromMap);
+      const auto edm4hepTo = k4EDM4hep2LCIOConv::detail::mapLookup(lcioTo, toMap);
+      const auto edm4hepFrom = k4EDM4hep2LCIOConv::detail::mapLookup(lcioFrom, fromMap);
       if (edm4hepTo.has_value() && edm4hepFrom.has_value()) {
         if constexpr (Reverse) {
           if constexpr (std::is_same_v<ToEDM4hepT, edm4hep::MutableVertex>) {
