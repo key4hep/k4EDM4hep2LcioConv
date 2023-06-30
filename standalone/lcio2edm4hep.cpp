@@ -73,10 +73,10 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-  bool createSubset = false ;
+  bool createSubset = false;
 
-  if (argc < 3 || (argc >4 && (argv[4] != std::string("-s"))) )  {
-    std::cerr << usageMsg  << std::endl;
+  if (argc < 3 || (argc > 4 && (argv[4] != std::string("-s")))) {
+    std::cerr << usageMsg << std::endl;
     return 1;
   }
   const auto outputFile = std::string(argv[2]);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   bool patching = false;
   UTIL::CheckCollections colPatcher {};
   std::vector<std::pair<std::string, std::string>> namesTypes;
-  std::set<std::string> subsetColls ;
+  std::set<std::string> subsetColls;
   int maxEvt = -1;
 
   if (argc >= 4) {
@@ -98,15 +98,15 @@ int main(int argc, char* argv[])
     colPatcher.addPatchCollections(namesTypes);
     patching = true;
 
-    if( argc >= 5 && (argv[4] == std::string("-s") ) ){
+    if (argc >= 5 && (argv[4] == std::string("-s"))) {
       // new mode: write only a subset of collection as specified in patch file
-      patching = false ;
-      createSubset =  true ;
-      for(auto& nt : namesTypes){
-	    subsetColls.insert( nt.first ) ;
+      patching = false;
+      createSubset = true;
+      for (auto& nt : namesTypes) {
+        subsetColls.insert(nt.first);
       }
     }
-    if( argc == 6 ) maxEvt = std::atoi( argv[5] ) ;
+    if (argc == 6) maxEvt = std::atoi(argv[5]);
   }
 
   auto lcreader = IOIMPL::LCFactory::getInstance()->createLCReader();
@@ -126,29 +126,26 @@ int main(int argc, char* argv[])
     writer.writeFrame(edmRunHeader, "runs");
   }
 
-  int nEvt = maxEvt >0 ? maxEvt : lcreader->getNumberOfEvents() ;
+  int nEvt = maxEvt > 0 ? maxEvt : lcreader->getNumberOfEvents();
 
   for (auto i = 0u; i < nEvt; ++i) {
     if (i % 10 == 0) {
       std::cout << "processing Event: " << i << std::endl;
     }
-    auto evt = lcreader->readNextEvent( EVENT::LCIO::UPDATE);
+    auto evt = lcreader->readNextEvent(EVENT::LCIO::UPDATE);
     // Patching the Event to make sure all events contain the same Collections.
     if (patching == true) {
       colPatcher.patchCollections(evt);
-
     }
     if (createSubset) {
       auto* colNames = evt->getCollectionNames();
-      for( auto& n : *colNames ){
-      if( subsetColls.find( n ) == subsetColls.end() )
-	    evt->removeCollection( n ) ;
+      for (auto& n : *colNames) {
+        if (subsetColls.find(n) == subsetColls.end()) evt->removeCollection(n);
       }
     }
 
     const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt);
     writer.writeFrame(edmEvent, "events");
-
   }
 
   writer.finish();
