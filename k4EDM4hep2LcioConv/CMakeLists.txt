@@ -14,7 +14,7 @@ target_link_libraries(k4EDM4hep2LcioConv PUBLIC
 
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-  PUBLIC_HEADER "include/${PROJECT_NAME}/k4EDM4hep2LcioConv.h;include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.h"
+  PUBLIC_HEADER "include/${PROJECT_NAME}/k4EDM4hep2LcioConv.h;include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.h;include/${PROJECT_NAME}/MappingUtils.h"
   )
 
 install(TARGETS k4EDM4hep2LcioConv

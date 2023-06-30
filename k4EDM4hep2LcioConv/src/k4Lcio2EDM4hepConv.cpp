@@ -1,8 +1,10 @@
 #include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"
+#include "k4EDM4hep2LcioConv/MappingUtils.h"
 
 #include <iostream>
 
 namespace LCIO2EDM4hepConv {
+
   edm4hep::TrackState convertTrackState(const EVENT::TrackState* trackState)
   {
     auto edmtrackState = edm4hep::TrackState {};
@@ -58,10 +60,9 @@ namespace LCIO2EDM4hepConv {
     return result;
   }
 
-  std::unique_ptr<edm4hep::MCParticleCollection> convertMCParticles(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+  template<typename MCParticleMapT>
+  std::unique_ptr<edm4hep::MCParticleCollection>
+  convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, MCParticleMapT& mcparticlesMap)
   {
     auto dest = std::make_unique<edm4hep::MCParticleCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -81,9 +82,9 @@ namespace LCIO2EDM4hepConv {
       lval.setMomentum(Vector3fFrom(rval->getMomentum()));
       lval.setMomentumAtEndpoint(Vector3fFrom(rval->getMomentumAtEndpoint()));
 
-      const auto [iterator, inserted] = mcparticlesMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, mcparticlesMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element" << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -92,11 +93,12 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
+  template<typename RecoMapT, typename PIDMapT>
   std::vector<CollNamePair> convertReconstructedParticles(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
+    RecoMapT& recoparticlesMap,
+    PIDMapT& particleIDMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
     auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
@@ -114,9 +116,9 @@ namespace LCIO2EDM4hepConv {
       lval.setReferencePoint(rval->getReferencePoint());
       lval.setType(rval->getType());
 
-      const auto [iterator, inserted] = recoparticlesMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, recoparticlesMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -126,13 +128,14 @@ namespace LCIO2EDM4hepConv {
       // particle collection in LCIO
       for (const auto lcioPid : rval->getParticleIDs()) {
         auto pid = convertParticleID(lcioPid);
-        const auto [pidIt, pidInserted] = particleIDMap.emplace(lcioPid, pid);
+        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(
+          lcioPid, pid, particleIDMap, k4EDM4hep2LcioConv::detail::InsertMode::Checked);
         if (pidInserted) {
           lval.addToParticleIDs(pid);
           particleIDs->push_back(pid);
         }
         else {
-          lval.addToParticleIDs(pidIt->second);
+          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
         }
       }
 
@@ -140,13 +143,13 @@ namespace LCIO2EDM4hepConv {
       if (lcioPidUsed == nullptr) {
         continue;
       }
-      if (const auto it = particleIDMap.find(lcioPidUsed); it != particleIDMap.end()) {
-        lval.setParticleIDUsed(it->second);
+      if (const auto edm4hepPid = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioPidUsed, particleIDMap)) {
+        lval.setParticleIDUsed(edm4hepPid.value());
       }
       else {
         auto pid = convertParticleID(lcioPidUsed);
         particleIDs->push_back(pid);
-        particleIDMap.emplace(lcioPidUsed, pid);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcioPidUsed, pid, particleIDMap);
         lval.setParticleIDUsed(pid);
       }
     }
@@ -158,10 +161,9 @@ namespace LCIO2EDM4hepConv {
     return results;
   }
 
-  std::unique_ptr<edm4hep::VertexCollection> convertVertices(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap)
+  template<typename VertexMapT>
+  std::unique_ptr<edm4hep::VertexCollection>
+  convertVertices(const std::string& name, EVENT::LCCollection* LCCollection, VertexMapT& vertexMap)
   {
     auto dest = std::make_unique<edm4hep::VertexCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -182,9 +184,9 @@ namespace LCIO2EDM4hepConv {
         lval.addToParameters(v);
       }
 
-      const auto [iterator, inserted] = vertexMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, vertexMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -193,10 +195,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::SimTrackerHitCollection> convertSimTrackerHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap)
+  template<typename SimTrHitMapT>
+  std::unique_ptr<edm4hep::SimTrackerHitCollection>
+  convertSimTrackerHits(const std::string& name, EVENT::LCCollection* LCCollection, SimTrHitMapT& SimTrHitMap)
   {
     auto dest = std::make_unique<edm4hep::SimTrackerHitCollection>();
 
@@ -214,9 +215,9 @@ namespace LCIO2EDM4hepConv {
       lval.setPosition(rval->getPosition());
       lval.setMomentum(rval->getMomentum());
 
-      const auto [iterator, inserted] = SimTrHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, SimTrHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -225,10 +226,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::RawTimeSeriesCollection> convertTPCHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::RawTimeSeriesCollection>
+  convertTPCHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& TPCHitMap)
   {
     auto dest = std::make_unique<edm4hep::RawTimeSeriesCollection>();
 
@@ -243,9 +243,9 @@ namespace LCIO2EDM4hepConv {
       for (unsigned j = 0, M = rval->getNRawDataWords(); j < M; j++) {
         lval.addToAdcCounts(rval->getRawDataWord(j));
       }
-      const auto [iterator, inserted] = TPCHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TPCHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -255,10 +255,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::TrackerHitCollection> convertTrackerHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& TrackerHitMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::TrackerHitCollection>
+  convertTrackerHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& TrackerHitMap)
   {
     auto dest = std::make_unique<edm4hep::TrackerHitCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -277,9 +276,9 @@ namespace LCIO2EDM4hepConv {
       auto& m = rval->getCovMatrix();
       lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});
 
-      const auto [iterator, inserted] = TrackerHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TrackerHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -288,10 +287,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::TrackerHitPlaneCollection> convertTrackerHitPlanes(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& TrackerHitPlaneMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::TrackerHitPlaneCollection>
+  convertTrackerHitPlanes(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& TrackerHitPlaneMap)
   {
     auto dest = std::make_unique<edm4hep::TrackerHitPlaneCollection>();
 
@@ -315,9 +313,9 @@ namespace LCIO2EDM4hepConv {
       auto& m = rval->getCovMatrix();
       lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});
 
-      const auto [iterator, inserted] = TrackerHitPlaneMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TrackerHitPlaneMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -327,10 +325,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::TrackCollection> convertTracks(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& TrackMap)
+  template<typename TrackMapT>
+  std::unique_ptr<edm4hep::TrackCollection>
+  convertTracks(const std::string& name, EVENT::LCCollection* LCCollection, TrackMapT& TrackMap)
   {
     auto dest = std::make_unique<edm4hep::TrackCollection>();
 
@@ -357,9 +354,9 @@ namespace LCIO2EDM4hepConv {
       quantities.value = rval->getdEdx();
       quantities.error = rval->getdEdxError();
       lval.addToDxQuantities(quantities);
-      const auto [iterator, inserted] = TrackMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TrackMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -369,10 +366,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::SimCalorimeterHitCollection> convertSimCalorimeterHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::SimCalorimeterHitCollection>
+  convertSimCalorimeterHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& SimCaloHitMap)
   {
     auto dest = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -385,9 +381,9 @@ namespace LCIO2EDM4hepConv {
       lval.setEnergy(rval->getEnergy());
       lval.setPosition(rval->getPosition());
 
-      const auto [iterator, inserted] = SimCaloHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, SimCaloHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -397,10 +393,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::RawCalorimeterHitCollection> convertRawCalorimeterHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit>& rawCaloHitMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::RawCalorimeterHitCollection>
+  convertRawCalorimeterHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& rawCaloHitMap)
   {
     auto dest = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
@@ -414,9 +409,9 @@ namespace LCIO2EDM4hepConv {
       lval.setAmplitude(rval->getAmplitude());
       lval.setTimeStamp(rval->getTimeStamp());
 
-      const auto [iterator, inserted] = rawCaloHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, rawCaloHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -426,10 +421,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  std::unique_ptr<edm4hep::CalorimeterHitCollection> convertCalorimeterHits(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
+  template<typename HitMapT>
+  std::unique_ptr<edm4hep::CalorimeterHitCollection>
+  convertCalorimeterHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& caloHitMap)
   {
     auto dest = std::make_unique<edm4hep::CalorimeterHitCollection>();
 
@@ -445,9 +439,9 @@ namespace LCIO2EDM4hepConv {
       lval.setTime(rval->getTime());
       lval.setType(rval->getType());
 
-      const auto [iterator, inserted] = caloHitMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, caloHitMap);
       if (!inserted) {
-        auto existing = iterator->second;
+        auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
         const auto existingId = existing.id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -457,11 +451,12 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
+  template<typename ClusterMapT, typename PIDMapT>
   std::vector<CollNamePair> convertClusters(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
+    ClusterMapT& clusterMap,
+    PIDMapT& particleIDMap)
   {
     auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     auto dest = std::make_unique<edm4hep::ClusterCollection>();
@@ -480,9 +475,9 @@ namespace LCIO2EDM4hepConv {
       lval.setType(rval->getType());
       lval.setDirectionError(Vector3fFrom(rval->getDirectionError()));
 
-      const auto [iterator, inserted] = clusterMap.emplace(rval, lval);
+      const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, clusterMap);
       if (!inserted) {
-        auto existing = iterator->first;
+        auto existing = k4EDM4hep2LcioConv::detail::getKey(iterator);
         const auto existingId = existing->id();
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
@@ -492,13 +487,13 @@ namespace LCIO2EDM4hepConv {
       // collection in LCIO
       for (const auto lcioPid : rval->getParticleIDs()) {
         auto pid = convertParticleID(lcioPid);
-        const auto [pidIt, pidInserted] = particleIDMap.emplace(lcioPid, pid);
+        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(lcioPid, pid, particleIDMap);
         if (pidInserted) {
           lval.addToParticleIDs(pid);
           particleIDs->push_back(pid);
         }
         else {
-          lval.addToParticleIDs(pidIt->second);
+          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
         }
       }
     }
@@ -509,8 +504,9 @@ namespace LCIO2EDM4hepConv {
     return results;
   }
 
+  template<typename ObjectMappingT>
   std::vector<CollNamePair>
-  convertCollection(const std::string& name, EVENT::LCCollection* LCCollection, LcioEdmTypeMapping& typeMapping)
+  convertCollection(const std::string& name, EVENT::LCCollection* LCCollection, ObjectMappingT& typeMapping)
   {
     const auto& type = LCCollection->getTypeName();
     std::vector<CollNamePair> retColls;
@@ -562,9 +558,10 @@ namespace LCIO2EDM4hepConv {
     return retColls;
   }
 
+  template<typename HitMapT, typename MCParticleMapT>
   std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
-    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+    HitMapT& SimCaloHitMap,
+    const MCParticleMapT& mcparticlesMap)
   {
     auto contrCollection = std::make_unique<edm4hep::CaloHitContributionCollection>();
     for (auto& [lcioHit, edmHit] : SimCaloHitMap) {
@@ -579,9 +576,8 @@ namespace LCIO2EDM4hepConv {
         edm_contr.setStepPosition(lcioHit->getStepPosition(j));
         auto lcioParticle = (lcioHit->getParticleCont(j));
         if (lcioParticle != nullptr) {
-          const auto it = mcparticlesMap.find(lcioParticle);
-          if (it != mcparticlesMap.end()) {
-            edm_contr.setParticle(it->second);
+          if (const auto edm4hepParticle = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioParticle, mcparticlesMap)) {
+            edm_contr.setParticle(edm4hepParticle.value());
           }
           else {
             std::cerr << "Cannot find corresponding EDM4hep MCParticle for a LCIO MCParticle, "
@@ -675,7 +671,8 @@ namespace LCIO2EDM4hepConv {
     return event;
   }
 
-  void resolveRelationsMCParticles(TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+  template<typename MCParticleMapT>
+  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
@@ -683,15 +680,12 @@ namespace LCIO2EDM4hepConv {
       auto daughters = lcio->getDaughters();
       auto parents = lcio->getParents();
 
-      int dnum = 1;
       for (auto d : daughters) {
         if (d == nullptr) {
           continue;
         }
-        const auto it = mcparticlesMap.find(d);
-        dnum++;
-        if (it != mcparticlesMap.end()) {
-          edm.addToDaughters(it->second);
+        if (const auto edmD = k4EDM4hep2LcioConv::detail::mapLookupTo(d, mcparticlesMap)) {
+          edm.addToDaughters(edmD.value());
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep MCParticle for an LCIO MCParticle, "
@@ -703,9 +697,8 @@ namespace LCIO2EDM4hepConv {
         if (p == nullptr) {
           continue;
         }
-        const auto it = mcparticlesMap.find(p);
-        if (it != mcparticlesMap.end()) {
-          edm.addToParents(it->second);
+        if (const auto edmP = k4EDM4hep2LcioConv::detail::mapLookupTo(p, mcparticlesMap)) {
+          edm.addToParents(edmP.value());
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "
@@ -716,18 +709,16 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelationsSimTrackerHits(
-    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
-    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+  template<typename HitMapT, typename MCParticleMapT>
+  void resolveRelationsSimTrackerHits(HitMapT& SimTrHitMap, const MCParticleMapT& mcparticlesMap)
   {
     for (auto& [lcio, edm] : SimTrHitMap) {
       auto mcps = lcio->getMCParticle();
       if (mcps == nullptr) {
         continue;
       }
-      const auto it = mcparticlesMap.find(mcps);
-      if (it != mcparticlesMap.end()) {
-        edm.setMCParticle(it->second);
+      if (const auto edmP = k4EDM4hep2LcioConv::detail::mapLookupTo(mcps, mcparticlesMap)) {
+        edm.setMCParticle(edmP.value());
       }
       else {
         std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "
@@ -737,11 +728,12 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
+  template<typename RecoParticleMapT, typename VertexMapT, typename ClusterMapT, typename TrackMapT>
   void resolveRelationsRecoParticles(
-    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    const TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap)
+    RecoParticleMapT& recoparticlesMap,
+    const VertexMapT& vertexMap,
+    const ClusterMapT& clusterMap,
+    const TrackMapT& tracksMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
@@ -764,9 +756,8 @@ namespace LCIO2EDM4hepConv {
         if (c == nullptr) {
           continue;
         }
-        const auto it = clusterMap.find(c);
-        if (it != clusterMap.end()) {
-          edm.addToClusters(it->second);
+        if (const auto edmC = k4EDM4hep2LcioConv::detail::mapLookupTo(c, clusterMap)) {
+          edm.addToClusters(edmC.value());
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep Cluster for a LCIO Cluster, "
@@ -780,9 +771,8 @@ namespace LCIO2EDM4hepConv {
         if (t == nullptr) {
           continue;
         }
-        const auto it = tracksMap.find(t);
-        if (it != tracksMap.end()) {
-          edm.addToTracks(it->second);
+        if (const auto edmT = k4EDM4hep2LcioConv::detail::mapLookupTo(t, tracksMap)) {
+          edm.addToTracks(edmT.value());
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep Tracks for a LCIO Tracks, "
@@ -796,9 +786,8 @@ namespace LCIO2EDM4hepConv {
         if (p == nullptr) {
           continue;
         }
-        const auto it = recoparticlesMap.find(p);
-        if (it != recoparticlesMap.end()) {
-          edm.addToParticles(it->second);
+        if (const auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoparticlesMap)) {
+          edm.addToParticles(edmReco.value());
         }
         else {
           std::cerr << "Cannot find corresponding EDM4hep RecoParticle for a LCIO RecoParticle, "
@@ -809,9 +798,8 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelationsClusters(
-    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
-    const TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
+  template<typename ClusterMapT, typename CaloHitMapT>
+  void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap)
   {
     for (auto& [lcio, edm] : clustersMap) {
       auto clusters = lcio->getClusters();
@@ -822,9 +810,8 @@ namespace LCIO2EDM4hepConv {
         if (c == nullptr) {
           continue;
         }
-        const auto it = clustersMap.find(c);
-        if (it != clustersMap.end()) {
-          edm.addToClusters(it->second);
+        if (const auto edmC = k4EDM4hep2LcioConv::detail::mapLookupTo(c, clustersMap)) {
+          edm.addToClusters(edmC.value());
         }
         else {
           std::cerr << "Couldn't find cluster to add to Relations in edm" << std::endl;
@@ -834,9 +821,8 @@ namespace LCIO2EDM4hepConv {
         if (cal == nullptr) {
           continue;
         }
-        const auto it = caloHitMap.find(cal);
-        if (it != caloHitMap.end()) {
-          edm.addToHits(it->second);
+        if (const auto edmCaloHit = k4EDM4hep2LcioConv::detail::mapLookupTo(cal, caloHitMap)) {
+          edm.addToHits(edmCaloHit.value());
         }
         else {
           std::cerr << "Couldn't find CaloHit to add to Relations for Clusters in edm" << std::endl;
@@ -851,11 +837,12 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
+  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
   void resolveRelationsTracks(
-    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap,
-    const TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap,
-    const TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap,
-    const TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& trackerhitplaneMap)
+    TrackMapT& tracksMap,
+    const TrackHitMapT& trackerHitMap,
+    const TPCHitMapT&,
+    const THPlaneHitMapT&)
   {
     for (auto& [lcio, edm] : tracksMap) {
       auto tracks = lcio->getTracks();
@@ -864,9 +851,8 @@ namespace LCIO2EDM4hepConv {
         if (t == nullptr) {
           continue;
         }
-        const auto it = tracksMap.find(t);
-        if (it != tracksMap.end()) {
-          edm.addToTracks(it->second);
+        if (const auto track = k4EDM4hep2LcioConv::detail::mapLookupTo(t, tracksMap)) {
+          edm.addToTracks(track.value());
         }
         else {
           // std::cerr << "Couldn't find tracks to add to Tracks Relations in edm" << std::endl;
@@ -876,9 +862,8 @@ namespace LCIO2EDM4hepConv {
         if (th == nullptr) {
           continue;
         }
-        const auto it = trackerHitMap.find(th);
-        if (it != trackerHitMap.end()) {
-          edm.addToTrackerHits(it->second);
+        if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(th, trackerHitMap)) {
+          edm.addToTrackerHits(trHit.value());
         }
         // else {
         //   std::cerr << "Couldn't find trackerHit to add to Relations for tracks in edm\n"
@@ -913,18 +898,16 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelationsVertices(
-    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap)
+  template<typename VertexMapT, typename RecoParticleMapT>
+  void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap)
   {
     for (auto& [lcio, edm] : vertexMap) {
       auto recoparticle = lcio->getAssociatedParticle();
       if (recoparticle == nullptr) {
         continue;
       }
-      const auto it = recoparticleMap.find(recoparticle);
-      if (it != recoparticleMap.end()) {
-        edm.setAssociatedParticle(it->second);
+      if (const auto recoP = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, recoparticleMap)) {
+        edm.setAssociatedParticle(recoP.value());
       }
       else {
         std::cerr << "Couldn't find associated Particle to add to Vertex "
@@ -933,7 +916,8 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  void resolveRelations(LcioEdmTypeMapping& typeMapping)
+  template<typename ObjectMappingT>
+  void resolveRelations(ObjectMappingT& typeMapping)
   {
     resolveRelationsMCParticles(typeMapping.mcParticles);
     resolveRelationsRecoParticles(
@@ -945,8 +929,9 @@ namespace LCIO2EDM4hepConv {
     resolveRelationsVertices(typeMapping.vertices, typeMapping.recoParticles);
   }
 
+  template<typename ObjectMappingT>
   std::vector<CollNamePair> createAssociations(
-    const LcioEdmTypeMapping& typeMapping,
+    const ObjectMappingT& typeMapping,
     const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation)
   {
     std::vector<CollNamePair> assoCollVec;
@@ -1050,8 +1035,9 @@ namespace LCIO2EDM4hepConv {
     return assoCollVec;
   }
 
+  template<typename ObjectMappingT>
   std::unique_ptr<podio::CollectionBase>
-  fillSubset(EVENT::LCCollection* LCCollection, const LcioEdmTypeMapping& typeMapping, const std::string& type)
+  fillSubset(EVENT::LCCollection* LCCollection, const ObjectMappingT& typeMapping, const std::string& type)
   {
     if (type == "MCParticle") {
       return handleSubsetColl<edm4hep::MCParticleCollection>(LCCollection, typeMapping.mcParticles);

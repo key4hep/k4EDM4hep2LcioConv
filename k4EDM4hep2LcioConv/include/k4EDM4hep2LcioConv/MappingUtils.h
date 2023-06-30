@@ -54,12 +54,13 @@ namespace k4EDM4hep2LcioConv {
     using has_key_t = typename T::key_type;
 
     template<typename T>
-    constexpr static bool is_map_t = det::is_detected_v<has_key_t, T>;
+    constexpr static bool is_map_v = det::is_detected_v<has_key_t, T>;
 
     /// Helper struct to determine the key and mapped types for map-like types or
     /// maps
-    template<typename T, typename IsMap = std::bool_constant<is_map_t<T>>>
-    struct map_t_helper {};
+    template<typename T, typename IsMap = std::bool_constant<is_map_v<T>>>
+    struct map_t_helper {
+    };
 
     template<typename T>
     struct map_t_helper<T, std::bool_constant<true>> {
@@ -89,7 +90,7 @@ namespace k4EDM4hep2LcioConv {
     template<typename FromT, typename MapT, typename = std::enable_if_t<std::is_same_v<FromT, key_t<MapT>>>>
     auto mapLookupTo(FromT keyObj, const MapT& map) -> std::optional<mapped_t<MapT>>
     {
-      if constexpr (is_map_t<MapT>) {
+      if constexpr (is_map_v<MapT>) {
         if (const auto& it = map.find(keyObj); it != map.end()) {
           return it->second;
         }
@@ -123,6 +124,68 @@ namespace k4EDM4hep2LcioConv {
       }
 
       return std::nullopt;
+    }
+
+    enum class InsertMode { Unchecked, Checked };
+
+    /**
+     * Insert a key-value pair into a "map"
+     *
+     * safeInsert argument can be useld to check for existence of key first,
+     * before inserting. This is only useful for maps using a vector as backing,
+     * since the usual emplace already does this check and does not insert if a
+     * key already exists
+     */
+    template<typename MapT, typename KeyT = key_t<MapT>, typename MappedT = mapped_t<MapT>>
+    auto mapInsert(KeyT&& key, MappedT&& mapped, MapT& map, InsertMode insertMode = InsertMode::Unchecked)
+    {
+      if constexpr (is_map_v<MapT>) {
+        return map.emplace(std::forward<KeyT>(key), std::forward<MappedT>(mapped));
+      }
+      else {
+        if (insertMode == InsertMode::Checked) {
+          if (auto existing = mapLookupTo(key, map)) {
+            return std::make_pair(std::make_tuple(key, existing.value()), false);
+          }
+        }
+        return std::make_pair(map.emplace_back(std::forward<KeyT>(key), std::forward<MappedT>(mapped)), true);
+      }
+    }
+
+    /**
+     * Helper function to get the Key from an Iterator (e.g. returned by
+     * mapInsert). This is necessary because map::emplace returns an iterator,
+     * while vector::emplace_back returns a reference to the inserted element.
+     * Simply providing two overloads here does the trick.
+     */
+    template<typename It>
+    auto getKey(const It& it)
+    {
+      return std::get<0>(it);
+    }
+
+    template<typename It>
+    auto getKey(const It* it)
+    {
+      return std::get<0>(*it);
+    }
+
+    /**
+     * Helper function to get the Value from an Iterator (e.g. returned by
+     * mapInsert). This is necessary because map::emplace returns an iterator,
+     * while vector::emplace_back returns a reference to the inserted element.
+     * Simply providing two overloads here does the trick.
+     */
+    template<typename It>
+    auto getMapped(const It& it)
+    {
+      return std::get<1>(it);
+    }
+
+    template<typename It>
+    auto getMapped(const It* it)
+    {
+      return std::get<1>(*it);
     }
   } // namespace detail
 
