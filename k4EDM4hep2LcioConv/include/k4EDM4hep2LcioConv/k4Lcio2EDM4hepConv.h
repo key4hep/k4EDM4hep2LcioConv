@@ -68,19 +68,19 @@ namespace LCIO2EDM4hepConv {
    * way that makes the lookup from LCIO to EDM4hep easy.
    */
   struct LcioEdmTypeMapping {
-    TypeMapT<const lcio::Track*, edm4hep::MutableTrack> tracks {};
-    TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit> trackerHits {};
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit> simTrackerHits {};
-    TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> caloHits {};
-    TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawCaloHits {};
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit> simCaloHits {};
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries> tpcHits {};
-    TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster> clusters {};
-    TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex> vertices {};
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
-    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
-    TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
-    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID> particleIDs {};
+    TypeMapT<lcio::Track*, edm4hep::MutableTrack> tracks {};
+    TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit> trackerHits {};
+    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit> simTrackerHits {};
+    TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> caloHits {};
+    TypeMapT<lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawCaloHits {};
+    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit> simCaloHits {};
+    TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries> tpcHits {};
+    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster> clusters {};
+    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex> vertices {};
+    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
+    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
+    TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
+    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID> particleIDs {};
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
@@ -178,7 +178,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::MCParticleCollection> convertMCParticles(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
+    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
 
   /**
    * Convert a ReconstructedParticle collection and return the resulting collection.
@@ -191,8 +191,8 @@ namespace LCIO2EDM4hepConv {
   std::vector<CollNamePair> convertReconstructedParticles(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
+    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
 
   /**
    * Convert a Vertex collection and return the resulting collection.
@@ -201,7 +201,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::VertexCollection> convertVertices(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap);
+    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap);
 
   /**
    * Convert a SimTrackerHit collection and return the resulting collection.
@@ -210,7 +210,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::SimTrackerHitCollection> convertSimTrackerHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap);
+    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap);
 
   /**
    * Convert a TPCHit collection and return the resulting collection.
@@ -219,7 +219,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::RawTimeSeriesCollection> convertTPCHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap);
+    TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap);
 
   /**
    * Convert a TrackerHit collection and return the resulting collection.
@@ -228,7 +228,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackerHitCollection> convertTrackerHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit>& TrackerHitMap);
+    TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& TrackerHitMap);
 
   /**
    * Convert a TrackerHitPlane collection and return the resulting collection.
@@ -237,7 +237,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackerHitPlaneCollection> convertTrackerHitPlanes(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& TrackerHitPlaneMap);
+    TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& TrackerHitPlaneMap);
 
   /**
    * Convert a Track collection and return the resulting collection.
@@ -246,7 +246,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackCollection> convertTracks(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& TrackMap);
+    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& TrackMap);
 
   /**
    * Convert a SimCalorimeterHit collection and return the resulting collection.
@@ -255,7 +255,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::SimCalorimeterHitCollection> convertSimCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap);
+    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap);
 
   /**
    * Convert a RawCalorimeterHit collection and return the resulting collection.
@@ -264,7 +264,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::RawCalorimeterHitCollection> convertRawCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit>& rawCaloHitMap);
+    TypeMapT<lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit>& rawCaloHitMap);
 
   /**
    * Convert a CalorimeterHit collection and return the resulting collection.
@@ -273,7 +273,7 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::CalorimeterHitCollection> convertCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap);
+    TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap);
 
   /**
    * Convert a Cluster collection and return the resulting collection.
@@ -286,8 +286,8 @@ namespace LCIO2EDM4hepConv {
   std::vector<CollNamePair> convertClusters(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
+    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
+    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap);
 
   /**
    * Create an EventHeaderCollection and fills it with the Metadata.
@@ -304,7 +304,7 @@ namespace LCIO2EDM4hepConv {
    * matching types)
    */
   template<typename CollT, typename LcioT, typename Edm4hepT>
-  auto handleSubsetColl(EVENT::LCCollection* lcioColl, const TypeMapT<const LcioT*, Edm4hepT>& elemMap)
+  auto handleSubsetColl(EVENT::LCCollection* lcioColl, const TypeMapT<LcioT*, Edm4hepT>& elemMap)
   {
     auto edm4hepColl = std::make_unique<CollT>();
     edm4hepColl->setSubsetCollection();
@@ -326,7 +326,7 @@ namespace LCIO2EDM4hepConv {
   namespace detail {
     /// Helper function for generic map lookup
     template<typename LCIOT, typename EDM4hepT>
-    std::optional<EDM4hepT> mapLookup(const LCIOT* elem, const TypeMapT<const LCIOT*, EDM4hepT>& map)
+    std::optional<EDM4hepT> mapLookup(LCIOT* elem, const TypeMapT<LCIOT*, EDM4hepT>& map)
     {
       if (const auto& it = map.find(elem); it != map.end()) {
         return std::optional(it->second);
@@ -354,8 +354,8 @@ namespace LCIO2EDM4hepConv {
     typename ToEDM4hepT>
   std::unique_ptr<CollT> createAssociationCollection(
     EVENT::LCCollection* relations,
-    const TypeMapT<const FromLCIOT*, FromEDM4hepT>& fromMap,
-    const TypeMapT<const ToLCIOT*, ToEDM4hepT>& toMap)
+    const TypeMapT<FromLCIOT*, FromEDM4hepT>& fromMap,
+    const TypeMapT<ToLCIOT*, ToEDM4hepT>& toMap)
   {
     auto assocColl = std::make_unique<CollT>();
     auto relIter = UTIL::LCIterator<EVENT::LCRelation>(relations);
@@ -398,50 +398,50 @@ namespace LCIO2EDM4hepConv {
    * The contributions are also attached to their corresponding SimCalorimeterHits.
    */
   std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
+    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
+    const TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
 
   /**
    * Resolve the relations for the MCParticles.
    */
-  void resolveRelationsMCParticles(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
+  void resolveRelationsMCParticles(TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
 
   /**
    * Resolve the relations for SimTrackerHits
    */
   void resolveRelationsSimTrackerHits(
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
+    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
+    const TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap);
 
   /**
    * Resolve the relations for ReconstructedParticles
    */
   void resolveRelationsRecoParticles(
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap);
+    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    const TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
+    const TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
+    const TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap);
 
   /**
    * Resolve the relations for Clusters
    */
   void resolveRelationsClusters(
-    TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
-    const TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap);
+    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
+    const TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap);
 
   /**
    * Resolve the relations for Tracks
    */
   void resolveRelationsTracks(
-    TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
-    const TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap);
+    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap,
+    const TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap);
 
   /**
    * Resolve the relations for Vertices
    */
   void resolveRelationsVertices(
-    TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap);
+    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
+    const TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap);
 
   template<typename LCIOType>
   void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event)

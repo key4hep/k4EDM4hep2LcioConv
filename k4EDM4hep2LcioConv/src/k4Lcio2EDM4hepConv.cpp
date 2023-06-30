@@ -61,11 +61,11 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::MCParticleCollection> convertMCParticles(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
     auto dest = std::make_unique<edm4hep::MCParticleCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::MCParticle*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::MCParticle*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setPDG(rval->getPDG());
@@ -95,13 +95,13 @@ namespace LCIO2EDM4hepConv {
   std::vector<CollNamePair> convertReconstructedParticles(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
+    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
     auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setCharge(rval->getCharge());
@@ -161,11 +161,11 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::VertexCollection> convertVertices(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap)
+    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap)
   {
     auto dest = std::make_unique<edm4hep::VertexCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::Vertex*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::Vertex*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setPrimary(rval->isPrimary() ? 1 : 0); // 1 for primary and 0 for not primary
@@ -196,12 +196,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::SimTrackerHitCollection> convertSimTrackerHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap)
+    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap)
   {
     auto dest = std::make_unique<edm4hep::SimTrackerHitCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::SimTrackerHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::SimTrackerHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       uint64_t cellID = rval->getCellID1();
@@ -228,12 +228,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::RawTimeSeriesCollection> convertTPCHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap)
+    TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap)
   {
     auto dest = std::make_unique<edm4hep::RawTimeSeriesCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::TPCHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::TPCHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setCellID(rval->getCellID());
@@ -258,11 +258,11 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackerHitCollection> convertTrackerHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit>& TrackerHitMap)
+    TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& TrackerHitMap)
   {
     auto dest = std::make_unique<edm4hep::TrackerHitCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::TrackerHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::TrackerHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       uint64_t cellID = rval->getCellID1();
@@ -291,12 +291,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackerHitPlaneCollection> convertTrackerHitPlanes(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& TrackerHitPlaneMap)
+    TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& TrackerHitPlaneMap)
   {
     auto dest = std::make_unique<edm4hep::TrackerHitPlaneCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::TrackerHitPlane*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::TrackerHitPlane*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       uint64_t cellID = rval->getCellID1();
@@ -330,12 +330,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::TrackCollection> convertTracks(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& TrackMap)
+    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& TrackMap)
   {
     auto dest = std::make_unique<edm4hep::TrackCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::Track*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::Track*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setType(rval->getType());
@@ -372,11 +372,11 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::SimCalorimeterHitCollection> convertSimCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap)
+    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap)
   {
     auto dest = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::SimCalorimeterHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::SimCalorimeterHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       uint64_t cellID = rval->getCellID1();
@@ -400,12 +400,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::RawCalorimeterHitCollection> convertRawCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit>& rawCaloHitMap)
+    TypeMapT<lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit>& rawCaloHitMap)
   {
     auto dest = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::RawCalorimeterHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::RawCalorimeterHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       uint64_t cellID = rval->getCellID1();
@@ -429,12 +429,12 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::CalorimeterHitCollection> convertCalorimeterHits(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
+    TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
   {
     auto dest = std::make_unique<edm4hep::CalorimeterHitCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::CalorimeterHit*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::CalorimeterHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
       uint64_t cellID = rval->getCellID1();
       cellID = (cellID << 32) | rval->getCellID0();
@@ -460,14 +460,14 @@ namespace LCIO2EDM4hepConv {
   std::vector<CollNamePair> convertClusters(
     const std::string& name,
     EVENT::LCCollection* LCCollection,
-    TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    TypeMapT<const lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
+    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
+    TypeMapT<lcio::ParticleID*, edm4hep::MutableParticleID>& particleIDMap)
   {
     auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     auto dest = std::make_unique<edm4hep::ClusterCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<EVENT::Cluster*>(LCCollection->getElementAt(i));
+      auto* rval = static_cast<EVENT::Cluster*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
 
       lval.setEnergy(rval->getEnergy());
@@ -563,8 +563,8 @@ namespace LCIO2EDM4hepConv {
   }
 
   std::unique_ptr<edm4hep::CaloHitContributionCollection> createCaloHitContributions(
-    TypeMapT<const lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
-    const TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+    TypeMapT<lcio::SimCalorimeterHit*, edm4hep::MutableSimCalorimeterHit>& SimCaloHitMap,
+    const TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
     auto contrCollection = std::make_unique<edm4hep::CaloHitContributionCollection>();
     for (auto& [lcioHit, edmHit] : SimCaloHitMap) {
@@ -675,7 +675,7 @@ namespace LCIO2EDM4hepConv {
     return event;
   }
 
-  void resolveRelationsMCParticles(TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+  void resolveRelationsMCParticles(TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
@@ -717,8 +717,8 @@ namespace LCIO2EDM4hepConv {
   }
 
   void resolveRelationsSimTrackerHits(
-    TypeMapT<const lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
-    TypeMapT<const lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
+    TypeMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit>& SimTrHitMap,
+    TypeMapT<lcio::MCParticle*, edm4hep::MutableMCParticle>& mcparticlesMap)
   {
     for (auto& [lcio, edm] : SimTrHitMap) {
       auto mcps = lcio->getMCParticle();
@@ -738,10 +738,10 @@ namespace LCIO2EDM4hepConv {
   }
 
   void resolveRelationsRecoParticles(
-    TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
-    const TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
-    const TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap)
+    TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticlesMap,
+    const TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
+    const TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clusterMap,
+    const TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
@@ -810,8 +810,8 @@ namespace LCIO2EDM4hepConv {
   }
 
   void resolveRelationsClusters(
-    TypeMapT<const lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
-    const TypeMapT<const lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
+    TypeMapT<lcio::Cluster*, edm4hep::MutableCluster>& clustersMap,
+    const TypeMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit>& caloHitMap)
   {
     for (auto& [lcio, edm] : clustersMap) {
       auto clusters = lcio->getClusters();
@@ -852,10 +852,10 @@ namespace LCIO2EDM4hepConv {
   }
 
   void resolveRelationsTracks(
-    TypeMapT<const lcio::Track*, edm4hep::MutableTrack>& tracksMap,
-    const TypeMapT<const lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap,
-    const TypeMapT<const lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap,
-    const TypeMapT<const lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& trackerhitplaneMap)
+    TypeMapT<lcio::Track*, edm4hep::MutableTrack>& tracksMap,
+    const TypeMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit>& trackerHitMap,
+    const TypeMapT<lcio::TPCHit*, edm4hep::MutableRawTimeSeries>& TPCHitMap,
+    const TypeMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane>& trackerhitplaneMap)
   {
     for (auto& [lcio, edm] : tracksMap) {
       auto tracks = lcio->getTracks();
@@ -914,8 +914,8 @@ namespace LCIO2EDM4hepConv {
   }
 
   void resolveRelationsVertices(
-    TypeMapT<const lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
-    const TypeMapT<const lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap)
+    TypeMapT<lcio::Vertex*, edm4hep::MutableVertex>& vertexMap,
+    const TypeMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>& recoparticleMap)
   {
     for (auto& [lcio, edm] : vertexMap) {
       auto recoparticle = lcio->getAssociatedParticle();
