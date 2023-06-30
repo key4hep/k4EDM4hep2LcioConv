@@ -1,7 +1,7 @@
 #ifndef K4EDM4HEP2LCIOCONV_H
 #define K4EDM4HEP2LCIOCONV_H
 
-#include <cassert>
+#include "k4EDM4hep2LcioConv/MappingUtils.h"
 
 // EDM4hep
 #include <edm4hep/CaloHitContributionCollection.h>
