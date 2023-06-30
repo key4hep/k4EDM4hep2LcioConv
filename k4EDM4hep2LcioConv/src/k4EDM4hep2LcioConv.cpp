@@ -18,6 +18,8 @@
 #endif
 #endif
 
+#include <cassert>
+
 namespace EDM4hep2LCIOConv {
 
   // Convert EDM4hep Tracks to LCIO
