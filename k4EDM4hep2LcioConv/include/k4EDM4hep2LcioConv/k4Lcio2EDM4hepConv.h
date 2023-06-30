@@ -355,8 +355,8 @@ namespace LCIO2EDM4hepConv {
       assoc.setWeight(rel->getWeight());
       const auto lcioTo = static_cast<ToLCIOT*>(rel->getTo());
       const auto lcioFrom = static_cast<FromLCIOT*>(rel->getFrom());
-      const auto edm4hepTo = k4EDM4hep2LCIOConv::detail::mapLookup(lcioTo, toMap);
-      const auto edm4hepFrom = k4EDM4hep2LCIOConv::detail::mapLookup(lcioFrom, fromMap);
+      const auto edm4hepTo = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioTo, toMap);
+      const auto edm4hepFrom = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioFrom, fromMap);
       if (edm4hepTo.has_value() && edm4hepFrom.has_value()) {
         if constexpr (Reverse) {
           if constexpr (std::is_same_v<ToEDM4hepT, edm4hep::MutableVertex>) {

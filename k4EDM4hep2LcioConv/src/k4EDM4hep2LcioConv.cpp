@@ -1,4 +1,6 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
+#include "EVENT/MCParticle.h"
+#include "k4EDM4hep2LcioConv/MappingUtils.h"
 
 #include "IMPL/LCEventImpl.h"
 
@@ -79,11 +81,8 @@ namespace EDM4hep2LCIOConv {
         // Link multiple associated TrackerHits if found in converted ones
         for (const auto& edm_rp_trh : edm_tr.getTrackerHits()) {
           if (edm_rp_trh.isAvailable()) {
-            for (const auto& [lcio_trh, edm_trh] : trackerhits_vec) {
-              if (edm_trh == edm_rp_trh) {
-                lcio_tr->addHit(lcio_trh);
-                break;
-              }
+            if (const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_trh, trackerhits_vec)) {
+              lcio_tr->addHit(lcio_trh.value());
             }
           }
         }
@@ -120,11 +119,8 @@ namespace EDM4hep2LCIOConv {
       for (const auto& edm_linked_tr : edm_tr.getTracks()) {
         if (edm_linked_tr.isAvailable()) {
           // Search the linked track in the converted vector
-          for (const auto& [lcio_tr_linked, edm_tr_linked] : tracks_vec) {
-            if (edm_tr_linked == edm_linked_tr) {
-              lcio_tr->addTrack(lcio_tr_linked);
-              break;
-            }
+          if (const auto lcio_tr_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_tr, tracks_vec)) {
+            lcio_tr->addTrack(lcio_tr_linked.value());
           }
         }
       }
@@ -219,16 +215,13 @@ namespace EDM4hep2LCIOConv {
         // Link converted MCParticle to the SimTrackerHit if found
         const auto edm_strh_mcp = edm_strh.getMCParticle();
         if (edm_strh_mcp.isAvailable()) {
-          bool conv_found = false;
-          for (const auto& [lcio_mcp, edm_mcp] : mcparticles_vec) {
-            if (edm_strh_mcp == edm_mcp) {
-              lcio_strh->setMCParticle(lcio_mcp);
-              conv_found = true;
-              break;
-            }
+          if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcparticles_vec)) {
+            lcio_strh->setMCParticle(lcio_mcp.value());
           }
-          // If MCParticle available, but not found in converted vec, add nullptr
-          if (not conv_found) lcio_strh->setMCParticle(nullptr);
+          else {
+            // If MCParticle available, but not found in converted vec, add nullptr
+            lcio_strh->setMCParticle(nullptr);
+          }
         }
 
         // Save intermediate simtrackerhits ref
@@ -469,15 +462,14 @@ namespace EDM4hep2LCIOConv {
     }
 
     // Link associated clusters after converting all clusters
-    for (auto& [lcio_cluter, edm_cluster] : cluster_vec) {
+    for (auto& [lcio_clutser, edm_cluster] : cluster_vec) {
       for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
         if (edm_linked_cluster.isAvailable()) {
           // Search the linked track in the converted vector
-          for (const auto& [lcio_cluster_linked, edm_cluster_linked] : cluster_vec) {
-            if (edm_cluster_linked == edm_linked_cluster) {
-              lcio_cluter->addCluster(lcio_cluster_linked);
-              break;
-            }
+          if (
+            const auto lcio_cluster_linked =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, cluster_vec)) {
+            lcio_clutser->addCluster(lcio_cluster_linked.value());
           }
         }
       }
@@ -514,16 +506,13 @@ namespace EDM4hep2LCIOConv {
         // Link sinlge associated Particle if found in converted ones
         edm4hep::ReconstructedParticle vertex_rp = edm_vertex.getAssociatedParticle();
         if (vertex_rp.isAvailable()) {
-          bool conv_found = false;
-          for (const auto& [lcio_rp, edm_rp] : recoparticles_vec) {
-            if (edm_rp == vertex_rp) {
-              lcio_vertex->setAssociatedParticle(lcio_rp);
-              conv_found = true;
-              break;
-            }
+          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(vertex_rp, recoparticles_vec)) {
+            lcio_vertex->setAssociatedParticle(lcio_rp.value());
           }
-          // If recoparticle avilable, but not found in converted vec, add nullptr
-          if (not conv_found) lcio_vertex->setAssociatedParticle(nullptr);
+          else {
+            // If recoparticle avilable, but not found in converted vec, add nullptr
+            lcio_vertex->setAssociatedParticle(nullptr);
+          }
         }
 
         // Add LCIO and EDM4hep pair collections to vec
@@ -602,47 +591,38 @@ namespace EDM4hep2LCIOConv {
         // Link sinlge associated Vertex if found in converted ones
         auto vertex = edm_rp.getStartVertex();
         if (vertex.isAvailable()) {
-          bool conv_found = false;
-          for (const auto& [lcio_vertex, edm_vertex] : vertex_vec) {
-            if (edm_vertex == vertex) {
-              lcio_recp->setStartVertex(lcio_vertex);
-              conv_found = true;
-              break;
-            }
+          if (const auto lcio_vertex = k4EDM4hep2LcioConv::detail::mapLookupFrom(vertex, vertex_vec)) {
+            lcio_recp->setStartVertex(lcio_vertex.value());
           }
-          // If particleID available, but not found in converted vec, add nullptr
-          if (not conv_found) lcio_recp->setStartVertex(nullptr);
+          else {
+            // If particleID available, but not found in converted vec, add nullptr
+            lcio_recp->setStartVertex(nullptr);
+          }
         }
 
         // Link multiple associated Tracks if found in converted ones
         for (const auto& edm_rp_tr : edm_rp.getTracks()) {
           if (edm_rp_tr.isAvailable()) {
-            bool conv_found = false;
-            for (const auto& [lcio_tr, edm_tr] : tracks_vec) {
-              if (edm_tr == edm_rp_tr) {
-                lcio_recp->addTrack(lcio_tr);
-                conv_found = true;
-                break;
-              }
+            if (const auto lcio_tr = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_tr, tracks_vec)) {
+              lcio_recp->addTrack(lcio_tr.value());
             }
-            // If track available, but not found in converted vec, add nullptr
-            if (not conv_found) lcio_recp->addTrack(nullptr);
+            else {
+              // If track available, but not found in converted vec, add nullptr
+              lcio_recp->addTrack(nullptr);
+            }
           }
         }
 
         // Link multiple associated Clusters if found in converted ones
         for (const auto& edm_rp_cluster : edm_rp.getClusters()) {
           if (edm_rp_cluster.isAvailable()) {
-            bool conv_found = false;
-            for (const auto& [lcio_cluster, edm_cluster] : clusters_vec) {
-              if (edm_cluster == edm_rp_cluster) {
-                lcio_recp->addCluster(lcio_cluster);
-                conv_found = true;
-                break;
-              }
+            if (const auto lcio_cluster = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_cluster, clusters_vec)) {
+              lcio_recp->addCluster(lcio_cluster.value());
             }
-            // If cluster available, but not found in converted vec, add nullptr
-            if (not conv_found) lcio_recp->addCluster(nullptr);
+            else {
+              // If cluster available, but not found in converted vec, add nullptr
+              lcio_recp->addCluster(nullptr);
+            }
           }
         }
 
@@ -659,11 +639,8 @@ namespace EDM4hep2LCIOConv {
       for (const auto& edm_linked_rp : edm_rp.getParticles()) {
         if (edm_linked_rp.isAvailable()) {
           // Search the linked track in the converted vector
-          for (const auto& [lcio_rp_linked, edm_rp_linked] : recoparticles_vec) {
-            if (edm_rp_linked == edm_linked_rp) {
-              lcio_rp->addParticle(lcio_rp_linked);
-              break;
-            }
+          if (const auto lcio_rp_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_rp, recoparticles_vec)) {
+            lcio_rp->addParticle(lcio_rp_linked.value());
           }
         }
       }
@@ -727,14 +704,12 @@ namespace EDM4hep2LCIOConv {
 
     // Add parent MCParticles after converting all MCparticles
     for (auto& [lcio_mcp, edm_mcp] : mc_particles_vec) {
-      for (const auto& emd_parent_mcp : edm_mcp.getParents()) {
-        if (emd_parent_mcp.isAvailable()) {
+      for (const auto& edm_parent_mcp : edm_mcp.getParents()) {
+        if (edm_parent_mcp.isAvailable()) {
           // Search for the parent mcparticle in the converted vector
-          for (const auto& [lcio_mcp_linked, edm_mcp_linked] : mc_particles_vec) {
-            if (edm_mcp_linked == emd_parent_mcp) {
-              lcio_mcp->addParent(lcio_mcp_linked);
-              break;
-            }
+          if (
+            const auto lcio_mcp_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_parent_mcp, mc_particles_vec)) {
+            lcio_mcp->addParent(lcio_mcp_linked.value());
           }
         }
       }
@@ -766,11 +741,9 @@ namespace EDM4hep2LCIOConv {
     for (auto& [lcio_tr, edm_tr] : collection_pairs.tracks) {
       if (lcio_tr->getTrackerHits().size() == 0) {
         for (const auto& edm_tr_trh : edm_tr.getTrackerHits()) {
-          for (const auto& [lcio_trh, edm_trh] : collection_pairs.trackerhits) {
-            if (edm_trh == edm_tr_trh) {
-              lcio_tr->addHit(lcio_trh);
-              break;
-            }
+          if (
+            const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, collection_pairs.trackerhits)) {
+            lcio_tr->addHit(lcio_trh.value());
           }
         }
       }
@@ -781,10 +754,10 @@ namespace EDM4hep2LCIOConv {
       // Link Vertex
       if (lcio_rp->getStartVertex() == nullptr) {
         if (edm_rp.getStartVertex().isAvailable()) {
-          for (const auto& [lcio_vertex, edm_vertex] : collection_pairs.vertices) {
-            if (edm_vertex == edm_rp.getStartVertex()) {
-              lcio_rp->setStartVertex(lcio_vertex);
-            }
+          if (
+            const auto lcio_vertex =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp.getStartVertex(), collection_pairs.vertices)) {
+            lcio_rp->setStartVertex(lcio_vertex.value());
           }
         }
       }
@@ -793,11 +766,8 @@ namespace EDM4hep2LCIOConv {
       if (lcio_rp->getTracks().size() != edm_rp.tracks_size()) {
         assert(lcio_rp->getTracks().size() == 0);
         for (const auto& edm_rp_tr : edm_rp.getTracks()) {
-          for (const auto& [lcio_tr, edm_tr] : collection_pairs.tracks) {
-            if (edm_tr == edm_rp_tr) {
-              lcio_rp->addTrack(lcio_tr);
-              break;
-            }
+          if (const auto lcio_tr = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_tr, collection_pairs.tracks)) {
+            lcio_rp->addTrack(lcio_tr.value());
           }
         }
       }
@@ -806,11 +776,10 @@ namespace EDM4hep2LCIOConv {
       if (lcio_rp->getClusters().size() != edm_rp.clusters_size()) {
         assert(lcio_rp->getClusters().size() == 0);
         for (const auto& edm_rp_cluster : edm_rp.getClusters()) {
-          for (const auto& [lcio_cluster, edm_cluster] : collection_pairs.clusters) {
-            if (edm_cluster == edm_rp_cluster) {
-              lcio_rp->addCluster(lcio_cluster);
-              break;
-            }
+          if (
+            const auto lcio_cluster =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_cluster, collection_pairs.clusters)) {
+            lcio_rp->addCluster(lcio_cluster.value());
           }
         }
       }
@@ -818,14 +787,13 @@ namespace EDM4hep2LCIOConv {
     } // reconstructed particles
 
     // Fill missing Vertices collections
-    for (auto& vertex_pair : collection_pairs.vertices) {
+    for (const auto& [lcio_vertex, edm_vertex] : collection_pairs.vertices) {
       // Link Reconstructed Particles
-      if (vertex_pair.first->getAssociatedParticle() == nullptr) {
-        if (vertex_pair.second.getAssociatedParticle().isAvailable()) {
-          for (auto& rp_pair : collection_pairs.recoparticles) {
-            if (rp_pair.second == vertex_pair.second.getAssociatedParticle()) {
-              vertex_pair.first->setAssociatedParticle(rp_pair.first);
-            }
+      if (lcio_vertex->getAssociatedParticle() == nullptr) {
+        const auto edm_rp = edm_vertex.getAssociatedParticle();
+        if (edm_rp.isAvailable()) {
+          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, collection_pairs.recoparticles)) {
+            lcio_vertex->setAssociatedParticle(lcio_rp.value());
           }
         }
       }
@@ -848,25 +816,20 @@ namespace EDM4hep2LCIOConv {
         auto edm_contrib_mcp = contrib.getParticle();
         std::array<float, 3> step_position {
           contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
-        bool mcp_found = false;
+
+        EVENT::MCParticle* lcio_mcp = nullptr;
         if (edm_contrib_mcp.isAvailable()) {
           // if we have the MCParticle we look for its partner
-          for (auto& [lcio_mcp, edm_mcp] : collection_pairs.mcparticles) {
-            if (edm_mcp == edm_contrib_mcp) {
-              mcp_found = true;
-              lcio_sch->addMCParticleContribution(
-                lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
-              break;
-            }
-          } // all mcparticles
+          lcio_mcp =
+            k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, collection_pairs.mcparticles).value_or(nullptr);
         }
         else { // edm mcp available
           // std::cout << "WARNING: edm4hep contribution is not available!"  << std::endl;
         }
-        if (not mcp_found) {
-          // we add contribution with nullptr
-          lcio_sch->addMCParticleContribution(
-            nullptr, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
+        // we add contribution with whatever lcio mc particle we found
+        lcio_sch->addMCParticleContribution(
+          lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
+        if (!lcio_mcp) {
           // std::cout << "WARNING: No MCParticle found for this contribution."
           //           << "Make Sure MCParticles are converted! "
           //           << edm_contrib_mcp.id()
@@ -882,13 +845,11 @@ namespace EDM4hep2LCIOConv {
     // Fill missing SimTrackerHit collections
     for (auto& [lcio_strh, edm_strh] : collection_pairs.simtrackerhits) {
       const auto lcio_strh_mcp = lcio_strh->getMCParticle();
-      const auto edm_strh_mcp = edm_strh.getMCParticle();
       if (lcio_strh_mcp == nullptr) {
-        for (const auto& [lcio_mcp, edm_mcp] : collection_pairs.mcparticles) {
-          if (edm_strh_mcp == edm_mcp) {
-            lcio_strh->setMCParticle(lcio_mcp);
-            break;
-          }
+        const auto edm_strh_mcp = edm_strh.getMCParticle();
+        if (
+          const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, collection_pairs.mcparticles)) {
+          lcio_strh->setMCParticle(lcio_mcp.value());
         }
       }
 
