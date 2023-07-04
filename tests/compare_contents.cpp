@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
           continue;
         }
       }
-      const auto type = [&edmEvent, &name]() {
+      const auto type = [&edmEvent, &name]() -> std::string_view {
         const auto coll = edmEvent.get(name);
         if (coll) {
           return coll->getTypeName();
