@@ -68,81 +68,105 @@ namespace edm4hep {
 namespace EDM4hep2LCIOConv {
 
   template<typename T1, typename T2>
-  using vec_pair = std::vector<std::pair<T1, T2>>;
+  using TypeMapT = k4EDM4hep2LcioConv::MapT<T1, T2>;
 
   struct CollectionsPairVectors {
-    vec_pair<lcio::TrackImpl*, edm4hep::Track> tracks;
-    vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit> trackerhits;
-    vec_pair<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit> simtrackerhits;
-    vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> calohits;
-    vec_pair<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawcalohits;
-    vec_pair<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit> simcalohits;
-    vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries> tpchits;
-    vec_pair<lcio::ClusterImpl*, edm4hep::Cluster> clusters;
-    vec_pair<lcio::VertexImpl*, edm4hep::Vertex> vertices;
-    vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoparticles;
-    vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle> mcparticles;
+    TypeMapT<lcio::TrackImpl*, edm4hep::Track> tracks {};
+    TypeMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit> trackerhits {};
+    TypeMapT<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit> simtrackerhits {};
+    TypeMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> calohits {};
+    TypeMapT<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawcalohits {};
+    TypeMapT<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit> simcalohits {};
+    TypeMapT<lcio::TPCHitImpl*, edm4hep::RawTimeSeries> tpchits {};
+    TypeMapT<lcio::ClusterImpl*, edm4hep::Cluster> clusters {};
+    TypeMapT<lcio::VertexImpl*, edm4hep::Vertex> vertices {};
+    TypeMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoparticles {};
+    TypeMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcparticles {};
   };
 
+  template<
+    typename TrackMapT = TypeMapT<lcio::TrackImpl*, edm4hep::Track>,
+    typename TrackerHitMapT = TypeMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit>>
   lcio::LCCollectionVec* convTracks(
     const edm4hep::TrackCollection* const tracks_coll,
-    vec_pair<lcio::TrackImpl*, edm4hep::Track>& tracks_vec,
-    const vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit>& trackerhits_vec);
+    TrackMapT& tracks_vec,
+    const TrackerHitMapT& trackerhits_vec);
 
+  template<typename TrackerHitMapT = TypeMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit>>
   lcio::LCCollectionVec* convTrackerHits(
     const edm4hep::TrackerHitCollection* const trackerhits_coll,
     const std::string& cellIDstr,
-    vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit>& trackerhits_vec);
+    TrackerHitMapT& trackerhits_vec);
 
+  template<
+    typename SimTrHitMapT = TypeMapT<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit>,
+    typename MCParticleMapT = TypeMapT<lcio::MCParticleImpl*, edm4hep::MCParticle>>
   lcio::LCCollectionVec* convSimTrackerHits(
     const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll,
     const std::string& cellIDstr,
-    vec_pair<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit>& simtrackerhits_vec,
-    const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles_vec);
+    SimTrHitMapT& simtrackerhits_vec,
+    const MCParticleMapT& mcparticles_vec);
 
+  template<typename CaloHitMapT = TypeMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>>
   lcio::LCCollectionVec* convCalorimeterHits(
     const edm4hep::CalorimeterHitCollection* const calohit_coll,
     const std::string& cellIDstr,
-    vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>& calo_hits_vec);
+    CaloHitMapT& calo_hits_vec);
 
+  template<typename RawCaloHitMapT = TypeMapT<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit>>
   lcio::LCCollectionVec* convRawCalorimeterHits(
     const edm4hep::RawCalorimeterHitCollection* const rawcalohit_coll,
-    vec_pair<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit>& raw_calo_hits_vec);
+    RawCaloHitMapT& raw_calo_hits_vec);
 
+  template<typename SimCaloHitMapT, typename MCParticleMapT = TypeMapT<lcio::MCParticleImpl*, edm4hep::MCParticle>>
   lcio::LCCollectionVec* convSimCalorimeterHits(
     const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
     const std::string& cellIDstr,
-    vec_pair<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit>& sim_calo_hits_vec,
-    const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles);
+    SimCaloHitMapT& sim_calo_hits_vec,
+    const MCParticleMapT& mcparticles);
 
+  template<typename TPCHitMapT = TypeMapT<lcio::TPCHitImpl*, edm4hep::RawTimeSeries>>
   lcio::LCCollectionVec* convTPCHits(
     const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
-    vec_pair<lcio::TPCHitImpl*, edm4hep::RawTimeSeries>& tpc_hits_vec);
+    TPCHitMapT& tpc_hits_vec);
 
+  template<
+    typename ClusterMapT = TypeMapT<lcio::ClusterImpl*, edm4hep::Cluster>,
+    typename CaloHitMapT = TypeMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>>
   lcio::LCCollectionVec* convClusters(
     const edm4hep::ClusterCollection* const cluster_coll,
-    vec_pair<lcio::ClusterImpl*, edm4hep::Cluster>& cluster_vec,
-    const vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>& calohits_vec);
+    ClusterMapT& cluster_vec,
+    const CaloHitMapT& calohits_vec);
 
+  template<
+    typename VertexMapT = TypeMapT<lcio::VertexImpl*, edm4hep::Vertex>,
+    typename RecoPartMapT = TypeMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>>
   lcio::LCCollectionVec* convVertices(
     const edm4hep::VertexCollection* const vertex_coll,
-    vec_pair<lcio::VertexImpl*, edm4hep::Vertex>& vertex_vec,
-    const vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>& recoparticles_vec);
+    VertexMapT& vertex_vec,
+    const RecoPartMapT& recoparticles_vec);
 
+  template<
+    typename RecoPartMapT = TypeMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>,
+    typename TrackMapT = TypeMapT<lcio::TrackImpl*, edm4hep::Track>,
+    typename VertexMapT = TypeMapT<lcio::VertexImpl*, edm4hep::Vertex>,
+    typename ClusterMapT = TypeMapT<lcio::ClusterImpl*, edm4hep::Cluster>>
   lcio::LCCollectionVec* convReconstructedParticles(
     const edm4hep::ReconstructedParticleCollection* const recos_coll,
-    vec_pair<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle>& recoparticles_vec,
-    const vec_pair<lcio::TrackImpl*, edm4hep::Track>& tracks_vec,
-    const vec_pair<lcio::VertexImpl*, edm4hep::Vertex>& vertex_vec,
-    const vec_pair<lcio::ClusterImpl*, edm4hep::Cluster>& clusters_vec);
+    RecoPartMapT& recoparticles_vec,
+    const TrackMapT& tracks_vec,
+    const VertexMapT& vertex_vec,
+    const ClusterMapT& clusters_vec);
 
+  template<typename MCPartMapT = TypeMapT<lcio::MCParticleImpl*, edm4hep::MCParticle>>
   lcio::LCCollectionVec* convMCParticles(
     const edm4hep::MCParticleCollection* const mcparticle_coll,
-    vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mc_particles_vec);
+    MCPartMapT& mc_particles_vec);
 
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
 
-  void FillMissingCollections(CollectionsPairVectors& collection_pairs);
+  template<typename ObjectMappingT = CollectionsPairVectors>
+  void FillMissingCollections(ObjectMappingT& collection_pairs);
 
   bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 
