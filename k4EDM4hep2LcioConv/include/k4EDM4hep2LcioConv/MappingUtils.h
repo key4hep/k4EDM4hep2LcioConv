@@ -152,6 +152,11 @@ namespace k4EDM4hep2LcioConv {
       }
     }
 
+    /// Helper type alias that can be used to detect whether a T can be used
+    /// with std::get directly or whether it has to be dereferenced first
+    template<typename T>
+    using std_get_usable = decltype(std::get<0>(std::declval<T>()));
+
     /**
      * Helper function to get the Key from an Iterator (e.g. returned by
      * mapInsert). This is necessary because map::emplace returns an iterator,
@@ -161,13 +166,12 @@ namespace k4EDM4hep2LcioConv {
     template<typename It>
     auto getKey(const It& it)
     {
-      return std::get<0>(it);
-    }
-
-    template<typename It>
-    auto getKey(const It* it)
-    {
-      return std::get<0>(*it);
+      if constexpr (det::is_detected_v<std_get_usable, It>) {
+        return std::get<0>(it);
+      }
+      else {
+        return std::get<0>(*it);
+      }
     }
 
     /**
@@ -179,13 +183,12 @@ namespace k4EDM4hep2LcioConv {
     template<typename It>
     auto getMapped(const It& it)
     {
-      return std::get<1>(it);
-    }
-
-    template<typename It>
-    auto getMapped(const It* it)
-    {
-      return std::get<1>(*it);
+      if constexpr (det::is_detected_v<std_get_usable, It>) {
+        return std::get<1>(it);
+      }
+      else {
+        return std::get<1>(*it);
+      }
     }
   } // namespace detail
 
