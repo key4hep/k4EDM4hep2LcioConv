@@ -625,7 +625,6 @@ namespace LCIO2EDM4hepConv {
       const auto& lciotype = lcioColl->getTypeName();
       if (lciotype == "SimCalorimeterHit") {
         haveSimCaloHits = true;
-        std::cout << " found sim hits : " << lcioname << std::endl;
       }
       if (lciotype == "LCRelation") {
         LCRelations.push_back(std::make_pair(lcioname, lcioColl));
