@@ -1,6 +1,5 @@
 #include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"
 
-#include <EVENT/LCIO.h>
 #include <IO/LCReader.h>
 #include <IOIMPL/LCFactory.h>
 #include <UTIL/CheckCollections.h>
