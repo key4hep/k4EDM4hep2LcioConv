@@ -94,7 +94,10 @@ namespace LCIO2EDM4hepConv {
    * Convert a complete LCEvent from LCIO to EDM4hep.
    *
    * A second, optional argument can be passed to limit the collections to
-   * convert to the subset that is passed.
+   * convert to the subset that is passed. NOTE: There is an implicit assumption
+   * here that collsToConvert only contains collection names that are present in
+   * the passed evt. There is no exception handling internally to guard against
+   * collections that are missing.
    */
   podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert = {});
 
