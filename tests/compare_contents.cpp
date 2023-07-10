@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
         if (coll) {
           return coll->getTypeName();
         }
-        static constexpr std::string_view empty = "";
+        static const decltype(coll->getTypeName()) empty = "";
         return empty;
       }();
       if (type.empty()) {
