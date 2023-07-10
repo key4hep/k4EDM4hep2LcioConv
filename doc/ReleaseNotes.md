@@ -1,3 +1,23 @@
+# v00-05
+
+* 2023-07-10 tmadlener ([PR#23](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/23))
+  - Remove the explicit `clang-format-check` workflow as it is also covered by the `pre-commit` workflow.
+
+* 2023-07-10 Frank Gaede ([PR#20](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/20))
+  - Add the possibility to convert only a subset of collections and events.
+  - Fix minor bug in TrackState conversion (covMatrix[15])
+  - Write `AllCaloHitContributionsCombined` only if needed, i.e. `SimCalorimeterHits` are present in the events in lcio2edm4hep
+
+* 2023-06-13 Finn Johannsen ([PR#11](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/11))
+  - Add LCIO to EDM4hep conversion functionality with a similar interface as the one that is already present for the other direction.
+
+* 2023-06-07 Thomas Madlener ([PR#16](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/16))
+  - Match the renaming of `subdetectorHitNumbers` in EDM4hep (cf. [key4hep/EDM4hep#188](https://github.com/key4hep/EDM4hep/pull/188))
+  - Introduce some guards for the `TPCHit` -> `RawTimeSeries` change in EDM4hep (cf. [key4hep/EDM4hep#179](https://github.com/key4hep/EDM4hep/pull/179))
+
+* 2023-04-19 Leonhard Reichenbach ([PR#13](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/13))
+  - Add support for EventHeader conversion
+
 # v00-04
 
 * 2023-03-02 jmcarcell ([PR#8](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/8))
