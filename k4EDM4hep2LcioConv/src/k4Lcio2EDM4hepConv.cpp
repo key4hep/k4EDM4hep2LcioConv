@@ -618,14 +618,10 @@ namespace LCIO2EDM4hepConv {
       return collsToConvert;
     }();
 
-    bool haveSimCaloHits = false;
     // In this loop the data gets converted.
     for (const auto& lcioname : lcnames) {
       const auto& lcioColl = evt->getCollection(lcioname);
       const auto& lciotype = lcioColl->getTypeName();
-      if (lciotype == "SimCalorimeterHit") {
-        haveSimCaloHits = true;
-      }
       if (lciotype == "LCRelation") {
         LCRelations.push_back(std::make_pair(lcioname, lcioColl));
         // We handle Relations (aka Associations) once we have converted all the
@@ -661,7 +657,7 @@ namespace LCIO2EDM4hepConv {
     // convert put the event parameters into the frame
     convertObjectParameters<EVENT::LCEvent>(evt, event);
     // Now everything is done and we simply populate a Frame
-    if (haveSimCaloHits) {
+    if (not typeMapping.simCaloHits.empty()) { // only create CaloHitContributions if necessary
       // creating the CaloHitContributions to fill them into the Frame
       auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
       event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
