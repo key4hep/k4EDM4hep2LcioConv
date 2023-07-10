@@ -32,7 +32,7 @@ namespace LCIO2EDM4hepConv {
       covMatrix[11],
       covMatrix[12],
       covMatrix[13],
-      covMatrix[15],
+      covMatrix[14],
       0,
       0,
       0,
@@ -605,14 +605,21 @@ namespace LCIO2EDM4hepConv {
     return headerColl;
   }
 
-  podio::Frame convertEvent(EVENT::LCEvent* evt)
+  podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert)
   {
     auto typeMapping = LcioEdmTypeMapping {};
     std::vector<CollNamePair> edmevent;
     std::vector<std::pair<std::string, EVENT::LCCollection*>> LCRelations;
-    const auto& lcnames = evt->getCollectionNames();
+
+    const auto& lcioNames = [&collsToConvert, &evt]() {
+      if (collsToConvert.empty()) {
+        return *evt->getCollectionNames();
+      }
+      return collsToConvert;
+    }();
+
     // In this loop the data gets converted.
-    for (const auto& lcioname : *lcnames) {
+    for (const auto& lcioname : lcioNames) {
       const auto& lcioColl = evt->getCollection(lcioname);
       const auto& lciotype = lcioColl->getTypeName();
       if (lciotype == "LCRelation") {
@@ -631,7 +638,7 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling of the Subset Colections
-    for (const auto& lcioname : *lcnames) {
+    for (const auto& lcioname : lcioNames) {
 
       auto lcioColl = evt->getCollection(lcioname);
       if (lcioColl->isSubset()) {
@@ -645,14 +652,19 @@ namespace LCIO2EDM4hepConv {
     // Filling all the OneToMany and OneToOne Relations and creating the AssociationCollections.
     resolveRelations(typeMapping);
     auto assoCollVec = createAssociations(typeMapping, LCRelations);
-    // creating the CaloHitContributions to fill them into the Frame
-    auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
     auto headerColl = createEventHeader(evt);
+
+    // Now everything is done and we simply populate a Frame
     podio::Frame event;
     // convert put the event parameters into the frame
     convertObjectParameters<EVENT::LCEvent>(evt, event);
-    // Now everything is done and we simply populate a Frame
-    event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
+
+    // only create CaloHitContributions if necessary (i.e. if we have converted
+    // SimCalorimeterHits)
+    if (not typeMapping.simCaloHits.empty()) {
+      auto calocontr = createCaloHitContributions(typeMapping.simCaloHits, typeMapping.mcParticles);
+      event.put(std::move(calocontr), "AllCaloHitContributionsCombined");
+    }
     event.put(std::move(headerColl), "EventHeader");
     for (auto& [name, coll] : edmevent) {
       event.put(std::move(coll), name);

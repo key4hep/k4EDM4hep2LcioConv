@@ -54,6 +54,12 @@ certain collections. In this case it is the **users responsibility to provide
 the missing types** as otherwise the conversion will simply skip these
 collections, or potentially even crash.
 
+## Converting only a subset of collections
+Using the same mechanism as for patching collections it is also possible to only
+convert a subset of all available collections. `lcio2edm4hep` uses the contents
+of the `colltypefile` to determine the contents of the output. If that contains
+only a subset of all collections, only that subset will be converted. Missing
+collections will still be patched in, in this case.
 
 # Library usage of the conversion functions
 The conversion functions are designed to also be usable as a library. The overall design is to make the conversion a two step process. Step one is converting the data and step two being the resolving of the relations and filling of subset collection.
