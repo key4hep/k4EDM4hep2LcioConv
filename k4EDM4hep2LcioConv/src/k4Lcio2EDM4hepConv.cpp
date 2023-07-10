@@ -605,15 +605,22 @@ namespace LCIO2EDM4hepConv {
     return headerColl;
   }
 
-  podio::Frame convertEvent(EVENT::LCEvent* evt)
+  podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert)
   {
     auto typeMapping = LcioEdmTypeMapping {};
     std::vector<CollNamePair> edmevent;
     std::vector<std::pair<std::string, EVENT::LCCollection*>> LCRelations;
-    const auto& lcnames = evt->getCollectionNames();
+
+    const auto& lcnames = [&collsToConvert, &evt]() {
+      if (collsToConvert.empty()) {
+        return *evt->getCollectionNames();
+      }
+      return collsToConvert;
+    }();
+
     bool haveSimCaloHits = false;
     // In this loop the data gets converted.
-    for (const auto& lcioname : *lcnames) {
+    for (const auto& lcioname : lcnames) {
       const auto& lcioColl = evt->getCollection(lcioname);
       const auto& lciotype = lcioColl->getTypeName();
       if (lciotype == "SimCalorimeterHit") {
@@ -636,7 +643,7 @@ namespace LCIO2EDM4hepConv {
       }
     }
     // Filling of the Subset Colections
-    for (const auto& lcioname : *lcnames) {
+    for (const auto& lcioname : lcnames) {
 
       auto lcioColl = evt->getCollection(lcioname);
       if (lcioColl->isSubset()) {
