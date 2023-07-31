@@ -557,7 +557,7 @@ namespace LCIO2EDM4hepConv {
       return convertLCVec<EVENT::LCFloatVec>(name, LCCollection);
     }
     else if (type != "LCRelation") {
-      std::cerr << type << " is a collction type for which no known conversion exists." << std::endl;
+      std::cerr << type << " is a collection type for which no known conversion exists." << std::endl;
     }
     return retColls;
   }
