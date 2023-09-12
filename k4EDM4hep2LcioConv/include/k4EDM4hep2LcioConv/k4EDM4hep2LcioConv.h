@@ -57,6 +57,10 @@ namespace edm4hep {
 #include <UTIL/CellIDEncoder.h>
 #include <lcio.h>
 
+// Preprocessor symbol that can be used in downstream code to switch on the
+// namespace for the conversion
+#define EDM4HEP2LCIOCONV_NAMESPACE 1
+
 namespace EDM4hep2LCIOConv {
 
   template<typename T1, typename T2>
