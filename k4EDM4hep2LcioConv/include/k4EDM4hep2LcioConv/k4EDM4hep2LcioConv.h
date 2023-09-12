@@ -57,6 +57,8 @@ namespace edm4hep {
 #include <UTIL/CellIDEncoder.h>
 #include <lcio.h>
 
+namespace EDM4hep2LCIOConv {
+
 template<typename T1, typename T2>
 using vec_pair = std::vector<std::pair<T1, T2>>;
 
@@ -135,5 +137,7 @@ void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lc
 void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
 bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
+
+} // namespace EDM4hep2LCIOConv
 
 #endif

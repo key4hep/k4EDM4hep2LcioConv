@@ -14,6 +14,8 @@
 #endif
 #endif
 
+namespace EDM4hep2LCIOConv {
+
 // Convert EDM4hep Tracks to LCIO
 // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
 // Add LCIO Collection Vector to LCIO event
@@ -897,3 +899,5 @@ bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl
   }
   return false;
 }
+
+} // namespace EDM4hep2LCIOConv
