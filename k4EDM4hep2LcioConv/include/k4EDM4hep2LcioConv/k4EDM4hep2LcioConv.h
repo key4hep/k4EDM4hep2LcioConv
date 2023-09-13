@@ -36,6 +36,20 @@ namespace edm4hep {
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/VertexCollection.h>
 
+#if __has_include("edm4hep/EDM4hepVersion.h")
+#include "edm4hep/EDM4hepVersion.h"
+#else
+  // Copy the necessary parts from  the header above to make whatever we need to work here
+#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
+  // v00-07-02 is the last version without that still has TPCHits
+#if __has_include("edm4hep/TPCHitCollection.h")
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 7, 2)
+#else
+// v00-09 is the last version without the capitalization change of the track vector members
+#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
+#endif
+#endif
+
 #include "podio/Frame.h"
 
 // LCIO
@@ -178,5 +192,7 @@ namespace EDM4hep2LCIOConv {
     const podio::Frame& metadata = podio::Frame {});
 
 } // namespace EDM4hep2LCIOConv
+
+#include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.ipp"
 
 #endif

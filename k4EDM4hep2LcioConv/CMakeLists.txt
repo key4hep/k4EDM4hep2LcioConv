@@ -12,9 +12,16 @@ target_link_libraries(k4EDM4hep2LcioConv PUBLIC
   ${LCIO_LIBRARIES}
   EDM4HEP::edm4hep)
 
+set(public_headers
+  include/${PROJECT_NAME}/k4EDM4hep2LcioConv.h
+  include/${PROJECT_NAME}/k4EDM4hep2LcioConv.ipp
+  include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.h
+  include/${PROJECT_NAME}/MappingUtils.h
+)
+
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-  PUBLIC_HEADER "include/${PROJECT_NAME}/k4EDM4hep2LcioConv.h;include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.h;include/${PROJECT_NAME}/MappingUtils.h"
+  PUBLIC_HEADER "${public_headers}"
   )
 
 install(TARGETS k4EDM4hep2LcioConv
