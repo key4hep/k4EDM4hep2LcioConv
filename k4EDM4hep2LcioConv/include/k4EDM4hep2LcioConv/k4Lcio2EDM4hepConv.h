@@ -175,7 +175,7 @@ namespace LCIO2EDM4hepConv {
    * putting them into a collection and of creating the LCIO to EDM4hep mapping
    * is done in the conversion of the ReconstructedParticles.
    */
-  edm4hep::MutableParticleID convertPaticleID(const EVENT::ParticleID* pid);
+  edm4hep::MutableParticleID convertParticleID(const EVENT::ParticleID* pid);
 
   /**
    * Convert an MCParticle collection and return the resulting collection.
@@ -310,23 +310,7 @@ namespace LCIO2EDM4hepConv {
     typename ObjectMapT,
     typename LcioT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ObjectMapT>>,
     typename Edm4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ObjectMapT>>
-  auto handleSubsetColl(EVENT::LCCollection* lcioColl, const ObjectMapT& elemMap)
-  {
-    auto edm4hepColl = std::make_unique<CollT>();
-    edm4hepColl->setSubsetCollection();
-
-    UTIL::LCIterator<LcioT> lcioIter(lcioColl);
-    while (const auto lcioElem = lcioIter.next()) {
-      if (auto edm4hepElem = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioElem, elemMap)) {
-        edm4hepColl->push_back(edm4hepElem.value());
-      }
-      else {
-        std::cerr << "Cannot find corresponding EDM4hep object for an LCIO object in a subset collection" << std::endl;
-      }
-    }
-
-    return edm4hepColl;
-  }
+  auto handleSubsetColl(EVENT::LCCollection* lcioColl, const ObjectMapT& elemMap);
 
   /**
    * Create an Association collection from an LCRelations collection. Templated
@@ -348,42 +332,7 @@ namespace LCIO2EDM4hepConv {
     typename FromEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<FromMapT>,
     typename ToEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ToMapT>>
   std::unique_ptr<CollT>
-  createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap, const ToMapT& toMap)
-  {
-    auto assocColl = std::make_unique<CollT>();
-    auto relIter = UTIL::LCIterator<EVENT::LCRelation>(relations);
-
-    while (const auto rel = relIter.next()) {
-      auto assoc = assocColl->create();
-      assoc.setWeight(rel->getWeight());
-      const auto lcioTo = static_cast<ToLCIOT*>(rel->getTo());
-      const auto lcioFrom = static_cast<FromLCIOT*>(rel->getFrom());
-      const auto edm4hepTo = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioTo, toMap);
-      const auto edm4hepFrom = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioFrom, fromMap);
-      if (edm4hepTo.has_value() && edm4hepFrom.has_value()) {
-        if constexpr (Reverse) {
-          if constexpr (std::is_same_v<ToEDM4hepT, edm4hep::MutableVertex>) {
-            assoc.setVertex(*edm4hepTo);
-          }
-          else {
-            assoc.setSim(*edm4hepTo);
-          }
-          assoc.setRec(*edm4hepFrom);
-        }
-        else {
-          if constexpr (std::is_same_v<FromEDM4hepT, edm4hep::MutableVertex>) {
-            assoc.setVertex(*edm4hepFrom);
-          }
-          else {
-            assoc.setSim(*edm4hepFrom);
-          }
-          assoc.setRec(*edm4hepTo);
-        }
-      }
-    }
-
-    return assocColl;
-  }
+  createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap, const ToMapT& toMap);
 
   /**
    * Creates the CaloHitContributions for all SimCaloHits.
@@ -455,66 +404,8 @@ namespace LCIO2EDM4hepConv {
     typename RecoParticleMapT = ObjectMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle>>
   void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap);
 
-  template<typename LCIOType>
-  void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event)
-  {
-    const auto& params = lcioobj->getParameters();
-    // handle srting params
-    EVENT::StringVec keys;
-    const auto stringKeys = params.getStringKeys(keys);
-    for (int i = 0; i < stringKeys.size(); i++) {
-      EVENT::StringVec sValues;
-      const auto stringVals = params.getStringVals(stringKeys[i], sValues);
-      event.putParameter(stringKeys[i], stringVals);
-    }
-    // handle float params
-    EVENT::StringVec fkeys;
-    const auto floatKeys = params.getFloatKeys(fkeys);
-    for (int i = 0; i < floatKeys.size(); i++) {
-      EVENT::FloatVec fValues;
-      const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
-      event.putParameter(floatKeys[i], floatVals);
-    }
-    // handle int params
-    EVENT::StringVec ikeys;
-    const auto intKeys = params.getIntKeys(ikeys);
-    for (int i = 0; i < intKeys.size(); i++) {
-      EVENT::IntVec iValues;
-      const auto intVals = params.getIntVals(intKeys[i], iValues);
-      event.putParameter(intKeys[i], intVals);
-    }
-    // handle double params
-    EVENT::StringVec dkeys;
-    const auto dKeys = params.getDoubleKeys(dkeys);
-    for (int i = 0; i < dKeys.size(); i++) {
-      EVENT::DoubleVec dValues;
-      const auto dVals = params.getDoubleVals(dKeys[i], dValues);
-      event.putParameter(dKeys[i], dVals);
-    }
-  }
-
-  template<typename LCVecType>
-  std::vector<CollNamePair> convertLCVec(const std::string& name, EVENT::LCCollection* LCCollection)
-  {
-    auto dest = std::make_unique<podio::UserDataCollection<typename LCVecType::value_type>>();
-    auto vecSizes = std::make_unique<podio::UserDataCollection<uint32_t>>();
-    if (LCCollection->getNumberOfElements() > 0) {
-      vecSizes->push_back(0);
-    }
-    for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
-      const auto* rval = static_cast<LCVecType*>(LCCollection->getElementAt(i));
-      for (unsigned j = 0; j < rval->size(); j++) {
-        dest->push_back((*rval)[j]);
-      }
-      vecSizes->push_back(dest->size());
-    }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_VecLenghts", std::move(vecSizes));
-    return results;
-  }
-
 } // namespace LCIO2EDM4hepConv
+
+#include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.ipp"
 
 #endif // K4EDM4HEP2LCIOCONV_K4LCIO2EDM4HEPCONV_H
