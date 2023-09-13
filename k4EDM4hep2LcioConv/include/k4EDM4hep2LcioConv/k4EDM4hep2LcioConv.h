@@ -91,18 +91,18 @@ namespace EDM4hep2LCIOConv {
 
   lcio::LCCollectionVec* convTrackerHits(
     const edm4hep::TrackerHitCollection* const trackerhits_coll,
-    const std::string cellIDstr,
+    const std::string& cellIDstr,
     vec_pair<lcio::TrackerHitImpl*, edm4hep::TrackerHit>& trackerhits_vec);
 
   lcio::LCCollectionVec* convSimTrackerHits(
     const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll,
-    const std::string cellIDstr,
+    const std::string& cellIDstr,
     vec_pair<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit>& simtrackerhits_vec,
     const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles_vec);
 
   lcio::LCCollectionVec* convCalorimeterHits(
     const edm4hep::CalorimeterHitCollection* const calohit_coll,
-    const std::string cellIDstr,
+    const std::string& cellIDstr,
     vec_pair<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit>& calo_hits_vec);
 
   lcio::LCCollectionVec* convRawCalorimeterHits(
@@ -111,7 +111,7 @@ namespace EDM4hep2LCIOConv {
 
   lcio::LCCollectionVec* convSimCalorimeterHits(
     const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
-    const std::string cellIDstr,
+    const std::string& cellIDstr,
     vec_pair<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit>& sim_calo_hits_vec,
     const vec_pair<lcio::MCParticleImpl*, edm4hep::MCParticle>& mcparticles);
 
