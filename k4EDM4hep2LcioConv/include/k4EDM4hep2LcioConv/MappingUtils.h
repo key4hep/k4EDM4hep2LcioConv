@@ -131,10 +131,10 @@ namespace k4EDM4hep2LcioConv {
     /**
      * Insert a key-value pair into a "map"
      *
-     * safeInsert argument can be useld to check for existence of key first,
-     * before inserting. This is only useful for maps using a vector as backing,
-     * since the usual emplace already does this check and does not insert if a
-     * key already exists
+     * The InsertMode argument can be use to check whether the Key already
+     * exists in the map before inserting. This is only useful for maps using a
+     * vector as backing, since the usual emplace already does this check and
+     * does not insert if a key already exists
      */
     template<typename MapT, typename KeyT = key_t<MapT>, typename MappedT = mapped_t<MapT>>
     auto mapInsert(KeyT&& key, MappedT&& mapped, MapT& map, InsertMode insertMode = InsertMode::Unchecked)
