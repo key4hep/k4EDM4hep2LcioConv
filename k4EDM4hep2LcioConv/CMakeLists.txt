@@ -16,6 +16,7 @@ set(public_headers
   include/${PROJECT_NAME}/k4EDM4hep2LcioConv.h
   include/${PROJECT_NAME}/k4EDM4hep2LcioConv.ipp
   include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.h
+  include/${PROJECT_NAME}/k4Lcio2EDM4hepConv.ipp
   include/${PROJECT_NAME}/MappingUtils.h
 )
 
