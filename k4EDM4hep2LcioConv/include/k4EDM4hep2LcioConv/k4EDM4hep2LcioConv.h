@@ -82,7 +82,10 @@ namespace edm4hep {
 namespace EDM4hep2LCIOConv {
 
   template<typename T1, typename T2>
-  using ObjectMapT = k4EDM4hep2LcioConv::MapT<T1, T2>;
+  using ObjectMapT = k4EDM4hep2LcioConv::VecMapT<T1, T2>;
+
+  template<typename T1, typename T2>
+  using vec_pair [[deprecated("Use a more descriptive alias")]] = ObjectMapT<T1, T2>;
 
   struct CollectionsPairVectors {
     ObjectMapT<lcio::TrackImpl*, edm4hep::Track> tracks {};
