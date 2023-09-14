@@ -123,6 +123,9 @@ namespace LCIO2EDM4hepConv {
   template<typename ObjectMappingT = LcioEdmTypeMapping>
   void resolveRelations(ObjectMappingT& typeMapping);
 
+  template<typename ObjectMappingT, typename ObjectMappingU>
+  void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
+
   /**
    * Convert LCRelation collections into the corresponding Association collections in EDM4hep
    */
