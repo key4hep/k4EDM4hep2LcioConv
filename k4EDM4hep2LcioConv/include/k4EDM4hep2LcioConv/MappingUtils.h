@@ -6,6 +6,7 @@
 #include <vector>
 #include <tuple>
 #include <unordered_map>
+#include <type_traits>
 
 #if __has_include("experimental/type_traits.h")
 #include <experimental/type_traits>
@@ -14,8 +15,6 @@ namespace det {
 }
 #else
 // Implement the minimal feature set we need
-#include <type_traits>
-
 namespace det {
   namespace detail {
     template<typename DefT, typename AlwaysVoidT, template<typename...> typename Op, typename... Args>
@@ -80,6 +79,30 @@ namespace k4EDM4hep2LcioConv {
     template<typename T>
     using mapped_t = typename map_t_helper<T>::mapped_type;
 
+    /// bool constant to determine whether type T is a valid type to be used as
+    /// a key in the generic mapping functionality defined below. In this case
+    /// it checks for type equality or makes sure that KeyT is a base of T or
+    /// vice versa. This is designed specifically for the uses cases here, where
+    /// the LCIO types (pointers) are used as key types.
+    template<typename T, typename KeyT>
+    constexpr static bool is_valid_key_type_v =
+      std::is_same_v<T, KeyT> || std::is_base_of_v<std::remove_pointer_t<T>, std::remove_pointer_t<KeyT>> ||
+      std::is_base_of_v<std::remove_pointer_t<KeyT>, std::remove_pointer_t<T>>;
+
+    /// Detector and corresponding bool constant to detect whether two types are
+    /// equality comparable. c++20 would have a concept for this.
+    template<typename T, typename U>
+    using has_operator_eq = decltype(std::declval<T>() == std::declval<U>());
+
+    template<typename T, typename U>
+    constexpr static bool is_eq_comparable = det::is_detected_v<has_operator_eq, T, U>;
+
+    /// bool constant to determine whether a type T is a valid type to be used
+    /// as a mapped type in the generic mapping functionality defined below. In
+    /// this case this it checks T is equality copmarable with MappedT
+    template<typename T, typename MappedT>
+    constexpr static bool is_valid_mapped_type_v = is_eq_comparable<T, MappedT>;
+
     /**
      * Find the mapped-to object in a map provided a key object
      *
@@ -87,7 +110,7 @@ namespace k4EDM4hep2LcioConv {
      * types (i.e. MapT::find). In that case it will have the time complexity of
      * that. In case of a "map-like" (e.g. vector<tuple<K, V>>) it will be O(N).
      */
-    template<typename FromT, typename MapT, typename = std::enable_if_t<std::is_same_v<FromT, key_t<MapT>>>>
+    template<typename FromT, typename MapT, typename = std::enable_if_t<is_valid_key_type_v<FromT, key_t<MapT>>>>
     auto mapLookupTo(FromT keyObj, const MapT& map) -> std::optional<mapped_t<MapT>>
     {
       if constexpr (is_map_v<MapT>) {
@@ -112,7 +135,7 @@ namespace k4EDM4hep2LcioConv {
      * NOTE: This will always loop over potentially all elements in the provided
      * map, so it is definitely O(N) regardless of the provided map type
      */
-    template<typename ToT, typename MapT, typename = std::enable_if_t<std::is_same_v<ToT, mapped_t<MapT>>>>
+    template<typename ToT, typename MapT, typename = std::enable_if_t<is_valid_mapped_type_v<ToT, mapped_t<MapT>>>>
     auto mapLookupFrom(ToT mappedObj, const MapT& map) -> std::optional<key_t<MapT>>
     {
       // In this case we cannot use a potential find method for an actual map, but
@@ -145,7 +168,10 @@ namespace k4EDM4hep2LcioConv {
       else {
         if (insertMode == InsertMode::Checked) {
           if (auto existing = mapLookupTo(key, map)) {
-            return std::make_pair(std::make_tuple(key, existing.value()), false);
+            // Explicitly casting to the actual key type here to make return
+            // type deductoin work even in cases where we have a Map<Base*, V>
+            // but the KeyT has been deduced as Derived*
+            return std::make_pair(std::make_tuple(key_t<MapT>(key), existing.value()), false);
           }
         }
         return std::make_pair(map.emplace_back(std::forward<KeyT>(key), std::forward<MappedT>(mapped)), true);
