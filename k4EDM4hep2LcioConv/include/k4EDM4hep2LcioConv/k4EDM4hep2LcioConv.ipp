@@ -718,7 +718,7 @@ namespace EDM4hep2LCIOConv {
       if (lcio_tr->getTrackerHits().size() == 0) {
         for (const auto& edm_tr_trh : edm_tr.getTrackerHits()) {
           if (
-            const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, collection_pairs.trackerhits)) {
+            const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, collection_pairs.trackerHits)) {
             lcio_tr->addHit(lcio_trh.value());
           }
         }
@@ -726,7 +726,7 @@ namespace EDM4hep2LCIOConv {
     }
 
     // Fill missing ReconstructedParticle collections
-    for (auto& [lcio_rp, edm_rp] : collection_pairs.recoparticles) {
+    for (auto& [lcio_rp, edm_rp] : collection_pairs.recoParticles) {
       // Link Vertex
       if (lcio_rp->getStartVertex() == nullptr) {
         if (edm_rp.getStartVertex().isAvailable()) {
@@ -768,7 +768,7 @@ namespace EDM4hep2LCIOConv {
       if (lcio_vertex->getAssociatedParticle() == nullptr) {
         const auto edm_rp = edm_vertex.getAssociatedParticle();
         if (edm_rp.isAvailable()) {
-          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, collection_pairs.recoparticles)) {
+          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, collection_pairs.recoParticles)) {
             lcio_vertex->setAssociatedParticle(lcio_rp.value());
           }
         }
@@ -780,7 +780,7 @@ namespace EDM4hep2LCIOConv {
     //
     // We loop over all pairs of lcio and edm4hep simcalo hits and add the contributions, by now MCParticle
     // collection(s) should be converted!
-    for (auto& [lcio_sch, edm_sch] : collection_pairs.simcalohits) {
+    for (auto& [lcio_sch, edm_sch] : collection_pairs.simCaloHits) {
       // add associated Contributions (MCParticles)
       for (int i = 0; i < edm_sch.contributions_size(); ++i) {
         const auto& contrib = edm_sch.getContributions(i);
@@ -797,7 +797,7 @@ namespace EDM4hep2LCIOConv {
         if (edm_contrib_mcp.isAvailable()) {
           // if we have the MCParticle we look for its partner
           lcio_mcp =
-            k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, collection_pairs.mcparticles).value_or(nullptr);
+            k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, collection_pairs.mcParticles).value_or(nullptr);
         }
         else { // edm mcp available
                // std::cout << "WARNING: edm4hep contribution is not available!"  << std::endl;
@@ -818,12 +818,12 @@ namespace EDM4hep2LCIOConv {
     } // SimCaloHit
 
     // Fill missing SimTrackerHit collections
-    for (auto& [lcio_strh, edm_strh] : collection_pairs.simtrackerhits) {
+    for (auto& [lcio_strh, edm_strh] : collection_pairs.simTrackerHits) {
       const auto lcio_strh_mcp = lcio_strh->getMCParticle();
       if (lcio_strh_mcp == nullptr) {
         const auto edm_strh_mcp = edm_strh.getMCParticle();
         if (
-          const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, collection_pairs.mcparticles)) {
+          const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, collection_pairs.mcParticles)) {
           lcio_strh->setMCParticle(lcio_mcp.value());
         }
       }

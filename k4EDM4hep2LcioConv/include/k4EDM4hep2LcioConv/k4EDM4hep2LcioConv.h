@@ -89,16 +89,16 @@ namespace EDM4hep2LCIOConv {
 
   struct CollectionsPairVectors {
     ObjectMapT<lcio::TrackImpl*, edm4hep::Track> tracks {};
-    ObjectMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit> trackerhits {};
-    ObjectMapT<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit> simtrackerhits {};
-    ObjectMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> calohits {};
-    ObjectMapT<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawcalohits {};
-    ObjectMapT<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit> simcalohits {};
-    ObjectMapT<lcio::TPCHitImpl*, edm4hep::RawTimeSeries> tpchits {};
+    ObjectMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit> trackerHits {};
+    ObjectMapT<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit> simTrackerHits {};
+    ObjectMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> caloHits {};
+    ObjectMapT<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawCaloHits {};
+    ObjectMapT<lcio::SimCalorimeterHitImpl*, edm4hep::SimCalorimeterHit> simCaloHits {};
+    ObjectMapT<lcio::TPCHitImpl*, edm4hep::RawTimeSeries> tpcHits {};
     ObjectMapT<lcio::ClusterImpl*, edm4hep::Cluster> clusters {};
     ObjectMapT<lcio::VertexImpl*, edm4hep::Vertex> vertices {};
-    ObjectMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoparticles {};
-    ObjectMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcparticles {};
+    ObjectMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoParticles {};
+    ObjectMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcParticles {};
   };
 
   template<
