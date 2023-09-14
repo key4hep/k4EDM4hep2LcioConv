@@ -183,7 +183,12 @@ namespace EDM4hep2LCIOConv {
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
 
   template<typename ObjectMappingT = CollectionsPairVectors>
-  void FillMissingCollections(ObjectMappingT& collection_pairs);
+  void FillMissingCollections(ObjectMappingT& update_pairs);
+
+  /// Update the relations of the objects in the update_pairs map, by linking
+  /// them according to the contents of the lookup_pairs map
+  template<typename ObjectMappingT = CollectionsPairVectors, typename ObjectMappingU = CollectionsPairVectors>
+  void FillMissingCollections(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs);
 
   bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 

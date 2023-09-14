@@ -857,14 +857,19 @@ namespace LCIO2EDM4hepConv {
   template<typename ObjectMappingT>
   void resolveRelations(ObjectMappingT& typeMapping)
   {
-    resolveRelationsMCParticles(typeMapping.mcParticles);
+    resolveRelations(typeMapping, typeMapping);
+  }
+
+  template<typename ObjectMappingT, typename ObjectMappingU>
+  void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps)
+  {
+    resolveRelationsMCParticles(updateMaps.mcParticles);
     resolveRelationsRecoParticles(
-      typeMapping.recoParticles, typeMapping.vertices, typeMapping.clusters, typeMapping.tracks);
-    resolveRelationsSimTrackerHits(typeMapping.simTrackerHits, typeMapping.mcParticles);
-    resolveRelationsClusters(typeMapping.clusters, typeMapping.caloHits);
-    resolveRelationsTracks(
-      typeMapping.tracks, typeMapping.trackerHits, typeMapping.tpcHits, typeMapping.trackerHitPlanes);
-    resolveRelationsVertices(typeMapping.vertices, typeMapping.recoParticles);
+      updateMaps.recoParticles, lookupMaps.vertices, lookupMaps.clusters, lookupMaps.tracks);
+    resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
+    resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
+    resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.tpcHits, lookupMaps.trackerHitPlanes);
+    resolveRelationsVertices(updateMaps.vertices, lookupMaps.recoParticles);
   }
 
   template<
