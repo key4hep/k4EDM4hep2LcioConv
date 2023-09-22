@@ -56,8 +56,8 @@ bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPositionError, "positionError in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getITheta, "iTheta in Cluster");
-  // TODO: LCIO has getIPhi not get Phi
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getPhi, "phi in Cluster");
+  // LCIO has getIPhi and EDM4hep has getPhi
+  ASSERT_COMPARE_VALS(lcioElem->getIPhi(), edm4hepElem.getPhi(), "phi in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getDirectionError, "directionError in Cluster");
   return true;
 }
@@ -225,9 +225,19 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem)
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getNdf, "ndf in Track");
-  // TODO: LCIO has getdEdx instead of getDEdx
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getDEdx, "dEdx in Track");
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getDEdxError, "dEdxError in Track");
+  // LCIO has getdEdx instead of getDEdx
+  ASSERT_COMPARE_VALS(lcioElem->getdEdx(), edm4hepElem.getDEdx(), "dEdx in Track");
+  ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), edm4hepElem.getDEdxError(), "dEdxError in Track");
+  // Also check whether these have been corretly put into the dQQuantities
+  const auto dxQuantities = edm4hepElem.getDxQuantities();
+  if (dxQuantities.size() != 1) {
+    std::cerr << "DxQuantities have not been filled correctly, expected exactly 1, got " << dxQuantities.size()
+              << " in Track" << std::endl;
+    return false;
+  }
+  ASSERT_COMPARE_VALS(lcioElem->getdEdx(), dxQuantities[0].value, "dEdx in DxQuantities in Track");
+  ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dxQuantities[0].error, "dEdxError in DxQuantities in Track");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getRadiusOfInnermostHit, "radiusOfInnermostHit in Track");
   return true;
 }
@@ -287,9 +297,10 @@ bool compare(const EVENT::TrackerHitPlane* lcioElem, const edm4hep::TrackerHitPl
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEDepError, "eDepError in TrackerHitPlane");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getU, "u in TrackerHitPlane");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getV, "v in TrackerHitPlane");
-  // TODO: LCIO has getdU and getdV instead of getDu and getDv
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getDu, "du in TrackerHitPlane");
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getDv, "dv in TrackerHitPlane");
+  // LCIO has getdU and getdV instead of getDu and getDv
+  ASSERT_COMPARE_VALS(lcioElem->getdV(), edm4hepElem.getDv(), "dv in TrackerHitPlane");
+  ASSERT_COMPARE_VALS(lcioElem->getdU(), edm4hepElem.getDu(), "du in TrackerHitPlane");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in TrackerHitPlane");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCovMatrix, "covMatrix in TrackerHitPlane");
   return true;
@@ -304,8 +315,8 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHit
 
 bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem)
 {
-  // TODO: LCIO has isPrimary
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getPrimary, "primary in Vertex");
+  // LCIO has isPrimary (bool), EDM4hep has getPrimary (int32_t)
+  ASSERT_COMPARE_VALS(lcioElem->isPrimary(), edm4hepElem.getPrimary(), "primary in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getProbability, "probability in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in Vertex");
