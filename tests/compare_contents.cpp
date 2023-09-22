@@ -1,4 +1,5 @@
 #include "CompareEDM4hepLCIO.h"
+#include "ObjectMapping.h"
 
 #include "podio/ROOTFrameReader.h"
 #include "podio/Frame.h"
@@ -78,6 +79,8 @@ int main(int argc, char* argv[])
                   << ", EDM4hep: " << edmEvent.get(name)->size() << std::endl;
         return 1;
       }
+
+      const auto objectMapping = ObjectMappings::fromEvent(lcEvent, edmEvent);
 
       ASSERT_COMPARE_OR_EXIT(edm4hep::MCParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)
