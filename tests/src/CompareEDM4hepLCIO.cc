@@ -103,12 +103,6 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticle
 //     ParticleID"); ASSERT_COMPARE(lcioElem, edm4hepElem, getLikelihood,
 //     "likelihood in ParticleID"); return true;
 // }
-//
-// bool compare(const lcio::LCCollection* lcioCollection, const
-// edm4hep::ParticleIDCollection& edm4hepCollection) {
-//  return compareCollection<EVENT::ParticleID>(lcioCollection,
-//  edm4hepCollection);
-// }
 
 // ================= RawCalorimeterHit ================
 

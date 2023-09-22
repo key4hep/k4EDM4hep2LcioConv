@@ -45,21 +45,11 @@
 #include <EVENT/Vertex.h>
 #include <lcio.h>
 
-// bool compare(const EVENT::CaloHitContribution *lcio,
-//             const edm4hep::CaloHitContribution &edm4hep);
-// bool compare(const lcio::LCCollection *lcioCollection,
-//             const edm4hep::CaloHitContributionCollection &edm4hepCollection);
-
 bool compare(const EVENT::CalorimeterHit* lcio, const edm4hep::CalorimeterHit& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::CalorimeterHitCollection& edm4hepCollection);
 
 bool compare(const EVENT::Cluster* lcio, const edm4hep::Cluster& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::ClusterCollection& edm4hepCollection);
-
-// bool compare(const EVENT::EventHeader *lcio,
-//              const edm4hep::EventHeader &edm4hep);
-// bool compare(const lcio::LCCollection *lcioCollection,
-//              const edm4hep::EventHeaderCollection &edm4hepCollection);
 
 bool compare(const EVENT::MCParticle* lcio, const edm4hep::MCParticle& edm4hep);
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticleCollection& edm4hepCollection);
