@@ -12,7 +12,7 @@
 #define ASSERT_COMPARE_OR_EXIT(collType)                   \
   if (type == #collType) {                                 \
     auto& edmcoll = edmEvent.get<collType>(name);          \
-    if (!compare(lcioColl, edmcoll)) {                     \
+    if (!compare(lcioColl, edmcoll, objectMapping)) {      \
       std::cerr << "in collection: " << name << std::endl; \
       return 1;                                            \
     }                                                      \

@@ -1,6 +1,8 @@
 #ifndef K4EDM4HEP2LCIOCONV_TEST_COMPARISONUTILS_H
 #define K4EDM4HEP2LCIOCONV_TEST_COMPARISONUTILS_H
 
+#include "ObjectMapping.h"
+
 #include "edm4hep/Vector2f.h"
 #include "edm4hep/Vector2i.h"
 #include "edm4hep/Vector3d.h"
@@ -125,12 +127,15 @@ VECTOR2_COMPARE(float, edm4hep::Vector2f)
 // Compare an LCIO collection and an EDM4hep collection. Assumes that a compare
 // function working with the element types is available
 template<typename LCIOT, typename EDM4hepCollT>
-bool compareCollection(const lcio::LCCollection* lcioCollection, const EDM4hepCollT& edm4hepCollection)
+bool compareCollection(
+  const lcio::LCCollection* lcioCollection,
+  const EDM4hepCollT& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
   UTIL::LCIterator<LCIOT> lcioIt(lcioCollection);
   int counter = 0;
   for (const auto edm4hepElem : edm4hepCollection) {
-    if (!compare(lcioIt.next(), edm4hepElem)) {
+    if (!compare(lcioIt.next(), edm4hepElem, objectMaps)) {
       std::cerr << "in Element " << counter << std::endl;
       return false;
     }

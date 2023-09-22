@@ -1,16 +1,5 @@
-// #include "EVENT/Track.h"
-// #include "EVENT/TrackerHit.h"
-// #include "EVENT/TrackerHitPlane.h"
-// #include "EVENT/SimTrackerHit.h"
-// #include "EVENT/CalorimeterHit.h"
-// #include "EVENT/RawCalorimeterHit.h"
-// #include "EVENT/SimCalorimeterHit.h"
-// #include "EVENT/TPCHit.h"
-// #include "EVENT/Cluster.h"
-// #include "EVENT/Vertex.h"
-// #include "EVENT/ReconstructedParticle.h"
-// #include "EVENT/MCParticle.h"
-// #include "EVENT/ParticleID.h"
+#ifndef K4EDM4HEP2LCIOCONV_TEST_OBJECTMAPPINGS_H
+#define K4EDM4HEP2LCIOCONV_TEST_OBJECTMAPPINGS_H
 
 #include <unordered_map>
 
@@ -56,3 +45,5 @@ struct ObjectMappings {
 
   static ObjectMappings fromEvent(EVENT::LCEvent* lcEvt, const podio::Frame& edmEvt);
 };
+
+#endif

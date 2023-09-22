@@ -20,7 +20,10 @@
 
 // ================= CalorimeterHit ================
 
-bool compare(const EVENT::CalorimeterHit* lcioElem, const edm4hep::CalorimeterHit& edm4hepElem)
+bool compare(
+  const EVENT::CalorimeterHit* lcioElem,
+  const edm4hep::CalorimeterHit& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   // LCIO has CellID0 and CellID1
   const auto lcioCellID = [&]() {
@@ -41,14 +44,17 @@ bool compare(const EVENT::CalorimeterHit* lcioElem, const edm4hep::CalorimeterHi
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::CalorimeterHitCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::CalorimeterHitCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::CalorimeterHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::CalorimeterHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= Cluster ================
 
-bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem)
+bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem, const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in Cluster");
@@ -62,14 +68,20 @@ bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::ClusterCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::ClusterCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::Cluster>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::Cluster>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= MCParticle ================
 
-bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4hepElem)
+bool compare(
+  const EVENT::MCParticle* lcioElem,
+  const edm4hep::MCParticle& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPDG, "PDG in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getGeneratorStatus, "generatorStatus in MCParticle");
@@ -96,9 +108,12 @@ bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4h
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticleCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::MCParticleCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::MCParticle>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::MCParticle>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= ParticleID ================
@@ -114,7 +129,10 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticle
 
 // ================= RawCalorimeterHit ================
 
-bool compare(const EVENT::RawCalorimeterHit* lcioElem, const edm4hep::RawCalorimeterHit& edm4hepElem)
+bool compare(
+  const EVENT::RawCalorimeterHit* lcioElem,
+  const edm4hep::RawCalorimeterHit& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   // LCIO has CellID0 and CellID1
   const auto lcioCellID = [&]() {
@@ -132,14 +150,20 @@ bool compare(const EVENT::RawCalorimeterHit* lcioElem, const edm4hep::RawCalorim
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawCalorimeterHitCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::RawCalorimeterHitCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::RawCalorimeterHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::RawCalorimeterHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= ReconstructedParticle ================
 
-bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::ReconstructedParticle& edm4hepElem)
+bool compare(
+  const EVENT::ReconstructedParticle* lcioElem,
+  const edm4hep::ReconstructedParticle& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in ReconstructedParticle");
@@ -154,14 +178,18 @@ bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::Recons
 
 bool compare(
   const lcio::LCCollection* lcioCollection,
-  const edm4hep::ReconstructedParticleCollection& edm4hepCollection)
+  const edm4hep::ReconstructedParticleCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::ReconstructedParticle>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::ReconstructedParticle>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= SimCalorimeterHit ================
 
-bool compare(const EVENT::SimCalorimeterHit* lcioElem, const edm4hep::SimCalorimeterHit& edm4hepElem)
+bool compare(
+  const EVENT::SimCalorimeterHit* lcioElem,
+  const edm4hep::SimCalorimeterHit& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   // LCIO has CellID0 and CellID1
   const auto lcioCellID = [&]() {
@@ -178,14 +206,20 @@ bool compare(const EVENT::SimCalorimeterHit* lcioElem, const edm4hep::SimCalorim
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimCalorimeterHitCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::SimCalorimeterHitCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::SimCalorimeterHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::SimCalorimeterHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= SimTrackerHit ================
 
-bool compare(const EVENT::SimTrackerHit* lcioElem, const edm4hep::SimTrackerHit& edm4hepElem)
+bool compare(
+  const EVENT::SimTrackerHit* lcioElem,
+  const edm4hep::SimTrackerHit& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEDep, "EDep in SimTrackerHit");
@@ -197,14 +231,17 @@ bool compare(const EVENT::SimTrackerHit* lcioElem, const edm4hep::SimTrackerHit&
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimTrackerHitCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::SimTrackerHitCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::SimTrackerHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::SimTrackerHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= TPCHit ================
 
-bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4hepElem)
+bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4hepElem, const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in TPCHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in TPCHit");
@@ -213,14 +250,17 @@ bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4he
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawTimeSeriesCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::RawTimeSeriesCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::TPCHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::TPCHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= Track ================
 
-bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem)
+bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, const ObjectMappings& objectMaps)
 {
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Track");
@@ -242,14 +282,20 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem)
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::TrackCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::Track>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::Track>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= TrackerHit ================
 
-bool compare(const EVENT::TrackerHit* lcioElem, const edm4hep::TrackerHit& edm4hepElem)
+bool compare(
+  const EVENT::TrackerHit* lcioElem,
+  const edm4hep::TrackerHit& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   // LCIO has CellID0 and CellID1
   const auto lcioCellID = [&]() {
@@ -271,14 +317,20 @@ bool compare(const EVENT::TrackerHit* lcioElem, const edm4hep::TrackerHit& edm4h
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHitCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::TrackerHitCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::TrackerHit>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::TrackerHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= TrackerHitPlane ================
 
-bool compare(const EVENT::TrackerHitPlane* lcioElem, const edm4hep::TrackerHitPlane& edm4hepElem)
+bool compare(
+  const EVENT::TrackerHitPlane* lcioElem,
+  const edm4hep::TrackerHitPlane& edm4hepElem,
+  const ObjectMappings& objectMaps)
 {
   // LCIO has CellID0 and CellID1
   const auto lcioCellID = [&]() {
@@ -306,14 +358,17 @@ bool compare(const EVENT::TrackerHitPlane* lcioElem, const edm4hep::TrackerHitPl
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHitPlaneCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::TrackerHitPlaneCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::TrackerHitPlane>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::TrackerHitPlane>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 // ================= Vertex ================
 
-bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem)
+bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, const ObjectMappings& objectMaps)
 {
   // LCIO has isPrimary (bool), EDM4hep has getPrimary (int32_t)
   ASSERT_COMPARE_VALS(lcioElem->isPrimary(), edm4hepElem.getPrimary(), "primary in Vertex");
@@ -327,9 +382,12 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem)
   return true;
 }
 
-bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::VertexCollection& edm4hepCollection)
+bool compare(
+  const lcio::LCCollection* lcioCollection,
+  const edm4hep::VertexCollection& edm4hepCollection,
+  const ObjectMappings& objectMaps)
 {
-  return compareCollection<EVENT::Vertex>(lcioCollection, edm4hepCollection);
+  return compareCollection<EVENT::Vertex>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent)
