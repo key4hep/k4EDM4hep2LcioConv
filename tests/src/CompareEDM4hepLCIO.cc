@@ -22,9 +22,17 @@
 
 bool compare(const EVENT::CalorimeterHit* lcioElem, const edm4hep::CalorimeterHit& edm4hepElem)
 {
-  // TODO: cellID vs. cellID0 and cellID1 in LCIO
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in
-  // CalorimeterHit");
+  // LCIO has CellID0 and CellID1
+  const auto lcioCellID = [&]() {
+    const auto cellID0 = lcioElem->getCellID0();
+    const auto cellID1 = lcioElem->getCellID1();
+
+    uint64_t cellID = cellID1;
+    cellID = (cellID << 32) | cellID0;
+    return cellID;
+  }();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in CalorimeterHit");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in CalorimeterHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergyError, "energyError in CalorimeterHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTime, "time in CalorimeterHit");
@@ -108,9 +116,17 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticle
 
 bool compare(const EVENT::RawCalorimeterHit* lcioElem, const edm4hep::RawCalorimeterHit& edm4hepElem)
 {
-  // TODO: LCIO has getCellID0 and getCellID1
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID,
-  //                "cellID in RawCalorimeterHit");
+  // LCIO has CellID0 and CellID1
+  const auto lcioCellID = [&]() {
+    const auto cellID0 = lcioElem->getCellID0();
+    const auto cellID1 = lcioElem->getCellID1();
+
+    uint64_t cellID = cellID1;
+    cellID = (cellID << 32) | cellID0;
+    return cellID;
+  }();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in RawCalorimeterHit");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getAmplitude, "amplitude in RawCalorimeterHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTimeStamp, "timeStamp in RawCalorimeterHit");
   return true;
@@ -147,9 +163,16 @@ bool compare(
 
 bool compare(const EVENT::SimCalorimeterHit* lcioElem, const edm4hep::SimCalorimeterHit& edm4hepElem)
 {
-  // TODO: LCIO has getCellID0 and getCellID1
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID,
-  //                "cellID in SimCalorimeterHit");
+  // LCIO has CellID0 and CellID1
+  const auto lcioCellID = [&]() {
+    const auto cellID0 = lcioElem->getCellID0();
+    const auto cellID1 = lcioElem->getCellID1();
+    uint64_t cellID = cellID1;
+    cellID = (cellID << 32) | cellID0;
+    return cellID;
+  }();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in SimCalorimeterHit");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in SimCalorimeterHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in SimCalorimeterHit");
   return true;
@@ -218,8 +241,16 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackColle
 
 bool compare(const EVENT::TrackerHit* lcioElem, const edm4hep::TrackerHit& edm4hepElem)
 {
-  // TODO: LCIO has getCellID0 and getCellID1
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in TrackerHit");
+  // LCIO has CellID0 and CellID1
+  const auto lcioCellID = [&]() {
+    const auto cellID0 = lcioElem->getCellID0();
+    const auto cellID1 = lcioElem->getCellID1();
+    uint64_t cellID = cellID1;
+    cellID = (cellID << 32) | cellID0;
+    return cellID;
+  }();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHit");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in TrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in TrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTime, "time in TrackerHit");
@@ -239,9 +270,16 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHit
 
 bool compare(const EVENT::TrackerHitPlane* lcioElem, const edm4hep::TrackerHitPlane& edm4hepElem)
 {
-  // TODO: LCIO has getCellID0 and getCellID1
-  // ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in
-  // TrackerHitPlane");
+  // LCIO has CellID0 and CellID1
+  const auto lcioCellID = [&]() {
+    const auto cellID0 = lcioElem->getCellID0();
+    const auto cellID1 = lcioElem->getCellID1();
+    uint64_t cellID = cellID1;
+    cellID = (cellID << 32) | cellID0;
+    return cellID;
+  }();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHitPlane");
+
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in TrackerHitPlane");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in TrackerHitPlane");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTime, "time in TrackerHitPlane");
