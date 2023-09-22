@@ -73,6 +73,12 @@ int main(int argc, char* argv[])
         return 1;
       }
 
+      if (edmEvent.get(name)->size() != lcioColl->getNumberOfElements()) {
+        std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
+                  << ", EDM4hep: " << edmEvent.get(name)->size() << std::endl;
+        return 1;
+      }
+
       ASSERT_COMPARE_OR_EXIT(edm4hep::MCParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::TrackCollection)

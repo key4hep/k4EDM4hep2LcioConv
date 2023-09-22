@@ -127,10 +127,6 @@ VECTOR2_COMPARE(float, edm4hep::Vector2f)
 template<typename LCIOT, typename EDM4hepCollT>
 bool compareCollection(const lcio::LCCollection* lcioCollection, const EDM4hepCollT& edm4hepCollection)
 {
-  if (lcioCollection->getNumberOfElements() != edm4hepCollection.size()) {
-    return false;
-  }
-
   UTIL::LCIterator<LCIOT> lcioIt(lcioCollection);
   int counter = 0;
   for (const auto edm4hepElem : edm4hepCollection) {
