@@ -16,7 +16,6 @@ namespace EVENT {
   class Vertex;
   class ReconstructedParticle;
   class MCParticle;
-  class ParticleID;
   class LCEvent;
 } // namespace EVENT
 

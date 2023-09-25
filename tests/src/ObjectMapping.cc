@@ -13,7 +13,6 @@
 #include "EVENT/Vertex.h"
 #include "EVENT/ReconstructedParticle.h"
 #include "EVENT/MCParticle.h"
-#include "EVENT/ParticleID.h"
 #include "EVENT/LCEvent.h"
 #include "EVENT/LCCollection.h"
 #include "UTIL/LCIterator.h"
@@ -28,7 +27,6 @@
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
-#include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/VertexCollection.h"
 
