@@ -18,6 +18,7 @@
 #include <array>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 std::ostream& operator<<(std::ostream& os, const podio::ObjectID id)
 {
