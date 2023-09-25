@@ -122,6 +122,8 @@ bool compare(
   const edm4hep::TrackerHitPlaneCollection& edm4hepCollection,
   const ObjectMappings& objectMaps);
 
+bool compare(const EVENT::TrackState* lcio, const edm4hep::TrackState& edm4hep);
+
 bool compare(const EVENT::Track* lcio, const edm4hep::Track& edm4hep, const ObjectMappings& objectMaps);
 bool compare(
   const lcio::LCCollection* lcioCollection,

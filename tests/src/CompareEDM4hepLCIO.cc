@@ -1,6 +1,8 @@
 #include "CompareEDM4hepLCIO.h"
 #include "ComparisonUtils.h"
 
+#include "IMPL/TrackerHitImpl.h"
+
 /**
  * The basic implementation of the functionality has been generated via modified
  * podio templates, employing some handwritten macros to facilitate the task.
@@ -105,6 +107,10 @@ bool compare(
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentumAtEndpoint, "momentumAtEndpoint in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getSpin, "spin in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getColorFlow, "colorFlow in MCParticle");
+
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getDaughters, objectMaps.mcParticles, "daughters in MCParticle");
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParents, objectMaps.mcParticles, "parents in MCParticle");
+
   return true;
 }
 
@@ -173,6 +179,18 @@ bool compare(
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMass, "mass in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getGoodnessOfPID, "goodnessOfPID in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCovMatrix, "covMatrix in ReconstructedParticle");
+
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getClusters, objectMaps.clusters, "clusters in ReonstructedParticle");
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "tracks in ReonstructedParticle");
+  ASSERT_COMPARE_RELATION(
+    lcioElem, edm4hepElem, getParticles, objectMaps.recoParticles, "particles in ReonstructedParticle");
+  ASSERT_COMPARE_RELATION(
+    lcioElem, edm4hepElem, getParticleIDs, objectMaps.particleIDs, "particleIDs in ReonstructedParticle");
+  ASSERT_COMPARE_RELATION(
+    lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices, "startVertex in ReconstructedParticle");
+  ASSERT_COMPARE_RELATION(
+    lcioElem, edm4hepElem, getParticleIDUsed, objectMaps.particleIDs, "particleIDUsed in ReconstructedParticle");
+
   return true;
 }
 
@@ -203,6 +221,28 @@ bool compare(
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in SimCalorimeterHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in SimCalorimeterHit");
+
+  // Contributions are not part of the "proper LCIO"
+  const auto edmContributions = edm4hepElem.getContributions();
+  ASSERT_COMPARE_VALS(lcioElem->getNMCContributions(), edmContributions.size(), "number of CaloHitContributions");
+
+  for (int iCont = 0; iCont < lcioElem->getNMCContributions(); ++iCont) {
+    const auto& edmContrib = edmContributions[iCont];
+    ASSERT_COMPARE_VALS(
+      lcioElem->getEnergyCont(iCont), edmContrib.getEnergy(), "energy in CaloHitContribution " << iCont);
+    ASSERT_COMPARE_VALS(
+      lcioElem->getStepPosition(iCont), edmContrib.getStepPosition(), "stepPosition in CaloHitContribution " << iCont);
+    ASSERT_COMPARE_VALS(lcioElem->getTimeCont(iCont), edmContrib.getTime(), "time in CaloHitContribution " << iCont);
+
+    if (!compareRelation(
+          lcioElem->getParticleCont(iCont),
+          edmContrib.getParticle(),
+          objectMaps.mcParticles,
+          " MCParticle in CaloHitContribution " + std::to_string(iCont))) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -228,6 +268,9 @@ bool compare(
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in SimTrackerHit");
+
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getMCParticle, objectMaps.mcParticles, "MCParticle in SimTrackerHit");
+
   return true;
 }
 
@@ -258,6 +301,27 @@ bool compare(
   return compareCollection<EVENT::TPCHit>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
+// ================= TrackState ================
+
+bool compare(const EVENT::TrackState* lcio, const edm4hep::TrackState& edm4hep)
+{
+  ASSERT_COMPARE_VALS(lcio->getLocation(), edm4hep.location, "location in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getD0(), edm4hep.D0, "D0 in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getZ0(), edm4hep.Z0, "Z0 in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getPhi(), edm4hep.phi, "phi in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getOmega(), edm4hep.omega, "omega in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getTanLambda(), edm4hep.tanLambda, "tanLambda in TrackState");
+  ASSERT_COMPARE_VALS(lcio->getReferencePoint(), edm4hep.referencePoint, "referencePoint in TrackState");
+
+  // Need to make sure to only compare the part of the covariance matrix that is
+  // actually available in LCIO
+  const auto& lcioCov = lcio->getCovMatrix();
+  const auto& edmCov = edm4hep.covMatrix;
+  ASSERT_COMPARE_VALS(lcioCov, std::vector(edmCov.begin(), edmCov.begin() + 15), "covMatrix in TrackState");
+
+  return true;
+}
+
 // ================= Track ================
 
 bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, const ObjectMappings& objectMaps)
@@ -279,6 +343,33 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dxQuantities[0].error, "dEdxError in DxQuantities in Track");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getRadiusOfInnermostHit, "radiusOfInnermostHit in Track");
+
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "Tracks in Track");
+
+  const auto& lcioTrackStates = lcioElem->getTrackStates();
+  const auto& edm4hepTrackStates = edm4hepElem.getTrackStates();
+  ASSERT_COMPARE_VALS(lcioTrackStates.size(), edm4hepTrackStates.size(), "number of TrackStates in Track");
+  for (size_t i = 0; i < lcioTrackStates.size(); ++i) {
+    if (!compare(lcioTrackStates[i], edm4hepTrackStates[i])) {
+      std::cerr << " " << i << " in Track" << std::endl;
+      return false;
+    }
+  }
+
+  const auto edmHits = edm4hepElem.getTrackerHits();
+  int iHit = 0;
+  for (const auto* lcioHit : lcioElem->getTrackerHits()) {
+    // In EDM4hep only TrackerHits can be used in Tracks, so here we also only
+    // compare those
+    if (dynamic_cast<const IMPL::TrackerHitImpl*>(lcioHit)) {
+      if (!compareRelation(
+            lcioHit, edmHits[iHit], objectMaps.trackerHits, "TrackerHit " + std::to_string(iHit) + " in Track")) {
+        return false;
+      }
+      iHit++;
+    }
+  }
+
   return true;
 }
 
@@ -376,9 +467,14 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getProbability, "probability in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCovMatrix, "covMatrix in Vertex");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getParameters, "parameters in Vertex");
   // TODO: LCIO with std::string vs. EDM4hep with int
   // ASSERT_COMPARE(lcioElem, edm4hepElem, getAlgorithmType,
   //                "algorithmType in Vertex");
+
+  ASSERT_COMPARE_RELATION(
+    lcioElem, edm4hepElem, getAssociatedParticle, objectMaps.recoParticles, "associatedParticle in Vertex");
+
   return true;
 }
 
