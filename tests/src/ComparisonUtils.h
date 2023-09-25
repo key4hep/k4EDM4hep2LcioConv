@@ -177,6 +177,7 @@ bool compareRelation(const LcioT* lcioElem, const EDM4hepT& edm4hepElem, const M
   }
   else {
     std::cerr << msg << " cannot find LCIO object " << lcioElem << " in object map for relation checking" << std::endl;
+    return false;
   }
 
   return true;
