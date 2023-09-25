@@ -20,6 +20,17 @@
  * TODO: Also compare relations
  */
 
+/// Convert the two 32 bit cellIDs into one 64 bit value
+template<typename LcioT>
+auto to64BitCellID(LcioT* obj)
+{
+  const auto cellID0 = obj->getCellID0();
+  const auto cellID1 = obj->getCellID1();
+  uint64_t cellID = cellID1;
+  cellID = (cellID << 32) | cellID0;
+  return cellID;
+}
+
 // ================= CalorimeterHit ================
 
 bool compare(
@@ -27,15 +38,7 @@ bool compare(
   const edm4hep::CalorimeterHit& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  // LCIO has CellID0 and CellID1
-  const auto lcioCellID = [&]() {
-    const auto cellID0 = lcioElem->getCellID0();
-    const auto cellID1 = lcioElem->getCellID1();
-
-    uint64_t cellID = cellID1;
-    cellID = (cellID << 32) | cellID0;
-    return cellID;
-  }();
+  const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in CalorimeterHit");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in CalorimeterHit");
@@ -140,15 +143,7 @@ bool compare(
   const edm4hep::RawCalorimeterHit& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  // LCIO has CellID0 and CellID1
-  const auto lcioCellID = [&]() {
-    const auto cellID0 = lcioElem->getCellID0();
-    const auto cellID1 = lcioElem->getCellID1();
-
-    uint64_t cellID = cellID1;
-    cellID = (cellID << 32) | cellID0;
-    return cellID;
-  }();
+  const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in RawCalorimeterHit");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getAmplitude, "amplitude in RawCalorimeterHit");
@@ -209,14 +204,7 @@ bool compare(
   const edm4hep::SimCalorimeterHit& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  // LCIO has CellID0 and CellID1
-  const auto lcioCellID = [&]() {
-    const auto cellID0 = lcioElem->getCellID0();
-    const auto cellID1 = lcioElem->getCellID1();
-    uint64_t cellID = cellID1;
-    cellID = (cellID << 32) | cellID0;
-    return cellID;
-  }();
+  const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in SimCalorimeterHit");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in SimCalorimeterHit");
@@ -388,14 +376,7 @@ bool compare(
   const edm4hep::TrackerHit& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  // LCIO has CellID0 and CellID1
-  const auto lcioCellID = [&]() {
-    const auto cellID0 = lcioElem->getCellID0();
-    const auto cellID1 = lcioElem->getCellID1();
-    uint64_t cellID = cellID1;
-    cellID = (cellID << 32) | cellID0;
-    return cellID;
-  }();
+  const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHit");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in TrackerHit");
@@ -423,14 +404,7 @@ bool compare(
   const edm4hep::TrackerHitPlane& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  // LCIO has CellID0 and CellID1
-  const auto lcioCellID = [&]() {
-    const auto cellID0 = lcioElem->getCellID0();
-    const auto cellID1 = lcioElem->getCellID1();
-    uint64_t cellID = cellID1;
-    cellID = (cellID << 32) | cellID0;
-    return cellID;
-  }();
+  const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHitPlane");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in TrackerHitPlane");
