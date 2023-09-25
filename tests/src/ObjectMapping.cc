@@ -79,7 +79,6 @@ ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Fra
     FILL_MAP(SimCalorimeterHit, mapping.simCaloHits);
     FILL_MAP(MCParticle, mapping.mcParticles);
     FILL_MAP(ReconstructedParticle, mapping.recoParticles);
-    FILL_MAP(ParticleID, mapping.particleIDs);
     FILL_MAP(Vertex, mapping.vertices);
     // Need special treatment for TPCHit type mismatch
     if (type == "TPCHit") {

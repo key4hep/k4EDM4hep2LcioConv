@@ -136,5 +136,7 @@ bool compare(
   const edm4hep::VertexCollection& edm4hepCollection,
   const ObjectMappings& objectMaps);
 
+bool compare(const EVENT::ParticleID* lcio, const edm4hep::ParticleID& edm4hep);
+
 bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent);
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H

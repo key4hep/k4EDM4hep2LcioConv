@@ -39,7 +39,6 @@ struct ObjectMappings {
   Map<const EVENT::SimCalorimeterHit*> simCaloHits {};
   Map<const EVENT::MCParticle*> mcParticles {};
   Map<const EVENT::ReconstructedParticle*> recoParticles {};
-  Map<const EVENT::ParticleID*> particleIDs {};
   Map<const EVENT::TPCHit*> tpcHits {};
   Map<const EVENT::Vertex*> vertices {};
 

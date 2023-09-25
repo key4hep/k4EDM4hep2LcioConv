@@ -127,14 +127,14 @@ bool compare(
 
 // ================= ParticleID ================
 
-// bool compare(const EVENT::ParticleID * lcioElem, const edm4hep::ParticleID &
-// edm4hepElem) {
-//     ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in ParticleID");
-//     ASSERT_COMPARE(lcioElem, edm4hepElem, getPDG, "PDG in ParticleID");
-//     ASSERT_COMPARE(lcioElem, edm4hepElem, getAlgorithmType, "algorithmType in
-//     ParticleID"); ASSERT_COMPARE(lcioElem, edm4hepElem, getLikelihood,
-//     "likelihood in ParticleID"); return true;
-// }
+bool compare(const EVENT::ParticleID* lcioElem, const edm4hep::ParticleID& edm4hepElem)
+{
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in ParticleID");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getPDG, "PDG in ParticleID");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getAlgorithmType, "algorithmType in ParticleID");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getLikelihood, "likelihood in ParticleID");
+  return true;
+}
 
 // ================= RawCalorimeterHit ================
 
@@ -180,12 +180,36 @@ bool compare(
   ASSERT_COMPARE_RELATION(
     lcioElem, edm4hepElem, getParticles, objectMaps.recoParticles, "particles in ReonstructedParticle");
   ASSERT_COMPARE_RELATION(
-    lcioElem, edm4hepElem, getParticleIDs, objectMaps.particleIDs, "particleIDs in ReonstructedParticle");
-  ASSERT_COMPARE_RELATION(
     lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices, "startVertex in ReconstructedParticle");
-  ASSERT_COMPARE_RELATION(
-    lcioElem, edm4hepElem, getParticleIDUsed, objectMaps.particleIDs, "particleIDUsed in ReconstructedParticle");
 
+  const auto& lcioPIDs = lcioElem->getParticleIDs();
+  const auto edmPIDs = edm4hepElem.getParticleIDs();
+  ASSERT_COMPARE_VALS(lcioPIDs.size(), edmPIDs.size(), "particleIDs with different sizes in ReconstructedParticle");
+
+  for (size_t i = 0; i < lcioPIDs.size(); ++i) {
+    if (!compare(lcioPIDs[i], edmPIDs[i])) {
+      std::cerr << "particle ID " << i << " differs in ReconstructedParticle (LCIO: " << lcioPIDs[i]
+                << ", EDM4hep: " << edmPIDs[i] << ")" << std::endl;
+      return false;
+    }
+  }
+
+  const auto lcioPIDUsed = lcioElem->getParticleIDUsed();
+  const auto edmPIDUsed = edm4hepElem.getParticleIDUsed();
+  if (lcioPIDUsed == nullptr) {
+    if (edmPIDUsed.isAvailable()) {
+      std::cerr << "particleIDUsed is not available in LCIO, but points to " << edmPIDUsed.getObjectID()
+                << " in EDM4hep for ReconstructedParticle" << std::endl;
+      return false;
+    }
+  }
+  else {
+    if (!compare(lcioPIDUsed, edmPIDUsed)) {
+      std::cerr << "particleIDUsed differs in ReconstructedParticle (LCIO: " << lcioPIDUsed
+                << ", EDM4hep: " << edmPIDUsed << ")" << std::endl;
+      return false;
+    }
+  }
   return true;
 }
 
