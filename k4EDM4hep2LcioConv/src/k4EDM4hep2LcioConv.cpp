@@ -1,5 +1,7 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
+#include "IMPL/LCEventImpl.h"
+
 #if __has_include("edm4hep/EDM4hepVersion.h")
 #include "edm4hep/EDM4hepVersion.h"
 #else
@@ -899,6 +901,85 @@ namespace EDM4hep2LCIOConv {
       }
     }
     return false;
+  }
+
+  std::unique_ptr<lcio::LCEventImpl> convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
+  {
+    auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
+    auto objectMappings = CollectionsPairVectors {};
+
+    const auto& collections = edmEvent.getAvailableCollections();
+    for (const auto& name : collections) {
+      const auto edmCollection = edmEvent.get(name);
+
+      const auto& cellIDStr = metadata.getParameter<std::string>(podio::collMetadataParamName(name, "CellIDEncoding"));
+
+      if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
+        auto lcColl = convTracks(coll, objectMappings.tracks, objectMappings.trackerhits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::TrackerHitCollection*>(edmCollection)) {
+        auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerhits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
+        auto lcColl = convSimTrackerHits(coll, cellIDStr, objectMappings.simtrackerhits, objectMappings.mcparticles);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
+        auto lcColl = convCalorimeterHits(coll, cellIDStr, objectMappings.calohits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::RawCalorimeterHitCollection*>(edmCollection)) {
+        auto lcColl = convRawCalorimeterHits(coll, objectMappings.rawcalohits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
+        auto lcColl = convSimCalorimeterHits(coll, cellIDStr, objectMappings.simcalohits, objectMappings.mcparticles);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
+        auto lcColl = convTPCHits(coll, objectMappings.tpchits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
+        auto lcColl = convClusters(coll, objectMappings.clusters, objectMappings.calohits);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
+        auto lcColl = convVertices(coll, objectMappings.vertices, objectMappings.recoparticles);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::MCParticleCollection*>(edmCollection)) {
+        auto lcColl = convMCParticles(coll, objectMappings.mcparticles);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::ReconstructedParticleCollection*>(edmCollection)) {
+        auto lcColl = convReconstructedParticles(
+          coll, objectMappings.recoparticles, objectMappings.tracks, objectMappings.vertices, objectMappings.clusters);
+        lcioEvent->addCollection(lcColl, name);
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
+        convEventHeader(coll, lcioEvent.get());
+      }
+      else if (auto coll = dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
+        // "converted" as part of FillMissingCollectoins at the end
+        continue;
+      }
+      else {
+        std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
+                  << "\n"
+                  << "List of supported types: "
+                  << "Track, TrackerHit, SimTrackerHit, "
+                  << "Cluster, CalorimeterHit, RawCalorimeterHit, "
+                  << "SimCalorimeterHit, Vertex, ReconstructedParticle, "
+                  << "MCParticle." << std::endl;
+      }
+    }
+
+    FillMissingCollections(objectMappings);
+
+    return lcioEvent;
   }
 
 } // namespace EDM4hep2LCIOConv

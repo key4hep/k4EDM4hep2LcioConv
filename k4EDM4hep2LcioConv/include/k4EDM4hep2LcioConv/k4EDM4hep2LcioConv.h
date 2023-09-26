@@ -36,6 +36,8 @@ namespace edm4hep {
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/VertexCollection.h>
 
+#include "podio/Frame.h"
+
 // LCIO
 #include <IMPL/CalorimeterHitImpl.h>
 #include <IMPL/ClusterImpl.h>
@@ -56,6 +58,8 @@ namespace edm4hep {
 #include <LCIOSTLTypes.h>
 #include <UTIL/CellIDEncoder.h>
 #include <lcio.h>
+
+#include <memory>
 
 // Preprocessor symbol that can be used in downstream code to switch on the
 // namespace for the conversion
@@ -141,6 +145,13 @@ namespace EDM4hep2LCIOConv {
   void FillMissingCollections(CollectionsPairVectors& collection_pairs);
 
   bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
+
+  /**
+   * Convert an edm4hep event to an LCEvent
+   */
+  std::unique_ptr<lcio::LCEventImpl> convEvent(
+    const podio::Frame& edmEvent,
+    const podio::Frame& metadata = podio::Frame {});
 
 } // namespace EDM4hep2LCIOConv
 
