@@ -1,4 +1,4 @@
-add_library(edmCompare SHARED src/CompareEDM4hepLCIO.cc src/ObjectMapping.cc)
+add_library(edmCompare SHARED src/CompareEDM4hepLCIO.cc src/ObjectMapping.cc src/CompareEDM4hepEDM4hep.cc)
 target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep ${LCIO_LIBRARIES})
 target_include_directories(edmCompare PUBLIC ${LCIO_INCLUDE_DIRS})
 
@@ -17,6 +17,13 @@ target_include_directories(edm4hep_to_lcio PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>)
 
 add_test(NAME edm4hep_to_lcio COMMAND edm4hep_to_lcio)
+
+add_executable(edm4hep_roundtrip edm4hep_roundtrip.cpp)
+target_link_libraries(edm4hep_roundtrip PRIVATE k4EDM4hep2LcioConv TestUtils edmCompare)
+target_include_directories(edm4hep_roundtrip PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>)
+
+add_test(NAME edm4hep_roundtrip COMMAND edm4hep_roundtrip)
 
 find_program(BASH_PROGRAM bash)
 
