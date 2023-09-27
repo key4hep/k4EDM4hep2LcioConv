@@ -9,11 +9,6 @@
 
 #include "podio/Frame.h"
 
-#include <type_traits>
-
-template<typename>
-struct TD;
-
 int main()
 {
   const auto edmEvent = createExampleEvent();
@@ -45,8 +40,11 @@ int main()
   const auto objectMapping = ObjectMappings::fromEvent(lcioEvent.get(), edmEvent);
 
   for (const auto& name : edmEvent.getAvailableCollections()) {
-    const auto* lcioColl = lcioEvent->getCollection(name);
     const auto type = edmEvent.get(name)->getTypeName();
+    if (type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection") {
+      continue;
+    }
+    const auto* lcioColl = lcioEvent->getCollection(name);
 
     ASSERT_COMPARE_OR_EXIT(edm4hep::MCParticleCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)

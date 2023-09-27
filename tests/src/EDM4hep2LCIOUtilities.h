@@ -26,7 +26,7 @@ namespace test_config {
 
   using IdxPair = std::pair<std::size_t, std::size_t>;
   /// How to create the MC particle hierarchy, e.g. {4, 0} means that mc[4] will
-  /// have mc[0] as a parente, and mc[0] will get mc[4] as a daughter
+  /// have mc[0] as a parent, and mc[0] will get mc[4] as a daughter
   const static std::vector<IdxPair> mcpParentIdcs = {{4, 0}, {4, 1}, {3, 2}, {3, 0}, {3, 1}, {2, 1}};
 
   constexpr static int nCaloHits = 2;    ///< The number of CalorimeterHits to generate
