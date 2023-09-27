@@ -610,8 +610,8 @@ namespace LCIO2EDM4hepConv {
     return contrCollection;
   }
 
-  template<typename MCParticleMapT>
-  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap)
+  template<typename MCParticleMapT, typename MCParticleLookupMapT>
+  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap, const MCParticleLookupMapT& lookupMap)
   {
     int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
@@ -623,7 +623,7 @@ namespace LCIO2EDM4hepConv {
         if (d == nullptr) {
           continue;
         }
-        if (const auto edmD = k4EDM4hep2LcioConv::detail::mapLookupTo(d, mcparticlesMap)) {
+        if (const auto edmD = k4EDM4hep2LcioConv::detail::mapLookupTo(d, lookupMap)) {
           edm.addToDaughters(edmD.value());
         }
         else {
@@ -636,7 +636,7 @@ namespace LCIO2EDM4hepConv {
         if (p == nullptr) {
           continue;
         }
-        if (const auto edmP = k4EDM4hep2LcioConv::detail::mapLookupTo(p, mcparticlesMap)) {
+        if (const auto edmP = k4EDM4hep2LcioConv::detail::mapLookupTo(p, lookupMap)) {
           edm.addToParents(edmP.value());
         }
         else {
@@ -667,9 +667,15 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  template<typename RecoParticleMapT, typename VertexMapT, typename ClusterMapT, typename TrackMapT>
+  template<
+    typename RecoParticleMapT,
+    typename RecoParticleLookupMapT,
+    typename VertexMapT,
+    typename ClusterMapT,
+    typename TrackMapT>
   void resolveRelationsRecoParticles(
     RecoParticleMapT& recoparticlesMap,
+    const RecoParticleLookupMapT& recoLookupMap,
     const VertexMapT& vertexMap,
     const ClusterMapT& clusterMap,
     const TrackMapT& tracksMap)
@@ -725,7 +731,7 @@ namespace LCIO2EDM4hepConv {
         if (p == nullptr) {
           continue;
         }
-        if (const auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoparticlesMap)) {
+        if (const auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoLookupMap)) {
           edm.addToParticles(edmReco.value());
         }
         else {
@@ -864,9 +870,9 @@ namespace LCIO2EDM4hepConv {
   template<typename ObjectMappingT, typename ObjectMappingU>
   void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps)
   {
-    resolveRelationsMCParticles(updateMaps.mcParticles);
+    resolveRelationsMCParticles(updateMaps.mcParticles, lookupMaps.mcParticles);
     resolveRelationsRecoParticles(
-      updateMaps.recoParticles, lookupMaps.vertices, lookupMaps.clusters, lookupMaps.tracks);
+      updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.vertices, lookupMaps.clusters, lookupMaps.tracks);
     resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
     resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
     resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.tpcHits, lookupMaps.trackerHitPlanes);
