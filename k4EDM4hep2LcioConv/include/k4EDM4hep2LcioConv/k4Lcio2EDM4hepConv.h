@@ -346,8 +346,8 @@ namespace LCIO2EDM4hepConv {
   /**
    * Resolve the relations for the MCParticles.
    */
-  template<typename MCParticleMapT>
-  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap);
+  template<typename MCParticleMapT, typename MCParticleLookupMapT>
+  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap, const MCParticleLookupMapT& lookupMap);
 
   /**
    * Resolve the relations for SimTrackerHits
@@ -358,9 +358,15 @@ namespace LCIO2EDM4hepConv {
   /**
    * Resolve the relations for ReconstructedParticles
    */
-  template<typename RecoParticleMapT, typename VertexMapT, typename ClusterMapT, typename TrackMapT>
+  template<
+    typename RecoParticleMapT,
+    typename RecoParticleLookupMapT,
+    typename VertexMapT,
+    typename ClusterMapT,
+    typename TrackMapT>
   void resolveRelationsRecoParticles(
     RecoParticleMapT& recoparticlesMap,
+    const RecoParticleLookupMapT& recoLookupMap,
     const VertexMapT& vertexMap,
     const ClusterMapT& clusterMap,
     const TrackMapT& tracksMap);
