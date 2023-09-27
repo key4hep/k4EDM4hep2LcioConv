@@ -61,6 +61,23 @@ int main(int argc, char* argv[])
           continue;
         }
       }
+      const auto coll = edmEvent.get(name);
+      if (!coll) {
+        std::cerr << "Collection " << name << " not present in edm4hep file" << std::endl;
+        return 1;
+      }
+
+      if (edmEvent.get(name)->size() != lcioColl->getNumberOfElements()) {
+        std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
+                  << ", EDM4hep: " << coll->size() << std::endl;
+        return 1;
+      }
+    }
+
+    const auto objectMapping = ObjectMappings::fromEvent(lcEvent, edmEvent);
+
+    for (const auto& name : *(lcEvent->getCollectionNames())) {
+      const auto lcioColl = lcEvent->getCollection(name);
       const auto type = [&edmEvent, &name]() {
         const auto coll = edmEvent.get(name);
         if (coll) {
@@ -69,18 +86,6 @@ int main(int argc, char* argv[])
         static const decltype(coll->getTypeName()) empty = "";
         return empty;
       }();
-      if (type.empty()) {
-        std::cerr << "Collection " << name << " not present in edm4hep file" << std::endl;
-        return 1;
-      }
-
-      if (edmEvent.get(name)->size() != lcioColl->getNumberOfElements()) {
-        std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
-                  << ", EDM4hep: " << edmEvent.get(name)->size() << std::endl;
-        return 1;
-      }
-
-      const auto objectMapping = ObjectMappings::fromEvent(lcEvent, edmEvent);
 
       ASSERT_COMPARE_OR_EXIT(edm4hep::MCParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)
