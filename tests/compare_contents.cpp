@@ -1,5 +1,6 @@
 #include "CompareEDM4hepLCIO.h"
 #include "ObjectMapping.h"
+#include "ComparisonUtils.h"
 
 #include "podio/ROOTFrameReader.h"
 #include "podio/Frame.h"
@@ -8,15 +9,6 @@
 
 #include <iostream>
 #include <string_view>
-
-#define ASSERT_COMPARE_OR_EXIT(collType)                   \
-  if (type == #collType) {                                 \
-    auto& edmcoll = edmEvent.get<collType>(name);          \
-    if (!compare(lcioColl, edmcoll, objectMapping)) {      \
-      std::cerr << "in collection: " << name << std::endl; \
-      return 1;                                            \
-    }                                                      \
-  }
 
 constexpr auto usageMsg = R"(usage: compare-contents lciofile edm4hepfile)";
 
