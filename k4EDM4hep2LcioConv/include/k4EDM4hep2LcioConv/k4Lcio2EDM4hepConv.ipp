@@ -73,7 +73,8 @@ namespace LCIO2EDM4hepConv {
         edm4hepColl->push_back(edm4hepElem.value());
       }
       else {
-        std::cerr << "Cannot find corresponding EDM4hep object for an LCIO object in a subset collection" << std::endl;
+        std::cerr << "Cannot find corresponding EDM4hep object for an LCIO object in a subset collection of type "
+                  << Edm4hepT::collection_type::valueTypeName << std::endl;
       }
     }
 
