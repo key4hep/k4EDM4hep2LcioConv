@@ -79,6 +79,32 @@ namespace k4EDM4hep2LcioConv {
     template<typename T>
     using mapped_t = typename map_t_helper<T>::mapped_type;
 
+    template<typename T>
+    using has_object_type = typename T::object_type;
+
+    /// Detector for whether a type T is a Mutable user facing type.
+    template<typename T>
+    constexpr static bool is_mutable_v = det::is_detected_v<has_object_type, T>;
+
+    /// Helper struct to determine the Mutable type for a user facing type
+    /// NOTE: Not SFINAE safe for anything that is not a podio generated class
+    template<typename T, typename IsMutable = std::bool_constant<is_mutable_v<T>>>
+    struct mutable_t_helper {
+    };
+
+    template<typename T>
+    struct mutable_t_helper<T, std::bool_constant<true>> {
+      using type = T;
+    };
+
+    template<typename T>
+    struct mutable_t_helper<T, std::bool_constant<false>> {
+      using type = typename T::mutable_type;
+    };
+
+    template<typename T>
+    using mutable_t = typename mutable_t_helper<T>::type;
+
     /// bool constant to determine whether type T is a valid type to be used as
     /// a key in the generic mapping functionality defined below. In this case
     /// it checks for type equality or makes sure that KeyT is a base of T or

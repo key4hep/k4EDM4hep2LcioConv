@@ -897,7 +897,7 @@ namespace LCIO2EDM4hepConv {
       const auto edm4hepFrom = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioFrom, fromMap);
       if (edm4hepTo.has_value() && edm4hepFrom.has_value()) {
         if constexpr (Reverse) {
-          if constexpr (std::is_same_v<ToEDM4hepT, edm4hep::MutableVertex>) {
+          if constexpr (std::is_same_v<k4EDM4hep2LcioConv::detail::mutable_t<ToEDM4hepT>, edm4hep::MutableVertex>) {
             assoc.setVertex(*edm4hepTo);
           }
           else {
@@ -906,7 +906,7 @@ namespace LCIO2EDM4hepConv {
           assoc.setRec(*edm4hepFrom);
         }
         else {
-          if constexpr (std::is_same_v<FromEDM4hepT, edm4hep::MutableVertex>) {
+          if constexpr (std::is_same_v<k4EDM4hep2LcioConv::detail::mutable_t<FromEDM4hepT>, edm4hep::MutableVertex>) {
             assoc.setVertex(*edm4hepFrom);
           }
           else {
