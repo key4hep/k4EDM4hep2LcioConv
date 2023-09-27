@@ -873,7 +873,11 @@ namespace EDM4hep2LCIOConv {
           //           << std::endl;
         }
       } // all emd4hep contributions
-    }   // SimCaloHit
+
+      // We need to reset the energy to the original one, because adding
+      // contributions alters the energy in LCIO
+      lcio_sch->setEnergy(edm_sch.getEnergy());
+    } // SimCaloHit
 
     // Fill missing SimTrackerHit collections
     for (auto& [lcio_strh, edm_strh] : collection_pairs.simtrackerhits) {

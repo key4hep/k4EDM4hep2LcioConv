@@ -77,7 +77,16 @@ edm4hep::MCParticleCollection createMCParticles(
 
   for (const auto& [orig_idx, link_idx] : mcp_parents_idx) {
     coll[orig_idx].addToParents(coll[link_idx]);
-    coll[link_idx].addToDaughters(coll[orig_idx]);
+  }
+  // We assign the daughters after all the parents are assigned simply because
+  // LCIO adds the daughters in the call to add parents and relation comparison
+  // in the tests assume that all relations are in the same order
+  for (auto particle : coll) {
+    // Workaround as proposed in https://github.com/AIDASoft/podio/issues/347
+    for (auto p : particle.getParents()) {
+      auto parent = coll[p.getObjectID().index];
+      parent.addToDaughters(particle);
+    }
   }
 
   return coll;
@@ -166,9 +175,12 @@ edm4hep::TrackCollection createTracks(
     elem.setType(2); // TODO specific type
     elem.setChi2(i * 10.f);
     elem.setNdf(i * 12);
+    elem.setRadiusOfInnermostHit(i * 5.f);
+
     elem.setDEdx(i);
     elem.setDEdxError(i / std::sqrt(i + 1));
-    elem.setRadiusOfInnermostHit(i * 5.f);
+    // Also add a DxQuantity since the comparison expects that
+    elem.addToDxQuantities({0, i * 1.f, i / std::sqrt(i + 1.f)});
 
     for (int j = 0; j < subdetectorhitnumbers; ++j) {
       elem.addToSubdetectorHitNumbers(i + 10 * j);
