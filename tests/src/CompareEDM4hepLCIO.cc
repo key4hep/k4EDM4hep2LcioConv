@@ -3,6 +3,8 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
+#include <cstdint>
+
 /**
  * The basic implementation of the functionality has been generated via modified
  * podio templates, employing some handwritten macros to facilitate the task.
