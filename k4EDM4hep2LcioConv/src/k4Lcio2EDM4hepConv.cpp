@@ -747,8 +747,8 @@ namespace LCIO2EDM4hepConv {
     for (auto& [lcio, edm] : recoparticlesMap) {
       edmnum++;
 
-      const auto& vertex = lcio->getStartVertex();
-      if (vertex != nullptr) {
+      const auto vertex = lcio->getStartVertex();
+      if (vertex) {
         if (const auto it = vertexMap.find(vertex); it != vertexMap.end()) {
           edm.setStartVertex(it->second);
         }
