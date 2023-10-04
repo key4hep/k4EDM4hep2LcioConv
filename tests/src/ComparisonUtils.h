@@ -20,11 +20,6 @@
 #include <vector>
 #include <algorithm>
 
-std::ostream& operator<<(std::ostream& os, const podio::ObjectID id)
-{
-  return os << "[" << id.collectionID << ": " << id.index << "]";
-}
-
 template<typename T>
 std::ostream& printContainer(std::ostream& os, const T& cont)
 {
