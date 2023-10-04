@@ -7,6 +7,22 @@ set( ${PROJECT_NAME}_VERSION_MINOR 5 )
 set( ${PROJECT_NAME}_VERSION_PATCH 0 )
 set( ${PROJECT_NAME}_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}" )
 
+# Define a default build type can be overriden by passing
+# ``-DCMAKE_BUILD_TYPE=<type>`` when invoking CMake
+if(NOT CMAKE_CONFIGURATION_TYPES)
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo
+      CACHE STRING "Choose the type of build, options are: None Release MinSizeRel Debug RelWithDebInfo"
+      FORCE
+      )
+  else()
+    set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
+      CACHE STRING "Choose the type of build, options are: None Release MinSizeRel Debug RelWithDebInfo"
+      FORCE
+      )
+  endif()
+endif()
+
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")

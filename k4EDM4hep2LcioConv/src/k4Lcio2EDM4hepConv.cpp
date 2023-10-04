@@ -747,20 +747,19 @@ namespace LCIO2EDM4hepConv {
     for (auto& [lcio, edm] : recoparticlesMap) {
       edmnum++;
 
-      auto vertex = lcio->getStartVertex();
-      if (vertex == nullptr) {
-        continue;
-      }
-      if (const auto it = vertexMap.find(vertex); it != vertexMap.end()) {
-        edm.setStartVertex(it->second);
-      }
-      else {
-        std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
-                     "while trying to resolve the ReconstructedParticle Relations "
-                  << std::endl;
+      const auto vertex = lcio->getStartVertex();
+      if (vertex) {
+        if (const auto it = vertexMap.find(vertex); it != vertexMap.end()) {
+          edm.setStartVertex(it->second);
+        }
+        else {
+          std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
+                       "while trying to resolve the ReconstructedParticle Relations "
+                    << std::endl;
+        }
       }
 
-      auto clusters = lcio->getClusters();
+      const auto& clusters = lcio->getClusters();
       for (auto c : clusters) {
         if (c == nullptr) {
           continue;
@@ -776,7 +775,7 @@ namespace LCIO2EDM4hepConv {
         }
       }
 
-      auto tracks = lcio->getTracks();
+      const auto& tracks = lcio->getTracks();
       for (auto t : tracks) {
         if (t == nullptr) {
           continue;

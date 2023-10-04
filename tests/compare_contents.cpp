@@ -1,4 +1,5 @@
 #include "CompareEDM4hepLCIO.h"
+#include "ObjectMapping.h"
 
 #include "podio/ROOTFrameReader.h"
 #include "podio/Frame.h"
@@ -11,7 +12,7 @@
 #define ASSERT_COMPARE_OR_EXIT(collType)                   \
   if (type == #collType) {                                 \
     auto& edmcoll = edmEvent.get<collType>(name);          \
-    if (!compare(lcioColl, edmcoll)) {                     \
+    if (!compare(lcioColl, edmcoll, objectMapping)) {      \
       std::cerr << "in collection: " << name << std::endl; \
       return 1;                                            \
     }                                                      \
@@ -60,6 +61,23 @@ int main(int argc, char* argv[])
           continue;
         }
       }
+      const auto coll = edmEvent.get(name);
+      if (!coll) {
+        std::cerr << "Collection " << name << " not present in edm4hep file" << std::endl;
+        return 1;
+      }
+
+      if (edmEvent.get(name)->size() != lcioColl->getNumberOfElements()) {
+        std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
+                  << ", EDM4hep: " << coll->size() << std::endl;
+        return 1;
+      }
+    }
+
+    const auto objectMapping = ObjectMappings::fromEvent(lcEvent, edmEvent);
+
+    for (const auto& name : *(lcEvent->getCollectionNames())) {
+      const auto lcioColl = lcEvent->getCollection(name);
       const auto type = [&edmEvent, &name]() {
         const auto coll = edmEvent.get(name);
         if (coll) {
@@ -68,10 +86,6 @@ int main(int argc, char* argv[])
         static const decltype(coll->getTypeName()) empty = "";
         return empty;
       }();
-      if (type.empty()) {
-        std::cerr << "Collection " << name << " not present in edm4hep file" << std::endl;
-        return 1;
-      }
 
       ASSERT_COMPARE_OR_EXIT(edm4hep::MCParticleCollection)
       ASSERT_COMPARE_OR_EXIT(edm4hep::ReconstructedParticleCollection)
