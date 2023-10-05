@@ -5,6 +5,7 @@
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
@@ -252,10 +253,24 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
   return {std::move(simcalohit_coll), std::move(contrib_coll)};
 }
 
+edm4hep::EventHeaderCollection createEventHeader()
+{
+  auto evtHeaderColl = edm4hep::EventHeaderCollection {};
+  auto evtHeader = evtHeaderColl.create();
+
+  evtHeader.setWeight(3.14f);
+  evtHeader.setEventNumber(123456789);
+  evtHeader.setRunNumber(42);
+  evtHeader.setTimeStamp(0x71AAE);
+
+  return evtHeaderColl;
+}
+
 podio::Frame createExampleEvent()
 {
   podio::Frame event;
 
+  event.put(createEventHeader(), "EventHeader");
   const auto& mcParticles =
     event.put(createMCParticles(test_config::nMCParticles, test_config::mcpParentIdcs), "mcParticles");
   const auto& caloHits = event.put(createCalorimeterHits(test_config::nCaloHits), "caloHits");
