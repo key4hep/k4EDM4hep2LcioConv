@@ -14,14 +14,16 @@ int main()
   const auto edmEvent = createExampleEvent();
   const auto lcioEvent = EDM4hep2LCIOConv::convEvent(edmEvent);
 
-  // if (!compareEventHeader(lcioEvent.get(), &edmEvent)) {
-  //   return 1;
-  // }
+  if (!compareEventHeader(lcioEvent.get(), &edmEvent)) {
+    return 1;
+  }
 
   for (const auto& name : edmEvent.getAvailableCollections()) {
     const auto edmColl = edmEvent.get(name);
     const auto typeName = edmColl->getValueTypeName();
-    if (typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID") {
+    if (
+      typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID" ||
+      typeName == "edm4hep::EventHeader") {
       continue;
     }
     try {
@@ -41,7 +43,9 @@ int main()
 
   for (const auto& name : edmEvent.getAvailableCollections()) {
     const auto type = edmEvent.get(name)->getTypeName();
-    if (type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection") {
+    if (
+      type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection" ||
+      type == "edm4hep::EventHeaderCollection") {
       continue;
     }
     const auto* lcioColl = lcioEvent->getCollection(name);

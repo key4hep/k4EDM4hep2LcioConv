@@ -15,6 +15,7 @@ namespace edm4hep {
   class TrackCollection;
   class SimCalorimeterHitCollection;
   class CaloHitContributionCollection;
+  class EventHeaderCollection;
 } // namespace edm4hep
 
 namespace podio {
@@ -119,6 +120,8 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
   const int num_contributions,
   const edm4hep::MCParticleCollection& mcParticles,
   const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs);
+
+edm4hep::EventHeaderCollection createEventHeader();
 
 /**
  * Create an example event that can be used to test the converter.
