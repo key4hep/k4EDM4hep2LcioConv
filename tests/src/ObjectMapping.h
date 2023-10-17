@@ -2,6 +2,7 @@
 #define K4EDM4HEP2LCIOCONV_TEST_OBJECTMAPPINGS_H
 
 #include <unordered_map>
+#include "podio/ObjectID.h"
 
 namespace EVENT {
   class Track;
@@ -20,7 +21,6 @@ namespace EVENT {
 } // namespace EVENT
 
 namespace podio {
-  class ObjectID;
   class Frame;
 } // namespace podio
 
