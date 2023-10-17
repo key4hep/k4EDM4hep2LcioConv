@@ -2,6 +2,7 @@ add_library(k4EDM4hep2LcioConv SHARED
   src/k4EDM4hep2LcioConv.cpp
   src/k4Lcio2EDM4hepConv.cpp
   )
+add_library(k4EDM4hep2LcioConv::k4EDM4hep2LcioConv ALIAS k4EDM4hep2LcioConv)
 
 target_include_directories(k4EDM4hep2LcioConv PUBLIC
   ${LCIO_INCLUDE_DIRS}
