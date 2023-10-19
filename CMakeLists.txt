@@ -39,6 +39,7 @@ endif()
 include(cmake/compiler_output.cmake)
 
 find_package(LCIO REQUIRED)
+find_package(podio REQUIRED)
 find_package(EDM4HEP REQUIRED)
 
 add_subdirectory(k4EDM4hep2LcioConv)

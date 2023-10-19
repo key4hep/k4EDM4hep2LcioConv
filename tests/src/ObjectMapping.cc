@@ -30,7 +30,6 @@
 #include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/VertexCollection.h"
 
-#include "podio/ObjectID.h"
 #include "podio/Frame.h"
 
 template<typename LcioT, typename EDM4hepT, typename MapT>

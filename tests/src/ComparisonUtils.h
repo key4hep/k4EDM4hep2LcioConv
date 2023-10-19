@@ -12,7 +12,6 @@
 #include "EVENT/LCCollection.h"
 
 #include "podio/RelationRange.h"
-#include "podio/ObjectID.h"
 
 #include <cmath>
 #include <array>
