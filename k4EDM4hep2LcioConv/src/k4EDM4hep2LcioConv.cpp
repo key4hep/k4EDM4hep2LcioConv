@@ -33,7 +33,7 @@ namespace EDM4hep2LCIOConv {
     for (const auto& name : collections) {
       const auto edmCollection = edmEvent.get(name);
 
-      const auto& cellIDStr = metadata.getParameter<std::string>(podio::collMetadataParamName(name, "CellIDEncoding"));
+      const auto& cellIDStr = metadata.getParameter<std::string>(podio::collMetadataParamName(name, "CellIDEncodingString"));
 
       if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
         auto lcColl = convTracks(coll, objectMappings.tracks, objectMappings.trackerHits);
