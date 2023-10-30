@@ -1,3 +1,36 @@
+# v00-06
+
+* 2023-10-19 jmcarcell ([PR#31](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/31))
+  - Do not forward declare `podio::ObjectID` since this doesn't always build
+  - Add a library alias for the `k4EDM4hep2LcioConv` target
+  - Add `podio` to the list of required packages (it's already there in the spack recipe)
+
+* 2023-10-05 tmadlener ([PR#29](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/29))
+  - Add the existing EDM4hep to LCIO conversion tests from MarlinWrapper
+  - Fix minor issues in conversion that were uncovered during this
+
+* 2023-10-05 tmadlener ([PR#21](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/21))
+  - Generalize the conversion functionality to make it possible to use "generic maps" (i.e. `vector<tuple<K, V>>` or a proper `map<K, V>`).
+    - This makes most of the conversion a template (i.e. header) library.
+    - Keep the current behavior by specifying suitable defaults for all the templates.
+  - This is necessary to support the introduction of a shared global map in [key4hep/k4MarlinWrapper#147](https://github.com/key4hep/k4MarlinWrapper/pull/147)
+
+* 2023-10-04 tmadlener ([PR#28](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/28))
+  - Add test setup to run the standalone converter on ILD REC and DST files with a comparison between the original and the converted file afterwards
+  - Make sure to check relations in converted objects
+  - Fix a bug in the relation resolution of the ReconstructedParticle that was uncovered.
+  - Make `RelWithDebInfo` the default build type.
+
+* 2023-09-12 tmadlener ([PR#27](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/27))
+  - Introduce the `EDM4hep2LCIOConv` namespace for the EDM4hep to LCIO conversion functionality to avoid polluting the global namespace with too many (rather generically named) symbols.
+  - Define a `EDM4HEP2LCIOCONV_NAMESPACE` preprocessor "symbol" that allows downstream users to make for a slightly smoother transition.
+
+* 2023-07-31 jmcarcell ([PR#26](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/26))
+  - `CMAKE_PROJECT_NAME` to `PROJECT_NAME` since `CMAKE_PROJECT_NAME` is the name of the top-level project and `PROJECT_NAME` is the name of the current project.
+
+* 2023-07-31 Thomas Madlener ([PR#25](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/25))
+  - Make an output message less confusing
+
 # v00-05
 
 * 2023-07-10 tmadlener ([PR#23](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/23))
