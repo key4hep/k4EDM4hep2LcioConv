@@ -25,25 +25,22 @@ target_include_directories(edm4hep_roundtrip PRIVATE
 
 add_test(NAME edm4hep_roundtrip COMMAND edm4hep_roundtrip)
 
+include(ExternalData)
+list(APPEND ExternalData_URL_TEMPLATES
+ "https://key4hep.web.cern.ch:443/testFiles/k4EDM4hep2LcioConv/%(hash)"
+ )
+
 find_program(BASH_PROGRAM bash)
 
-add_test(fetch_test_inputs ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/get_test_data.sh)
+ExternalData_Add_Test(standalone_ild_rec_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_rec.slcio})
 
-add_test(standalone_ild_rec_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh ild_higgs_rec.slcio)
-
-add_test(standalone_ild_dst_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh ild_higgs_dst.slcio)
+ExternalData_Add_Test(standalone_ild_dst_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_dst.slcio})
 
 set_tests_properties(
-    fetch_test_inputs
     standalone_ild_rec_file
     standalone_ild_dst_file
   PROPERTIES
     ENVIRONMENT "TEST_DIR=${CMAKE_CURRENT_SOURCE_DIR};PATH=${CMAKE_CURRENT_BINARY_DIR}:${PROJECT_BINARY_DIR}/standalone:$ENV{PATH}"
 )
 
-set_tests_properties(
-    standalone_ild_rec_file
-    standalone_ild_dst_file
-  PROPERTIES
-    DEPENDS fetch_test_inputs
-)
+ExternalData_Add_Target(converter_tests)
