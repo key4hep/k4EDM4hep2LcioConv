@@ -32,9 +32,9 @@ list(APPEND ExternalData_URL_TEMPLATES
 
 find_program(BASH_PROGRAM bash)
 
-ExternalData_Add_Test(converter_tests NAME standalone_ild_rec_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_rec.slcio})
+ExternalData_Add_Test(converter_tests NAME standalone_ild_rec_file COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_rec.slcio})
 
-ExternalData_Add_Test(converter_tests NAME standalone_ild_dst_file ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_dst.slcio})
+ExternalData_Add_Test(converter_tests NAME standalone_ild_dst_file COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_standalone_converter.sh DATA{${PROJECT_SOURCE_DIR}/tests/input_files/ild_higgs_dst.slcio})
 
 set_tests_properties(
     standalone_ild_rec_file
