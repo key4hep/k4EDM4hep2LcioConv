@@ -427,6 +427,11 @@ namespace EDM4hep2LCIOConv {
         }
         lcio_cluster->setShape(shape_vec);
 
+        auto& subdetEnergies = lcio_cluster->subdetectorEnergies();
+        for (const auto edmEnergy : edm_cluster.getSubdetectorEnergies()) {
+          subdetEnergies.push_back(edmEnergy);
+        }
+
         // Convert ParticleIDs associated to the recoparticle
         for (const auto& edm_pid : edm_cluster.getParticleIDs()) {
           if (edm_pid.isAvailable()) {
