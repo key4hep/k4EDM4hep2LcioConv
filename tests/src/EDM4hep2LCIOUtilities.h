@@ -16,6 +16,7 @@ namespace edm4hep {
   class SimCalorimeterHitCollection;
   class CaloHitContributionCollection;
   class EventHeaderCollection;
+  class ClusterCollection;
 } // namespace edm4hep
 
 namespace podio {
@@ -67,6 +68,10 @@ namespace test_config {
     {2, 2, 2},
     {2, 3, 0}};
 
+  /// The number of clusters to create
+  constexpr static int nClusters = 5;
+  /// The number of subdetector energy entries to create
+  constexpr static int nSubdetectorEnergies = 6;
 } // namespace test_config
 
 /**
@@ -123,6 +128,11 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
 
 edm4hep::EventHeaderCollection createEventHeader();
 
+edm4hep::ClusterCollection createClusters(
+  const int num_elements,
+  const edm4hep::CalorimeterHitCollection& caloHits,
+  const int num_subdet_energies);
+
 /**
  * Create an example event that can be used to test the converter.
  *
@@ -140,6 +150,7 @@ edm4hep::EventHeaderCollection createEventHeader();
  * | trackerHits          | TrackerHit          | createTrackerHits        |
  * | simCaloHits          | SimCalorimeterHit   | createSimCalorimeterHits |
  * | caloHitContributions | CaloHitContribution | createSimCalorimeterHits |
+ * | clusters             | ClusterCollection   | createClusters           |
  */
 podio::Frame createExampleEvent();
 

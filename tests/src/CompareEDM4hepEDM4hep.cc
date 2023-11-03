@@ -6,6 +6,7 @@
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
+#include "edm4hep/ClusterCollection.h"
 
 #include <edm4hep/TrackState.h>
 #include <iostream>
@@ -212,6 +213,31 @@ bool compare(const edm4hep::TrackerHitCollection& origColl, const edm4hep::Track
     REQUIRE_SAME(origHit.getEDepError(), hit.getEDepError(), "EDepError in hit " << i);
     REQUIRE_SAME(origHit.getPosition(), hit.getPosition(), "Position in hit " << i);
     REQUIRE_SAME(origHit.getCovMatrix(), hit.getCovMatrix(), "CovMatrix in hit " << i);
+  }
+
+  return true;
+}
+
+bool compare(const edm4hep::ClusterCollection& origColl, const edm4hep::ClusterCollection& roundtripColl)
+{
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    auto origCluster = origColl[i];
+    auto cluster = roundtripColl[i];
+
+    const auto origHits = origCluster.getHits();
+    const auto hits = cluster.getHits();
+    REQUIRE_SAME(origHits.size(), hits.size(), "number of calorimeter hits in cluster " << i);
+    for (size_t iH = 0; iH < origHits.size(); ++iH) {
+      REQUIRE_SAME(origHits[iH].getObjectID(), hits[iH].getObjectID(), "calorimeter hit " << iH << " in cluster " << i);
+    }
+
+    const auto& origSubdetE = origCluster.getSubdetectorEnergies();
+    const auto& subdetE = cluster.getSubdetectorEnergies();
+    REQUIRE_SAME(origSubdetE.size(), subdetE.size(), "sizes of subdetector energies in cluster " << i);
+    for (size_t iSE = 0; iSE < origSubdetE.size(); ++iSE) {
+      REQUIRE_SAME(origSubdetE[iSE], subdetE[iSE], "subdetector energy " << iSE << " in cluster " << i);
+    }
   }
 
   return true;

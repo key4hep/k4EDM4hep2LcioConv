@@ -10,6 +10,7 @@
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/ClusterCollection.h"
 
 #include "podio/Frame.h"
 
@@ -21,6 +22,14 @@ constexpr std::uint64_t operator""_u64(unsigned long long num) { return static_c
 
 // Some pre-defined cellIDs that can be used below
 constexpr static std::array CELLIDS = {0xcaffee_u64, 0xbeef_u64, 0xfe47_u64, 0x12345678_u64, 0_u64, -1_u64};
+
+// Get the i-th element from the collection (with rolling back to 0 if i exceeds
+// the collection size)
+template<typename CollT>
+const auto getModElement(const CollT& coll, size_t i)
+{
+  return coll[i % coll.size()];
+}
 
 constexpr static uint64_t createCellID(int i) { return CELLIDS[i % CELLIDS.size()]; }
 
@@ -266,6 +275,22 @@ edm4hep::EventHeaderCollection createEventHeader()
   return evtHeaderColl;
 }
 
+edm4hep::ClusterCollection
+createClusters(const int num_elements, const edm4hep::CalorimeterHitCollection& caloHits, const int num_subdet_energies)
+{
+  auto clusterColl = edm4hep::ClusterCollection {};
+  for (int i = 0; i < num_elements; ++i) {
+    auto cluster = clusterColl.create();
+
+    cluster.addToHits(getModElement(caloHits, i));
+    for (int j = 0; j < num_subdet_energies; ++j) {
+      cluster.addToSubdetectorEnergies(j);
+    }
+  }
+
+  return clusterColl;
+}
+
 podio::Frame createExampleEvent()
 {
   podio::Frame event;
@@ -286,6 +311,7 @@ podio::Frame createExampleEvent()
       test_config::trackTrackerHitIdcs,
       test_config::trackTrackIdcs),
     "tracks");
+  event.put(createClusters(test_config::nClusters, caloHits, test_config::nSubdetectorEnergies), "clusters");
 
   auto [tmpSimCaloHits, tmpCaloHitConts] = createSimCalorimeterHits(
     test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
