@@ -7,7 +7,9 @@ add_library(k4EDM4hep2LcioConv::k4EDM4hep2LcioConv ALIAS k4EDM4hep2LcioConv)
 target_include_directories(k4EDM4hep2LcioConv PUBLIC
   ${LCIO_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  $<$<BOOL:${EDM4HEP_SOURCE_DIR}>:${EDM4HEP_SOURCE_DIR}/include>
+)
 
 target_link_libraries(k4EDM4hep2LcioConv PUBLIC
   ${LCIO_LIBRARIES}
