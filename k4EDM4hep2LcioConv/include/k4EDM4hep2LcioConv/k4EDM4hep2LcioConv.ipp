@@ -840,7 +840,7 @@ namespace EDM4hep2LCIOConv {
 
       for (const auto& edm_calohit : edm_cluster.getHits()) {
         if (edm_calohit.isAvailable()) {
-          if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, update_pairs.caloHits)) {
+          if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, lookup_pairs.caloHits)) {
             lcio_cluster->addHit(lcio_calohit.value(), 1.0);
           }
         }
