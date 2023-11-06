@@ -40,7 +40,7 @@ include(cmake/compiler_output.cmake)
 
 find_package(LCIO REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP REQUIRED)
+find_package(EDM4HEP REQUIRED VERSION 0.10)
 
 add_subdirectory(k4EDM4hep2LcioConv)
 add_subdirectory(standalone)

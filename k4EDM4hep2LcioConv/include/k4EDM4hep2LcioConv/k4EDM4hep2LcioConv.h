@@ -20,35 +20,12 @@
 #include <edm4hep/ReconstructedParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#if __has_include("edm4hep/RawTimeSeriesCollection.h")
 #include <edm4hep/RawTimeSeriesCollection.h>
-#else
-#include <edm4hep/TPCHitCollection.h>
-namespace edm4hep {
-  using RawTimeSeries = TPCHit;
-  using MutableRawTimeSeries = MutableTPCHit;
-  using RawTimeSeriesCollection = TPCHitCollection;
-} // namespace edm4hep
-#endif
 
 #include <edm4hep/TrackCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/VertexCollection.h>
-
-#if __has_include("edm4hep/EDM4hepVersion.h")
-#include "edm4hep/EDM4hepVersion.h"
-#else
-  // Copy the necessary parts from  the header above to make whatever we need to work here
-#define EDM4HEP_VERSION(major, minor, patch) ((UINT64_C(major) << 32) | (UINT64_C(minor) << 16) | (UINT64_C(patch)))
-  // v00-07-02 is the last version without that still has TPCHits
-#if __has_include("edm4hep/TPCHitCollection.h")
-#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 7, 2)
-#else
-// v00-09 is the last version without the capitalization change of the track vector members
-#define EDM4HEP_BUILD_VERSION EDM4HEP_VERSION(0, 9, 0)
-#endif
-#endif
 
 #include "podio/Frame.h"
 

@@ -31,7 +31,6 @@ namespace EDM4hep2LCIOConv {
         lcio_tr->setdEdxError(edm_tr.getDEdxError());
         lcio_tr->setRadiusOfInnermostHit(edm_tr.getRadiusOfInnermostHit());
 
-#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 9, 0)
         // Loop over the hit Numbers in the track
         lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
         for (int i = 0; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
@@ -46,22 +45,6 @@ namespace EDM4hep2LCIOConv {
             lcio_tr->subdetectorHitNumbers()[i] = 0;
           }
         }
-#else
-        // Loop over the hit Numbers in the track
-        lcio_tr->subdetectorHitNumbers().resize(edm_tr.subDetectorHitNumbers_size());
-        for (int i = 0; i < edm_tr.subDetectorHitNumbers_size(); ++i) {
-          lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubDetectorHitNumbers(i);
-        }
-
-        // Pad until 50 hitnumbers are resized
-        const int hit_number_limit = 50;
-        if (edm_tr.subDetectorHitNumbers_size() < hit_number_limit) {
-          lcio_tr->subdetectorHitNumbers().resize(hit_number_limit);
-          for (int i = edm_tr.subDetectorHitNumbers_size(); i < hit_number_limit; ++i) {
-            lcio_tr->subdetectorHitNumbers()[i] = 0;
-          }
-        }
-#endif
 
         // Link multiple associated TrackerHits if found in converted ones
         for (const auto& edm_rp_trh : edm_tr.getTrackerHits()) {
@@ -362,19 +345,12 @@ namespace EDM4hep2LCIOConv {
         lcio_tpchit->setQuality(edm_tpchit.getQuality());
 
         std::vector<int> rawdata;
-#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 7, 2)
+
         for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
           rawdata.push_back(edm_tpchit.getAdcCounts(i));
         }
 
         lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.adcCounts_size());
-#else
-        for (int i = 0; i < edm_tpchit.rawDataWords_size(); ++i) {
-          rawdata.push_back(edm_tpchit.getRawDataWords(i));
-        }
-
-        lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.rawDataWords_size());
-#endif
 
         // Save TPC Hits LCIO and EDM4hep collections
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_tpchit, edm_tpchit, tpc_hits_vec);
