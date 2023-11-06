@@ -225,6 +225,16 @@ bool compare(const edm4hep::ClusterCollection& origColl, const edm4hep::ClusterC
     auto origCluster = origColl[i];
     auto cluster = roundtripColl[i];
 
+    const auto origRelClusters = origCluster.getClusters();
+    const auto relClusters = cluster.getClusters();
+    REQUIRE_SAME(origRelClusters.size(), relClusters.size(), "number of related clusters in cluster " << i);
+    for (size_t iC = 0; iC < origRelClusters.size(); ++iC) {
+      REQUIRE_SAME(
+        origRelClusters[iC].getObjectID(),
+        relClusters[iC].getObjectID(),
+        "related cluster " << iC << " in cluster " << i);
+    }
+
     const auto origHits = origCluster.getHits();
     const auto hits = cluster.getHits();
     REQUIRE_SAME(origHits.size(), hits.size(), "number of calorimeter hits in cluster " << i);
