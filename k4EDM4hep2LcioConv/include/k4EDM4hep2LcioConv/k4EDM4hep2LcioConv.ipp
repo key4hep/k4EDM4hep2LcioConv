@@ -427,6 +427,11 @@ namespace EDM4hep2LCIOConv {
         }
         lcio_cluster->setShape(shape_vec);
 
+        auto& subdetEnergies = lcio_cluster->subdetectorEnergies();
+        for (const auto edmEnergy : edm_cluster.getSubdetectorEnergies()) {
+          subdetEnergies.push_back(edmEnergy);
+        }
+
         // Convert ParticleIDs associated to the recoparticle
         for (const auto& edm_pid : edm_cluster.getParticleIDs()) {
           if (edm_pid.isAvailable()) {
@@ -449,19 +454,6 @@ namespace EDM4hep2LCIOConv {
 
         // Add to lcio tracks collection
         clusters->addElement(lcio_cluster);
-      }
-    }
-
-    // Link associated clusters after converting all clusters
-    for (auto& [lcio_cluster, edm_cluster] : cluster_vec) {
-      for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
-        if (edm_linked_cluster.isAvailable()) {
-          if (
-            const auto lcio_cluster_linked =
-              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, cluster_vec)) {
-            lcio_cluster->addCluster(lcio_cluster_linked.value());
-          }
-        }
       }
     }
 
@@ -833,6 +825,27 @@ namespace EDM4hep2LCIOConv {
       }
 
     } // SimTrackerHits
+
+    // Resolve relations for clusters
+    for (auto& [lcio_cluster, edm_cluster] : update_pairs.clusters) {
+      for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
+        if (edm_linked_cluster.isAvailable()) {
+          if (
+            const auto lcio_cluster_linked =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, lookup_pairs.clusters)) {
+            lcio_cluster->addCluster(lcio_cluster_linked.value());
+          }
+        }
+      }
+
+      for (const auto& edm_calohit : edm_cluster.getHits()) {
+        if (edm_calohit.isAvailable()) {
+          if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, lookup_pairs.caloHits)) {
+            lcio_cluster->addHit(lcio_calohit.value(), 1.0);
+          }
+        }
+      }
+    }
   }
 
 } // namespace EDM4hep2LCIOConv

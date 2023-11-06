@@ -72,6 +72,18 @@ bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem
   // LCIO has getIPhi and EDM4hep has getPhi
   ASSERT_COMPARE_VALS(lcioElem->getIPhi(), edm4hepElem.getPhi(), "phi in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getDirectionError, "directionError in Cluster");
+
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getSubdetectorEnergies, "subdetectorEnergies in Cluster");
+  ASSERT_COMPARE_VALS(lcioElem->getShape(), edm4hepElem.getShapeParameters(), "shape / shapeParameters in Cluster");
+
+  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getClusters, objectMaps.clusters, "related clusters in Cluster");
+
+  // Different names of related calorimeter hits in interfaces
+  if (!compareRelation(
+        lcioElem->getCalorimeterHits(), edm4hepElem.getHits(), objectMaps.caloHits, "calorimeter hits in Cluster")) {
+    return false;
+  }
+
   return true;
 }
 

@@ -15,4 +15,6 @@ bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackColle
 
 bool compare(const edm4hep::TrackerHitCollection& origColl, const edm4hep::TrackerHitCollection& roundtripColl);
 
+bool compare(const edm4hep::ClusterCollection& origColl, const edm4hep::ClusterCollection& roundtripColl);
+
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPEDM4HEP_H

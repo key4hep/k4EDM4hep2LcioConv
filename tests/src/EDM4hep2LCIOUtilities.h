@@ -16,6 +16,7 @@ namespace edm4hep {
   class SimCalorimeterHitCollection;
   class CaloHitContributionCollection;
   class EventHeaderCollection;
+  class ClusterCollection;
 } // namespace edm4hep
 
 namespace podio {
@@ -67,6 +68,17 @@ namespace test_config {
     {2, 2, 2},
     {2, 3, 0}};
 
+  /// The number of clusters to create
+  constexpr static int nClusters = 5;
+  /// The number of subdetector energy entries to create
+  constexpr static int nSubdetectorEnergies = 6;
+  /// The calorimeter hits that should be associated with each cluster. First
+  /// index is the cluster, second is the calorimeter hit
+  const static std::vector<IdxPair> clusterHitIdcs = {{0, 0}, {0, 1}, {1, 0}, {2, 1}, {2, 0}, {3, 0}, {3, 0}};
+  /// The clustes (from inside the same collection) that should be added to each
+  /// cluster. First index is the cluster to which the second index cluster will
+  /// be added
+  const static std::vector<IdxPair> clusterClusterIdcs = {{0, 4}, {0, 3}, {0, 1}, {4, 3}, {4, 2}, {2, 3}, {1, 1}};
 } // namespace test_config
 
 /**
@@ -123,6 +135,13 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
 
 edm4hep::EventHeaderCollection createEventHeader();
 
+edm4hep::ClusterCollection createClusters(
+  const int num_elements,
+  const edm4hep::CalorimeterHitCollection& caloHits,
+  const int num_subdet_energies,
+  const std::vector<test_config::IdxPair>& clusterHitIdcs,
+  const std::vector<test_config::IdxPair>& clusterClusterIdcs);
+
 /**
  * Create an example event that can be used to test the converter.
  *
@@ -140,6 +159,7 @@ edm4hep::EventHeaderCollection createEventHeader();
  * | trackerHits          | TrackerHit          | createTrackerHits        |
  * | simCaloHits          | SimCalorimeterHit   | createSimCalorimeterHits |
  * | caloHitContributions | CaloHitContribution | createSimCalorimeterHits |
+ * | clusters             | ClusterCollection   | createClusters           |
  */
 podio::Frame createExampleEvent();
 

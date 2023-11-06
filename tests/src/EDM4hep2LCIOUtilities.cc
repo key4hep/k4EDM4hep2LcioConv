@@ -10,6 +10,7 @@
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/ClusterCollection.h"
 
 #include "podio/Frame.h"
 
@@ -266,6 +267,33 @@ edm4hep::EventHeaderCollection createEventHeader()
   return evtHeaderColl;
 }
 
+edm4hep::ClusterCollection createClusters(
+  const int num_elements,
+  const edm4hep::CalorimeterHitCollection& caloHits,
+  const int num_subdet_energies,
+  const std::vector<test_config::IdxPair>& clusterHitIdcs,
+  const std::vector<test_config::IdxPair>& clusterClusterIdcs)
+{
+  auto clusterColl = edm4hep::ClusterCollection {};
+  for (int i = 0; i < num_elements; ++i) {
+    auto cluster = clusterColl.create();
+
+    for (int j = 0; j < num_subdet_energies; ++j) {
+      cluster.addToSubdetectorEnergies(j);
+    }
+  }
+
+  for (const auto [cluIdx, hitIdx] : clusterHitIdcs) {
+    clusterColl[cluIdx].addToHits(caloHits[hitIdx]);
+  }
+
+  for (const auto [targetI, sourceI] : clusterHitIdcs) {
+    clusterColl[targetI].addToClusters(clusterColl[sourceI]);
+  }
+
+  return clusterColl;
+}
+
 podio::Frame createExampleEvent()
 {
   podio::Frame event;
@@ -286,6 +314,14 @@ podio::Frame createExampleEvent()
       test_config::trackTrackerHitIdcs,
       test_config::trackTrackIdcs),
     "tracks");
+  event.put(
+    createClusters(
+      test_config::nClusters,
+      caloHits,
+      test_config::nSubdetectorEnergies,
+      test_config::clusterHitIdcs,
+      test_config::clusterClusterIdcs),
+    "clusters");
 
   auto [tmpSimCaloHits, tmpCaloHitConts] = createSimCalorimeterHits(
     test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
