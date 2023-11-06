@@ -345,7 +345,6 @@ namespace EDM4hep2LCIOConv {
         lcio_tpchit->setQuality(edm_tpchit.getQuality());
 
         std::vector<int> rawdata;
-
         for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
           rawdata.push_back(edm_tpchit.getAdcCounts(i));
         }
