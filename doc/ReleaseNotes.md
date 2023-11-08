@@ -1,3 +1,12 @@
+# v00-06-01
+
+* 2023-11-06 tmadlener ([PR#36](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/36))
+  - Make sure to convert the full content of `edm4hep::Clusters` to LCIO clusters, including `subdetectorEnergies` and the related calorimeter hits. Set the `contribution` 1.0 because that seems to be the only value in use.
+  - Add tests that cover this part of the converter.
+
+* 2023-11-02 jmcarcell ([PR#33](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/33))
+  - Use ExternalData to download the test data at build time. See https://github.com/AIDASoft/podio/pull/508
+
 # v00-06
 
 * 2023-10-19 jmcarcell ([PR#31](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/31))

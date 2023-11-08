@@ -4,7 +4,7 @@ project(k4EDM4hep2LcioConv)
 # project version
 set( ${PROJECT_NAME}_VERSION_MAJOR 0 )
 set( ${PROJECT_NAME}_VERSION_MINOR 6 )
-set( ${PROJECT_NAME}_VERSION_PATCH 0 )
+set( ${PROJECT_NAME}_VERSION_PATCH 1 )
 set( ${PROJECT_NAME}_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}" )
 
 # Define a default build type can be overriden by passing
@@ -40,7 +40,7 @@ include(cmake/compiler_output.cmake)
 
 find_package(LCIO REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP REQUIRED VERSION 0.10)
+find_package(EDM4HEP 0.10.1 REQUIRED)
 
 add_subdirectory(k4EDM4hep2LcioConv)
 add_subdirectory(standalone)
