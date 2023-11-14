@@ -3,8 +3,8 @@ project(k4EDM4hep2LcioConv)
 
 # project version
 set( ${PROJECT_NAME}_VERSION_MAJOR 0 )
-set( ${PROJECT_NAME}_VERSION_MINOR 6 )
-set( ${PROJECT_NAME}_VERSION_PATCH 1 )
+set( ${PROJECT_NAME}_VERSION_MINOR 7 )
+set( ${PROJECT_NAME}_VERSION_PATCH 0 )
 set( ${PROJECT_NAME}_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}" )
 
 # Define a default build type can be overriden by passing
