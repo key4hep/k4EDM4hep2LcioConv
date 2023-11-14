@@ -1,3 +1,11 @@
+# v00-07
+
+* 2023-11-14 tmadlener ([PR#38](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/38))
+  - Remove compatibility with all legacy versions of EDM4hep since #34 made the minimum version 0.10.1 in any case.
+
+* 2023-11-08 jmcarcell ([PR#34](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/34))
+  - Use the new `edm4hep::CellIDEncoding` for consistency. Needs https://github.com/key4hep/EDM4hep/pull/234
+
 # v00-06-01
 
 * 2023-11-06 tmadlener ([PR#36](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/36))
