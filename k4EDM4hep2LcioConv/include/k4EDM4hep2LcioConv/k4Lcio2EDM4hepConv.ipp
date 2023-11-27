@@ -791,7 +791,6 @@ namespace LCIO2EDM4hepConv {
   {
     for (auto& [lcio, edm] : tracksMap) {
       auto tracks = lcio->getTracks();
-      auto trackerHits = lcio->getTrackerHits();
       for (auto t : tracks) {
         if (t == nullptr) {
           continue;
@@ -803,42 +802,29 @@ namespace LCIO2EDM4hepConv {
           // std::cerr << "Couldn't find tracks to add to Tracks Relations in edm" << std::endl;
         }
       }
-      for (auto th : trackerHits) {
+      const auto trackerHits = lcio->getTrackerHits();
+      for (const auto th : trackerHits) {
+        bool found = false;
         if (th == nullptr) {
           continue;
         }
-        if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(th, trackerHitMap)) {
-          edm.addToTrackerHits(trHit.value());
+        if (const auto typedTH = dynamic_cast<EVENT::TrackerHitPlane*>(th)) {
+          if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(typedTH, trackerHitPlaneMap)) {
+            edm.addToTrackerHits(trHit.value());
+            found = true;
+          }
         }
-        // else {
-        //   std::cerr << "Couldn't find trackerHit to add to Relations for tracks in edm\n"
-        //             << " This is due to it being a TrackerHitPlane or TPCHit" << std::endl;
+        else if (auto typedTH = dynamic_cast<EVENT::TrackerHit*>(th)) {
+          if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(typedTH, trackerHitMap)) {
+            edm.addToTrackerHits(trHit.value());
+            found = true;
+          }
+        }
 
-        //   // This Code looks for the trackerHit in the TPCHit Map aswell as the
-        //   // trackerHitPlane Map. Those relations can not be set for a track in
-        //   // edm4HEP. In all tests the missing trackerHits were located in
-        //   // either of these maps.
-        //   const auto tpchit = dynamic_cast<lcio::TPCHit*>(th);
-        //   const auto trackerhitplane = dynamic_cast<lcio::TrackerHitPlane*>(th);
-        //   if (tpchit != nullptr) {
-        //     const auto it = TPCHitMap.find(tpchit);
-        //     if (it != TPCHitMap.end()) {
-        //       std::cout << "trackerHit found in TPCHit map !" << std::endl;
-        //     }
-        //     else {
-        //       std::cerr << "TRACKERHIT also could not be found in TPCHit Map" << std::endl;
-        //     }
-        //   }
-        //   else if (trackerhitplane != nullptr) {
-        //     const auto it = trackerhitplaneMap.find(trackerhitplane);
-        //     if (it != trackerhitplaneMap.end()) {
-        //       std::cout << "trackerHit found in TrackerHitPlane map !" << std::endl;
-        //     }
-        //     else {
-        //       std::cerr << "TRACKERHIT also could not be found in TrackerHitPlane Map" << std::endl;
-        //     }
-        //   }
-        // }
+        if (!found) {
+          std::cerr << "Couldn't find a edm4hep TrackerHit for an LCIO TrackerHit when resolving "
+                    << "relations for a Track" << std::endl;
+        }
       }
     }
   }

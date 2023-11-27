@@ -385,12 +385,19 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
     }
   }
 
+  const auto& lcioHits = lcioElem->getTrackerHits();
   const auto edmHits = edm4hepElem.getTrackerHits();
+  ASSERT_COMPARE_VALS(lcioHits.size(), edmHits.size(), "number of tracker hits in Track");
   int iHit = 0;
   for (const auto* lcioHit : lcioElem->getTrackerHits()) {
-    // In EDM4hep only TrackerHits can be used in Tracks, so here we also only
-    // compare those
-    if (dynamic_cast<const IMPL::TrackerHitImpl*>(lcioHit)) {
+    if (const auto typedHit = dynamic_cast<const EVENT::TrackerHitPlane*>(lcioHit)) {
+      if (!compareRelation(
+            typedHit, edmHits[iHit], objectMaps.trackerHitPlanes, "TrackerHit " + std::to_string(iHit) + " in Track")) {
+        return false;
+      }
+      iHit++;
+    }
+    else if (dynamic_cast<const IMPL::TrackerHitImpl*>(lcioHit)) {
       if (!compareRelation(
             lcioHit, edmHits[iHit], objectMaps.trackerHits, "TrackerHit " + std::to_string(iHit) + " in Track")) {
         return false;
