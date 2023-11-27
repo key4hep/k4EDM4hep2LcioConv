@@ -25,5 +25,17 @@ jobs:
           cd Package;
           mkdir build install; cd build;
           cmake -G Ninja -D CMAKE_INSTALL_PREFIX=$PWD/../install -D CMAKE_BUILD_TYPE=RelWithDebInfo ..;
+          ninja -k0;
+        '
+    - name: Run tests
+      run: |
+        docker exec k4_CI /bin/bash -c 'source ${{ matrix.SETUP }};
+          cd Package/build;
+          ctest --output-on-failure
+        '
+    - name: Install
+      run: |
+        docker exec k4_CI /bin/bash -c 'source ${{ matrix.SETUP }};
+          cd Package/build;
           ninja install;
         '
