@@ -24,7 +24,7 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/TrackCollection.h"
-#include "edm4hep/TrackerHitCollection.h"
+#include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
 
@@ -71,7 +71,7 @@ namespace LCIO2EDM4hepConv {
    */
   struct LcioEdmTypeMapping {
     ObjectMapT<lcio::Track*, edm4hep::MutableTrack> tracks {};
-    ObjectMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit> trackerHits {};
+    ObjectMapT<lcio::TrackerHit*, edm4hep::MutableTrackerHit3D> trackerHits {};
     ObjectMapT<lcio::SimTrackerHit*, edm4hep::MutableSimTrackerHit> simTrackerHits {};
     ObjectMapT<lcio::CalorimeterHit*, edm4hep::MutableCalorimeterHit> caloHits {};
     ObjectMapT<lcio::RawCalorimeterHit*, edm4hep::MutableRawCalorimeterHit> rawCaloHits {};
@@ -232,7 +232,7 @@ namespace LCIO2EDM4hepConv {
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    */
   template<typename HitMapT>
-  std::unique_ptr<edm4hep::TrackerHitCollection>
+  std::unique_ptr<edm4hep::TrackerHit3DCollection>
   convertTrackerHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& TrackerHitMap);
 
   /**

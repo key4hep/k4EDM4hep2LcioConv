@@ -23,7 +23,7 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/TrackCollection.h"
-#include "edm4hep/TrackerHitCollection.h"
+#include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
 #include "podio/Frame.h"
@@ -107,10 +107,10 @@ bool compare(
   const edm4hep::RawTimeSeriesCollection& edm4hepCollection,
   const ObjectMappings& objectMaps);
 
-bool compare(const EVENT::TrackerHit* lcio, const edm4hep::TrackerHit& edm4hep, const ObjectMappings& objectMaps);
+bool compare(const EVENT::TrackerHit* lcio, const edm4hep::TrackerHit3D& edm4hep, const ObjectMappings& objectMaps);
 bool compare(
   const lcio::LCCollection* lcioCollection,
-  const edm4hep::TrackerHitCollection& edm4hepCollection,
+  const edm4hep::TrackerHit3DCollection& edm4hepCollection,
   const ObjectMappings& objectMaps);
 
 bool compare(

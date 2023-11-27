@@ -414,7 +414,7 @@ bool compare(
 
 bool compare(
   const EVENT::TrackerHit* lcioElem,
-  const edm4hep::TrackerHit& edm4hepElem,
+  const edm4hep::TrackerHit3D& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
   const auto lcioCellID = to64BitCellID(lcioElem);
@@ -432,7 +432,7 @@ bool compare(
 
 bool compare(
   const lcio::LCCollection* lcioCollection,
-  const edm4hep::TrackerHitCollection& edm4hepCollection,
+  const edm4hep::TrackerHit3DCollection& edm4hepCollection,
   const ObjectMappings& objectMaps)
 {
   return compareCollection<EVENT::TrackerHit>(lcioCollection, edm4hepCollection, objectMaps);

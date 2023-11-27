@@ -41,7 +41,7 @@ namespace EDM4hep2LCIOConv {
         auto lcColl = convTracks(coll, objectMappings.tracks, objectMappings.trackerHits);
         lcioEvent->addCollection(lcColl, name);
       }
-      else if (auto coll = dynamic_cast<const edm4hep::TrackerHitCollection*>(edmCollection)) {
+      else if (auto coll = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
         auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
         lcioEvent->addCollection(lcColl, name);
       }
