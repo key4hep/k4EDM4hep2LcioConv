@@ -782,12 +782,12 @@ namespace LCIO2EDM4hepConv {
     }
   }
 
-  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
+  template<typename TrackMapT, typename TrackHitMapT, typename THPlaneHitMapT, typename TPCHitMapT>
   void resolveRelationsTracks(
     TrackMapT& tracksMap,
     const TrackHitMapT& trackerHitMap,
-    const TPCHitMapT&,
-    const THPlaneHitMapT&)
+    const THPlaneHitMapT& trackerHitPlaneMap,
+    const TPCHitMapT&)
   {
     for (auto& [lcio, edm] : tracksMap) {
       auto tracks = lcio->getTracks();
@@ -875,7 +875,7 @@ namespace LCIO2EDM4hepConv {
       updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.vertices, lookupMaps.clusters, lookupMaps.tracks);
     resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
     resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
-    resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.tpcHits, lookupMaps.trackerHitPlanes);
+    resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.trackerHitPlanes, lookupMaps.tpcHits);
     resolveRelationsVertices(updateMaps.vertices, lookupMaps.recoParticles);
   }
 
