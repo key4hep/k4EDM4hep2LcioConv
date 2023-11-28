@@ -6,6 +6,7 @@
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
+#include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/ClusterCollection.h"
 
 #include <edm4hep/TrackState.h>
@@ -213,6 +214,32 @@ bool compare(const edm4hep::TrackerHitCollection& origColl, const edm4hep::Track
     REQUIRE_SAME(origHit.getEDepError(), hit.getEDepError(), "EDepError in hit " << i);
     REQUIRE_SAME(origHit.getPosition(), hit.getPosition(), "Position in hit " << i);
     REQUIRE_SAME(origHit.getCovMatrix(), hit.getCovMatrix(), "CovMatrix in hit " << i);
+  }
+
+  return true;
+}
+
+bool compare(
+  const edm4hep::TrackerHitPlaneCollection& origColl,
+  const edm4hep::TrackerHitPlaneCollection& roundtripColl)
+{
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    auto origHit = origColl[i];
+    auto hit = roundtripColl[i];
+
+    REQUIRE_SAME(origHit.getCellID(), hit.getCellID(), "cellID in hit " << i);
+    REQUIRE_SAME(origHit.getType(), hit.getType(), "type in hit " << i);
+    REQUIRE_SAME(origHit.getQuality(), hit.getQuality(), "quality in hit " << i);
+    REQUIRE_SAME(origHit.getTime(), hit.getTime(), "time in hit " << i);
+    REQUIRE_SAME(origHit.getEDep(), hit.getEDep(), "EDep in hit " << i);
+    REQUIRE_SAME(origHit.getEDepError(), hit.getEDepError(), "EDepError in hit " << i);
+    REQUIRE_SAME(origHit.getPosition(), hit.getPosition(), "Position in hit " << i);
+    REQUIRE_SAME(origHit.getCovMatrix(), hit.getCovMatrix(), "CovMatrix in hit " << i);
+    REQUIRE_SAME(origHit.getU(), hit.getU(), "U in hit " << i);
+    REQUIRE_SAME(origHit.getV(), hit.getV(), "V in hit " << i);
+    REQUIRE_SAME(origHit.getDu(), hit.getDu(), "Du in hit " << i);
+    REQUIRE_SAME(origHit.getDv(), hit.getDv(), "Dv in hit " << i);
   }
 
   return true;
