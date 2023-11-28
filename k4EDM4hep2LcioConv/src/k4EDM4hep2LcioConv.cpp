@@ -45,6 +45,10 @@ namespace EDM4hep2LCIOConv {
         auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
         lcioEvent->addCollection(lcColl, name);
       }
+      else if (auto coll = dynamic_cast<const edm4hep::TrackerHitPlaneCollection*>(edmCollection)) {
+        auto lcColl = convTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
+        lcioEvent->addCollection(lcColl, name);
+      }
       else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
         auto lcColl = convSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits, objectMappings.mcParticles);
         lcioEvent->addCollection(lcColl, name);
@@ -93,7 +97,7 @@ namespace EDM4hep2LCIOConv {
         std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
                   << "\n"
                   << "List of supported types: "
-                  << "Track, TrackerHit, SimTrackerHit, "
+                  << "Track, TrackerHit, TrackerHitPlane, SimTrackerHit, "
                   << "Cluster, CalorimeterHit, RawCalorimeterHit, "
                   << "SimCalorimeterHit, Vertex, ReconstructedParticle, "
                   << "MCParticle." << std::endl;

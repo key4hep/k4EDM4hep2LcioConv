@@ -144,6 +144,52 @@ namespace EDM4hep2LCIOConv {
     return trackerhits;
   }
 
+  template<typename TrackerHitPlaneMapT>
+  lcio::LCCollectionVec* convTrackerHitPlanes(
+    const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll,
+    const std::string& cellIDstr,
+    TrackerHitPlaneMapT& trackerhits_vec)
+  {
+    auto* trackerHitPlanes = new lcio::LCCollectionVec(lcio::LCIO::TRACKERHITPLANE);
+
+    if (cellIDstr != "") {
+      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerHitPlanes);
+    }
+
+    for (const auto& edm_trh : (*trackerhits_coll)) {
+      if (edm_trh.isAvailable()) {
+        auto* lcio_trh = new lcio::TrackerHitPlaneImpl();
+
+        uint64_t combined_value = edm_trh.getCellID();
+        uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
+        lcio_trh->setCellID0(combined_value_ptr[0]);
+        lcio_trh->setCellID1(combined_value_ptr[1]);
+        lcio_trh->setType(edm_trh.getType());
+        const std::array positions {edm_trh.getPosition()[0], edm_trh.getPosition()[1], edm_trh.getPosition()[2]};
+        lcio_trh->setPosition(positions.data());
+        // No public setter in LCIO
+        // lcio_trh->setCovMatrix(edm_trh.getCovMatrix().data());
+        lcio_trh->setEDep(edm_trh.getEDep());
+        lcio_trh->setEDepError(edm_trh.getEDepError());
+        lcio_trh->setTime(edm_trh.getTime());
+        lcio_trh->setQuality(edm_trh.getQuality());
+
+        const std::array posU {edm_trh.getU()[0], edm_trh.getU()[1]};
+        lcio_trh->setU(posU.data());
+        lcio_trh->setdU(edm_trh.getDu());
+        const std::array posV {edm_trh.getV()[0], edm_trh.getV()[1]};
+        lcio_trh->setV(posV.data());
+        lcio_trh->setdV(edm_trh.getDv());
+
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerhits_vec);
+
+        trackerHitPlanes->addElement(lcio_trh);
+      }
+    }
+
+    return trackerHitPlanes;
+  }
+
   // Convert EDM4hep SimTrackerHits to LCIO
   // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
   // Add LCIO Collection Vector to LCIO event

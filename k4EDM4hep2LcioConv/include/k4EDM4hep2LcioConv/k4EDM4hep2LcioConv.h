@@ -21,7 +21,6 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
-
 #include <edm4hep/TrackCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
@@ -45,6 +44,7 @@
 #include <IMPL/TrackImpl.h>
 #include <IMPL/TrackStateImpl.h>
 #include <IMPL/TrackerHitImpl.h>
+#include <IMPL/TrackerHitPlaneImpl.h>
 #include <IMPL/VertexImpl.h>
 #include <LCIOSTLTypes.h>
 #include <UTIL/CellIDEncoder.h>
@@ -67,6 +67,7 @@ namespace EDM4hep2LCIOConv {
   struct CollectionsPairVectors {
     ObjectMapT<lcio::TrackImpl*, edm4hep::Track> tracks {};
     ObjectMapT<lcio::TrackerHitImpl*, edm4hep::TrackerHit> trackerHits {};
+    ObjectMapT<lcio::TrackerHitPlaneImpl*, edm4hep::TrackerHitPlane> trackerHitPlanes {};
     ObjectMapT<lcio::SimTrackerHitImpl*, edm4hep::SimTrackerHit> simTrackerHits {};
     ObjectMapT<lcio::CalorimeterHitImpl*, edm4hep::CalorimeterHit> caloHits {};
     ObjectMapT<lcio::RawCalorimeterHitImpl*, edm4hep::RawCalorimeterHit> rawCaloHits {};
@@ -89,6 +90,12 @@ namespace EDM4hep2LCIOConv {
     const edm4hep::TrackerHitCollection* const trackerhits_coll,
     const std::string& cellIDstr,
     TrackerHitMapT& trackerhits_vec);
+
+  template<typename TrackerHitPlaneMapT>
+  lcio::LCCollectionVec* convTrackerHitPlanes(
+    const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll,
+    const std::string& cellIDstr,
+    TrackerHitPlaneMapT& trackerhits_vec);
 
   template<typename SimTrHitMapT, typename MCParticleMapT>
   lcio::LCCollectionVec* convSimTrackerHits(
