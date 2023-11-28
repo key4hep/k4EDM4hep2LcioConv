@@ -184,7 +184,10 @@ bool ASSERT_COMPARE_VALS_TEMPLATE(LCIO lcioV, EDM4hep edm4hepV, const std::strin
   return true;
 }
 
-#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg) return ASSERT_COMPARE_VALS_TEMPLATE(lcioV, edm4hepV, msg);
+#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)            \
+  if (!ASSERT_COMPARE_VALS_TEMPLATE(lcioV, edm4hepV, msg)) { \
+    return false;                                            \
+  }
 
 #define ASSERT_COMPARE(lcioE, edm4hepE, func, msg) \
   {                                                \
