@@ -204,9 +204,18 @@ template<typename LcioT, typename EDM4hepT, typename MapT>
 inline bool
 compareRelation(const LcioT* lcioElem, const EDM4hepT& edm4hepElem, const MapT& objectMap, const std::string& msg)
 {
-  if (lcioElem == nullptr && edm4hepElem.isAvailable()) {
-    std::cerr << msg << " LCIO element is empty but edm4hep element is not" << std::endl;
+  if (lcioElem == nullptr && !edm4hepElem.isAvailable()) {
+    // Both elements are "empty". Nothing more to do here
+    return true;
   }
+  if ((lcioElem == nullptr && edm4hepElem.isAvailable()) || (lcioElem != nullptr && !edm4hepElem.isAvailable())) {
+    const auto emptyOrNot = [](const bool b) { return b ? "not empty" : "empty"; };
+    std::cerr << msg << " LCIO element is " << emptyOrNot(lcioElem) << " but edm4hep element is "
+              << emptyOrNot(edm4hepElem.isAvailable()) << std::endl;
+    return false;
+  }
+
+  // Now we know for sure that
   if (const auto it = objectMap.find(lcioElem); it != objectMap.end()) {
     if (!(it->second == edm4hepElem.getObjectID())) {
       std::cerr << msg << " LCIO element " << lcioElem << " points to " << it->second << " but should point to "
@@ -263,7 +272,9 @@ inline bool compareRelation(
   {                                                              \
     const auto& lcioRel = lcioE->func();                         \
     const auto edm4hepRel = edm4hepE.func();                     \
-    return compareRelation(lcioRel, edm4hepRel, map, msg);       \
+    if (!compareRelation(lcioRel, edm4hepRel, map, msg)) {       \
+      return false;                                              \
+    }                                                            \
   }
 
 // Compare an LCIO collection and an EDM4hep collection. Assumes that a compare
