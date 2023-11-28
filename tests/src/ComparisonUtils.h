@@ -51,92 +51,11 @@ inline std::ostream& operator<<(std::ostream& os, const podio::RelationRange<T>&
   return printContainer(os, range);
 }
 
-template<typename T, size_t N>
-inline bool operator==(const std::vector<T>& vec, const std::array<T, N>& arr)
-{
-  if (vec.size() != N) {
-    return false;
-  }
-  for (size_t i = 0; i < N; ++i) {
-    if (vec[i] != arr[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-template<typename T, size_t N>
-inline bool operator!=(const std::vector<T>& vec, const std::array<T, N>& arr)
-{
-  return !(vec == arr);
-}
-
-template<typename T>
-inline bool operator==(const std::vector<T>& vec, const podio::RelationRange<T>& range)
-{
-  if (vec.size() != range.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < vec.size(); ++i) {
-    if (vec[i] != range[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-template<typename T>
-inline bool operator!=(const std::vector<T>& vec, const podio::RelationRange<T>& range)
-{
-  return !(vec == range);
-}
-
 template<typename T, typename U>
 inline bool nanSafeComp(T x, U y)
 {
   return (x == y) || (std::isnan(x) && std::isnan(y));
 }
-
-// Macro for defining the comparison operators for edm4hep::Vector3X and
-// different return types (X* or vector<X> from LCIO)
-#define VECTOR3_COMPARE(FT, VT)                                                                          \
-  inline bool operator==(const FT* vals, const VT& vec)                                                  \
-  {                                                                                                      \
-    return nanSafeComp(vals[0], vec[0]) && nanSafeComp(vals[1], vec[1]) && nanSafeComp(vals[2], vec[2]); \
-  }                                                                                                      \
-  inline bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); }                       \
-  inline bool operator==(const std::vector<FT>& vals, const VT& vec)                                     \
-  {                                                                                                      \
-    if (vals.size() != 3) {                                                                              \
-      return false;                                                                                      \
-    }                                                                                                    \
-    return vals.data() == vec;                                                                           \
-  }                                                                                                      \
-  inline bool operator!=(const std::vector<FT>& vals, const VT& vec) { return !(vals == vec); }
-
-VECTOR3_COMPARE(float, edm4hep::Vector3f)
-VECTOR3_COMPARE(double, edm4hep::Vector3d)
-// Necessary in some MCParticle return types
-VECTOR3_COMPARE(double, edm4hep::Vector3f)
-#undef VECTOR3_COMPARE
-
-// Macro for defining the comparison operators for edm4hep::Vector3X and
-// different return types (X* or vector<X> from LCIO)
-#define VECTOR2_COMPARE(FT, VT)                                                                            \
-  inline bool operator==(const FT* vals, const VT& vec) { return vals[0] == vec[0] && vals[1] == vec[1]; } \
-  inline bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); }                         \
-  inline bool operator==(const std::vector<FT>& vals, const VT& vec)                                       \
-  {                                                                                                        \
-    if (vals.size() != 2) {                                                                                \
-      return false;                                                                                        \
-    }                                                                                                      \
-    return vals.data() == vec;                                                                             \
-  }                                                                                                        \
-  inline bool operator!=(const std::vector<FT>& vals, const VT& vec) { return !(vals == vec); }
-
-VECTOR2_COMPARE(int, edm4hep::Vector2i)
-VECTOR2_COMPARE(float, edm4hep::Vector2f)
-#undef VECTOR2_COMPARE
 
 // Only enable for vectors
 template<typename T, typename = void>
