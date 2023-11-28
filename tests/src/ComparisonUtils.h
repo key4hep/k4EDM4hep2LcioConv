@@ -138,55 +138,61 @@ VECTOR2_COMPARE(int, edm4hep::Vector2i)
 VECTOR2_COMPARE(float, edm4hep::Vector2f)
 #undef VECTOR2_COMPARE
 
-// Macro for comparing the return types of the different functions and return
-// false if they are not equal while also emitting a message
-
 // Only enable for vectors
-template<typename LCIO, typename EDM4hep, typename = void>
+template<typename T, typename = void>
 struct has_size_method : std::false_type {};
 
-template<typename LCIO, typename EDM4hep>
-struct has_size_method<LCIO, EDM4hep, std::void_t<decltype(std::declval<EDM4hep>().size())>> : std::true_type {};
+template<typename T>
+struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {};
 
-template<typename LCIO, typename EDM4hep>
-bool ASSERT_COMPARE_VALS_TEMPLATE(LCIO lcioV, EDM4hep edm4hepV, const std::string& msg)
+template<typename T, typename... Ts>
+constexpr bool isAnyOf = (std::is_same_v<T, Ts> || ...);
+
+// Helper function for comparing values and vectors of values element by
+// element, ignoring cases where both values aer nan
+template<typename LCIO, typename EDM4hepT>
+bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
 {
-  if constexpr (has_size_method<LCIO, EDM4hep>::value) {
-    for (size_t i = 0; i < (edm4hepV).size(); ++i) {
-      if ((std::isnan((lcioV)[i]) != std::isnan((edm4hepV)[i])) || ((lcioV)[i] != (edm4hepV)[i])) {
-        std::cerr << msg << " at index i: (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;
-        return false;
+  constexpr auto isVectorLike =
+    has_size_method<EDM4hepT>::value ||
+    isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f, edm4hep::Vector2i>;
+
+  if constexpr (isVectorLike) {
+    const auto vecSize = [&edm4hepV]() -> std::size_t {
+      if constexpr (has_size_method<EDM4hepT>::value) {
+        return edm4hepV.size();
       }
-    }
-  }
-  else if constexpr ((std::is_same_v<EDM4hep, edm4hep::Vector3f>) || std::is_same_v<EDM4hep, edm4hep::Vector3d>) {
-    for (size_t i = 0; i < 3; ++i) {
-      if ((std::isnan((lcioV)[i]) != std::isnan((edm4hepV)[i])) || ((lcioV)[i] != (edm4hepV)[i])) {
-        std::cerr << msg << " at index i: (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;
-        return false;
+      else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector3f> || std::is_same_v<EDM4hepT, edm4hep::Vector3d>) {
+        return 3u;
       }
-    }
-  }
-  else if constexpr ((std::is_same_v<EDM4hep, edm4hep::Vector2i>) || std::is_same_v<EDM4hep, edm4hep::Vector2f>) {
-    for (size_t i = 0; i < 2; ++i) {
-      if ((std::isnan((lcioV)[i]) != std::isnan((edm4hepV)[i])) || ((lcioV)[i] != (edm4hepV)[i])) {
-        std::cerr << msg << " at index i: (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;
+      else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector2i> || std::is_same_v<EDM4hepT, edm4hep::Vector2f>) {
+        return 2;
+      }
+      return 0;
+    }();
+    for (size_t i = 0; i < vecSize; ++i) {
+      if (!nanSafeComp(lcioV[i], edm4hepV[i])) {
+        std::cerr << msg << " at index " << i << ": (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")"
+                  << std::endl;
         return false;
       }
     }
   }
   else {
-    if ((std::isnan((lcioV)) != std::isnan((edm4hepV))) || ((lcioV) != (edm4hepV))) {
+    if (!nanSafeComp(lcioV, edm4hepV)) {
       std::cerr << msg << " (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;
       return false;
     }
   }
+
   return true;
 }
 
-#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)            \
-  if (!ASSERT_COMPARE_VALS_TEMPLATE(lcioV, edm4hepV, msg)) { \
-    return false;                                            \
+// Macro for comparing the return types of the different functions and return
+// false if they are not equal while also emitting a message
+#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)    \
+  if (!compareValuesNanSafe(lcioV, edm4hepV, msg)) { \
+    return false;                                    \
   }
 
 #define ASSERT_COMPARE(lcioE, edm4hepE, func, msg) \
