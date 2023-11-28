@@ -128,10 +128,6 @@ namespace EDM4hep2LCIOConv {
         lcio_trh->setEDepError(edm_trh.getEDepError());
         lcio_trh->setTime(edm_trh.getTime());
         lcio_trh->setQuality(edm_trh.getQuality());
-        std::bitset<sizeof(uint32_t)> type_bits = edm_trh.getQuality();
-        for (int j = 0; j < sizeof(uint32_t); j++) {
-          lcio_trh->setQualityBit(j, (type_bits[j] == 0) ? 0 : 1);
-        }
 
         // Save intermediate trackerhits ref
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerhits_vec);
