@@ -8,9 +8,11 @@ TEST_INPUT_DIR=${TEST_DIR}/inputFiles
 TEST_OUTPUT_DIR=testOutputs
 mkdir -p ${TEST_OUTPUT_DIR}
 
-input_file=${TEST_INPUT_DIR}/${input_file_base}
-output_file=${TEST_OUTPUT_DIR}/${input_file_base/.slcio/.edm4hep.root}
-patch_file=${TEST_OUTPUT_DIR}/${input_file_base/.slcio/_colls.txt}
+input_file=${input_file_base}
+output_file=${input_file_base/.slcio/.edm4hep.root}
+patch_file=${input_file_base/.slcio/_colls.txt}
+
+echo ${input_file_base}
 
 echo "Creating the patch file for the standalone converter"
 check_missing_cols --minimal ${input_file} > ${patch_file}

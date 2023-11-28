@@ -255,10 +255,13 @@ bool compare(
   for (int iCont = 0; iCont < lcioElem->getNMCContributions(); ++iCont) {
     const auto& edmContrib = edmContributions[iCont];
     ASSERT_COMPARE_VALS(
-      lcioElem->getEnergyCont(iCont), edmContrib.getEnergy(), "energy in CaloHitContribution " << iCont);
+      lcioElem->getEnergyCont(iCont), edmContrib.getEnergy(), "energy in CaloHitContribution " + std::to_string(iCont));
     ASSERT_COMPARE_VALS(
-      lcioElem->getStepPosition(iCont), edmContrib.getStepPosition(), "stepPosition in CaloHitContribution " << iCont);
-    ASSERT_COMPARE_VALS(lcioElem->getTimeCont(iCont), edmContrib.getTime(), "time in CaloHitContribution " << iCont);
+      lcioElem->getStepPosition(iCont),
+      edmContrib.getStepPosition(),
+      "stepPosition in CaloHitContribution " + std::to_string(iCont));
+    ASSERT_COMPARE_VALS(
+      lcioElem->getTimeCont(iCont), edmContrib.getTime(), "time in CaloHitContribution " + std::to_string(iCont));
 
     if (!compareRelation(
           lcioElem->getParticleCont(iCont),

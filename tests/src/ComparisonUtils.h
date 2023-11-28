@@ -51,99 +51,69 @@ inline std::ostream& operator<<(std::ostream& os, const podio::RelationRange<T>&
   return printContainer(os, range);
 }
 
-template<typename T, size_t N>
-inline bool operator==(const std::vector<T>& vec, const std::array<T, N>& arr)
-{
-  if (vec.size() != N) {
-    return false;
-  }
-  for (size_t i = 0; i < N; ++i) {
-    if (vec[i] != arr[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-template<typename T, size_t N>
-inline bool operator!=(const std::vector<T>& vec, const std::array<T, N>& arr)
-{
-  return !(vec == arr);
-}
-
-template<typename T>
-inline bool operator==(const std::vector<T>& vec, const podio::RelationRange<T>& range)
-{
-  if (vec.size() != range.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < vec.size(); ++i) {
-    if (vec[i] != range[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-template<typename T>
-inline bool operator!=(const std::vector<T>& vec, const podio::RelationRange<T>& range)
-{
-  return !(vec == range);
-}
-
 template<typename T, typename U>
 inline bool nanSafeComp(T x, U y)
 {
   return (x == y) || (std::isnan(x) && std::isnan(y));
 }
 
-// Macro for defining the comparison operators for edm4hep::Vector3X and
-// different return types (X* or vector<X> from LCIO)
-#define VECTOR3_COMPARE(FT, VT)                                                                          \
-  inline bool operator==(const FT* vals, const VT& vec)                                                  \
-  {                                                                                                      \
-    return nanSafeComp(vals[0], vec[0]) && nanSafeComp(vals[1], vec[1]) && nanSafeComp(vals[2], vec[2]); \
-  }                                                                                                      \
-  inline bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); }                       \
-  inline bool operator==(const std::vector<FT>& vals, const VT& vec)                                     \
-  {                                                                                                      \
-    if (vals.size() != 3) {                                                                              \
-      return false;                                                                                      \
-    }                                                                                                    \
-    return vals.data() == vec;                                                                           \
-  }                                                                                                      \
-  inline bool operator!=(const std::vector<FT>& vals, const VT& vec) { return !(vals == vec); }
+// Only enable for vectors
+template<typename T, typename = void>
+struct has_size_method : std::false_type {
+};
 
-VECTOR3_COMPARE(float, edm4hep::Vector3f)
-VECTOR3_COMPARE(double, edm4hep::Vector3d)
-// Necessary in some MCParticle return types
-VECTOR3_COMPARE(double, edm4hep::Vector3f)
-#undef VECTOR3_COMPARE
+template<typename T>
+struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {
+};
 
-// Macro for defining the comparison operators for edm4hep::Vector3X and
-// different return types (X* or vector<X> from LCIO)
-#define VECTOR2_COMPARE(FT, VT)                                                                            \
-  inline bool operator==(const FT* vals, const VT& vec) { return vals[0] == vec[0] && vals[1] == vec[1]; } \
-  inline bool operator!=(const FT* vals, const VT& vec) { return !(vals == vec); }                         \
-  inline bool operator==(const std::vector<FT>& vals, const VT& vec)                                       \
-  {                                                                                                        \
-    if (vals.size() != 2) {                                                                                \
-      return false;                                                                                        \
-    }                                                                                                      \
-    return vals.data() == vec;                                                                             \
-  }                                                                                                        \
-  inline bool operator!=(const std::vector<FT>& vals, const VT& vec) { return !(vals == vec); }
+template<typename T, typename... Ts>
+constexpr bool isAnyOf = (std::is_same_v<T, Ts> || ...);
 
-VECTOR2_COMPARE(int, edm4hep::Vector2i)
-VECTOR2_COMPARE(float, edm4hep::Vector2f)
-#undef VECTOR2_COMPARE
+// Helper function for comparing values and vectors of values element by
+// element, ignoring cases where both values aer nan
+template<typename LCIO, typename EDM4hepT>
+bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
+{
+  constexpr auto isVectorLike =
+    has_size_method<EDM4hepT>::value ||
+    isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f, edm4hep::Vector2i>;
+
+  if constexpr (isVectorLike) {
+    const auto vecSize = [&edm4hepV]() -> std::size_t {
+      if constexpr (has_size_method<EDM4hepT>::value) {
+        return edm4hepV.size();
+      }
+      else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector3f> || std::is_same_v<EDM4hepT, edm4hep::Vector3d>) {
+        return 3u;
+      }
+      else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector2i> || std::is_same_v<EDM4hepT, edm4hep::Vector2f>) {
+        return 2;
+      }
+      return 0;
+    }();
+    for (size_t i = 0; i < vecSize; ++i) {
+      if (!nanSafeComp(lcioV[i], edm4hepV[i])) {
+        std::cerr << msg << " at index " << i << ": (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")"
+                  << std::endl;
+        return false;
+      }
+    }
+  }
+  else {
+    if (!nanSafeComp(lcioV, edm4hepV)) {
+      std::cerr << msg << " (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
 
 // Macro for comparing the return types of the different functions and return
 // false if they are not equal while also emitting a message
-#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)                                                 \
-  if ((lcioV) != (edm4hepV)) {                                                                    \
-    std::cerr << msg << " (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl; \
-    return false;                                                                                 \
+#define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)    \
+  if (!compareValuesNanSafe(lcioV, edm4hepV, msg)) { \
+    return false;                                    \
   }
 
 #define ASSERT_COMPARE(lcioE, edm4hepE, func, msg) \
@@ -161,9 +131,18 @@ template<typename LcioT, typename EDM4hepT, typename MapT>
 inline bool
 compareRelation(const LcioT* lcioElem, const EDM4hepT& edm4hepElem, const MapT& objectMap, const std::string& msg)
 {
-  if (lcioElem == nullptr && edm4hepElem.isAvailable()) {
-    std::cerr << msg << " LCIO element is empty but edm4hep element is not" << std::endl;
+  if (lcioElem == nullptr && !edm4hepElem.isAvailable()) {
+    // Both elements are "empty". Nothing more to do here
+    return true;
   }
+  if ((lcioElem == nullptr && edm4hepElem.isAvailable()) || (lcioElem != nullptr && !edm4hepElem.isAvailable())) {
+    const auto emptyOrNot = [](const bool b) { return b ? "not empty" : "empty"; };
+    std::cerr << msg << " LCIO element is " << emptyOrNot(lcioElem) << " but edm4hep element is "
+              << emptyOrNot(edm4hepElem.isAvailable()) << std::endl;
+    return false;
+  }
+
+  // Now we know for sure that
   if (const auto it = objectMap.find(lcioElem); it != objectMap.end()) {
     if (!(it->second == edm4hepElem.getObjectID())) {
       std::cerr << msg << " LCIO element " << lcioElem << " points to " << it->second << " but should point to "
@@ -220,7 +199,9 @@ inline bool compareRelation(
   {                                                              \
     const auto& lcioRel = lcioE->func();                         \
     const auto edm4hepRel = edm4hepE.func();                     \
-    return compareRelation(lcioRel, edm4hepRel, map, msg);       \
+    if (!compareRelation(lcioRel, edm4hepRel, map, msg)) {       \
+      return false;                                              \
+    }                                                            \
   }
 
 // Compare an LCIO collection and an EDM4hep collection. Assumes that a compare
