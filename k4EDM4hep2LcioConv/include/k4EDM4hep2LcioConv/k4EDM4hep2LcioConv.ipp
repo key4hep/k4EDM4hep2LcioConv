@@ -734,6 +734,11 @@ namespace EDM4hep2LCIOConv {
           if (const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, lookup_pairs.trackerHits)) {
             lcio_tr->addHit(lcio_trh.value());
           }
+          else if (
+            const auto lcio_trh =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, lookup_pairs.trackerHitPlanes)) {
+            lcio_tr->addHit(lcio_trh.value());
+          }
         }
       }
     }
