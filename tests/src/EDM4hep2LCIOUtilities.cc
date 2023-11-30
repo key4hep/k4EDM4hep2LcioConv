@@ -5,6 +5,7 @@
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackerHitCollection.h"
+#include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include "edm4hep/TrackCollection.h"
@@ -160,6 +161,28 @@ edm4hep::TrackerHitCollection createTrackerHits(const int num_elements)
   return coll;
 }
 
+edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements)
+{
+  edm4hep::TrackerHitPlaneCollection coll {};
+  for (int i = 0; i < num_elements; ++i) {
+    auto elem = coll.create();
+    elem.setCellID(createCellID(i));
+    elem.setType(i * 42 + 123);
+    elem.setQuality(i + 42);
+    elem.setTime(0.1f * i);
+    elem.setEDep(1.0f * i);
+    elem.setEDepError(2.0f * i);
+    elem.setU({1.2f * i, 2.1f * i});
+    elem.setV({3.4f * i, 4.3f * i});
+    elem.setDu(0.25f * i);
+    elem.setDv(0.5f * i);
+    // Covariance matrix not handled by conversion
+    // elem.setCovMatrix(createCov<3>());
+  }
+
+  return coll;
+}
+
 edm4hep::TrackCollection createTracks(
   const int num_elements,
   const int subdetectorhitnumbers,
@@ -305,6 +328,7 @@ podio::Frame createExampleEvent()
   const auto& rawCaloHits = event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
   const auto& tpcHits = event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
   const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
+  const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
   const auto& tracks = event.put(
     createTracks(
       test_config::nTracks,

@@ -12,6 +12,7 @@ namespace edm4hep {
   class RawCalorimeterHitCollection;
   class RawTimeSeriesCollection;
   class TrackerHitCollection;
+  class TrackerHitPlaneCollection;
   class TrackCollection;
   class SimCalorimeterHitCollection;
   class CaloHitContributionCollection;
