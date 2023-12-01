@@ -17,7 +17,7 @@ the same contents or or to give `lcio2edm4hep` some additional information such
 that it can patch in potentially missing collections on the fly. This additional
 information comes in the form of a third argument to `lcio2edm4hep` and is
 effectively a list of collection names and their types that comprise the
-superset of all collectoins appearing in at least one event in the input LCIO
+superset of all collections appearing in at least one event in the input LCIO
 file. The format looks like this, where each collection is a single line
 containing the name first and than its type, e.g.
 
@@ -75,7 +75,7 @@ conversion. for convenience all necessary maps are bundled in the
 
 ## Handling relations
 **Once all necessary collections have been converted, it is necessary to resolve
-the relations between the obects.** This is done using the `resolveRelations`
+the relations between the objects.** This is done using the `resolveRelations`
 function. This will again dispatch to the correct relation resolving function
 for the corresponding types, which can obviously also be invoked directly.
 
@@ -103,7 +103,7 @@ This can be done by calling `convertObjectParameters` that will put all the even
 There are a few small differences between LCIO and EDM4hep that shine through in the conversion, these are:
 
 - `CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
-- The event informaton like is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection. It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
+- The event information like an event number is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection. It can be created using [`EventHeaderCollection`](../k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
 - Particle IDs are converted during the conversion of the the reconstructed Particle collection.
 
 ## Example for a ReconstructedParticle Collection
