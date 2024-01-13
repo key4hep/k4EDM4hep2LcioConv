@@ -10,7 +10,7 @@ target_include_directories(k4EDM4hep2LcioConv PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(k4EDM4hep2LcioConv PUBLIC
-  ${LCIO_LIBRARIES}
+  LCIO::lcio
   EDM4HEP::edm4hep)
 
 set(public_headers
