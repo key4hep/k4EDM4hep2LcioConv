@@ -1,9 +1,9 @@
 add_library(edmCompare SHARED src/CompareEDM4hepLCIO.cc src/ObjectMapping.cc src/CompareEDM4hepEDM4hep.cc)
-target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep ${LCIO_LIBRARIES})
+target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep LCIO::lcio)
 target_include_directories(edmCompare PUBLIC ${LCIO_INCLUDE_DIRS})
 
 add_library(TestUtils SHARED src/EDM4hep2LCIOUtilities.cc)
-target_link_libraries(TestUtils PUBLIC EDM4HEP::edm4hep ${LCIO_LIBRARIES})
+target_link_libraries(TestUtils PUBLIC EDM4HEP::edm4hep LCIO::lcio)
 target_include_directories(TestUtils PUBLIC ${LCIO_INCLUDE_DIRS})
 
 add_executable(compare-contents compare_contents.cpp)
@@ -26,7 +26,7 @@ target_include_directories(edm4hep_roundtrip PRIVATE
 add_test(NAME edm4hep_roundtrip COMMAND edm4hep_roundtrip)
 
 include(ExternalData)
-list(APPEND ExternalData_URL_TEMPLATES
+set(ExternalData_URL_TEMPLATES
  "https://key4hep.web.cern.ch:443/testFiles/k4EDM4hep2LcioConv/%(hash)"
  )
 

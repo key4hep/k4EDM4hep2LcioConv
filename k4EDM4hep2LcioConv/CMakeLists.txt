@@ -5,12 +5,11 @@ add_library(k4EDM4hep2LcioConv SHARED
 add_library(k4EDM4hep2LcioConv::k4EDM4hep2LcioConv ALIAS k4EDM4hep2LcioConv)
 
 target_include_directories(k4EDM4hep2LcioConv PUBLIC
-  ${LCIO_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(k4EDM4hep2LcioConv PUBLIC
-  ${LCIO_LIBRARIES}
+  LCIO::lcio
   EDM4HEP::edm4hep)
 
 set(public_headers
