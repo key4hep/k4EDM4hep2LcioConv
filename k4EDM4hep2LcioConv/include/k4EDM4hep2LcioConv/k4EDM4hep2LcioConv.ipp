@@ -672,7 +672,7 @@ namespace EDM4hep2LCIOConv {
         lcio_mcp->setEndpoint(endpoint);
         double momentum[3] = {edm_mcp.getMomentum()[0], edm_mcp.getMomentum()[1], edm_mcp.getMomentum()[2]};
         lcio_mcp->setMomentum(momentum);
-        float momentumEndpoint[3] = {
+        double momentumEndpoint[3] = {
           edm_mcp.getMomentumAtEndpoint()[0], edm_mcp.getMomentumAtEndpoint()[1], edm_mcp.getMomentumAtEndpoint()[2]};
         lcio_mcp->setMomentumAtEndpoint(momentumEndpoint);
 #warning "double to float"
