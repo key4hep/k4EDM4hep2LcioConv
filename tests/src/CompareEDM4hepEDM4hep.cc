@@ -5,7 +5,6 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
-#include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/ClusterCollection.h"
 

@@ -4,7 +4,14 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
+#if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
+#else
+#include "edm4hep/TrackerHitCollection.h"
+namespace edm4hep {
+  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+} // namespace edm4hep
+#endif
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>

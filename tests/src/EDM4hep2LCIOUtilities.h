@@ -6,12 +6,20 @@
 #include <vector>
 #include <tuple>
 
+#if __has_include("edm4hep/TrackerHit3DCollection.h")
+#include "edm4hep/TrackerHit3DCollection.h"
+#else
+#include "edm4hep/TrackerHitCollection.h"
+namespace edm4hep {
+  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+} // namespace edm4hep
+#endif
+
 namespace edm4hep {
   class CalorimeterHitCollection;
   class MCParticleCollection;
   class RawCalorimeterHitCollection;
   class RawTimeSeriesCollection;
-  class TrackerHit3DCollection;
   class TrackerHitPlaneCollection;
   class TrackCollection;
   class SimCalorimeterHitCollection;
