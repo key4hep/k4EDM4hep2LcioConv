@@ -1,3 +1,21 @@
+# v00-08
+
+* 2024-01-16 jmcarcell ([PR#44](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/44))
+  - Change ${LCIO_LIBRARIES} to LCIO::lcio
+  - Remove unnecessary LCIO_INCLUDE_DIRS
+
+* 2023-12-03 Mateusz Jakub Fila ([PR#43](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/43))
+  - Fix typos in documentation
+
+* 2023-11-30 tmadlener ([PR#42](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/42))
+  - Add conversion of TrackerHitPlane from EDM4hep to LCIO.
+    - NOTE: The covariance matrix is not set, because there is no public setter available to do so in LCIO.
+
+* 2023-11-28 jmcarcell ([PR#40](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/40))
+  - Fix downloading input data for tests (it wasn't happening, at the very least not always).
+  - Also compare for NaN values, which can be present; there is at least one value in one of the current test files
+  - Make sure that tests are run in CI
+
 # v00-07
 
 * 2023-11-14 tmadlener ([PR#38](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/38))
