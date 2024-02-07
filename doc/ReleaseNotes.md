@@ -1,3 +1,15 @@
+# v00-08-01
+
+* 2024-02-07 jmcarcell ([PR#48](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/48))
+  - Delete build workflow since we have another one for key4hep that covers builds for nightlies, releases and all the operating systems we support
+
+* 2024-02-07 jmcarcell ([PR#47](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/47))
+  - Change ROOTFrame{Writer,Reader} to ROOT{Writer,Reader} following Remove the Frame from the default readers and writers following https://github.com/AIDASoft/podio/pull/549
+
+* 2024-02-07 jmcarcell ([PR#46](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/46))
+  - Fix compiler warnings related to double - float that appear after https://github.com/key4hep/EDM4hep/pull/237
+  - Switch to non-deprecated name for `ROOTWriter` (https://github.com/AIDASoft/podio/pull/549)
+
 # v00-08
 
 * 2024-01-16 jmcarcell ([PR#44](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/44))
