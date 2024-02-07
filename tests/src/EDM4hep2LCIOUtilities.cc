@@ -4,7 +4,14 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
+#if __has_include("edm4hep/TrackerHit3DCollection.h")
+#include "edm4hep/TrackerHit3DCollection.h"
+#else
 #include "edm4hep/TrackerHitCollection.h"
+namespace edm4hep {
+  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+} // namespace edm4hep
+#endif
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
@@ -142,9 +149,9 @@ edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int
   return coll;
 }
 
-edm4hep::TrackerHitCollection createTrackerHits(const int num_elements)
+edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements)
 {
-  edm4hep::TrackerHitCollection coll {};
+  edm4hep::TrackerHit3DCollection coll {};
 
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
@@ -187,7 +194,7 @@ edm4hep::TrackCollection createTracks(
   const int num_elements,
   const int subdetectorhitnumbers,
   const int num_track_states,
-  const edm4hep::TrackerHitCollection& trackerHits,
+  const edm4hep::TrackerHit3DCollection& trackerHits,
   const std::vector<std::size_t>& link_trackerhit_idcs,
   const std::vector<test_config::IdxPair>& track_link_tracks_idcs)
 {

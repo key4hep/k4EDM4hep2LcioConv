@@ -18,7 +18,14 @@
 #include "UTIL/LCIterator.h"
 
 #include "edm4hep/TrackCollection.h"
+#if __has_include("edm4hep/TrackerHit3DCollection.h")
+#include "edm4hep/TrackerHit3DCollection.h"
+#else
 #include "edm4hep/TrackerHitCollection.h"
+namespace edm4hep {
+  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+} // namespace edm4hep
+#endif
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
@@ -67,7 +74,6 @@ ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Fra
       continue;
     }
     FILL_MAP(Track, mapping.tracks);
-    FILL_MAP(TrackerHit, mapping.trackerHits);
     FILL_MAP(TrackerHitPlane, mapping.trackerHitPlanes);
     FILL_MAP(SimTrackerHit, mapping.simTrackerHits);
     FILL_MAP(Cluster, mapping.clusters);
@@ -81,6 +87,10 @@ ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Fra
     if (type == "TPCHit") {
       auto& edm4hepColl = edmEvt.get<edm4hep::RawTimeSeriesCollection>(name);
       fillMap<EVENT::TPCHit>(mapping.tpcHits, lcioColl, edm4hepColl);
+    }
+    if (type == "TrackerHit") {
+      auto& edm4hepColl = edmEvt.get<edm4hep::TrackerHit3DCollection>(name);
+      fillMap<EVENT::TrackerHit>(mapping.trackerHits, lcioColl, edm4hepColl);
     }
   }
 

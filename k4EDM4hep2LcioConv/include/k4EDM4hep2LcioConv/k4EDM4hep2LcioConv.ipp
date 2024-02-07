@@ -101,7 +101,7 @@ namespace EDM4hep2LCIOConv {
   // Add LCIO Collection Vector to LCIO event
   template<typename TrackerHitMapT>
   lcio::LCCollectionVec* convTrackerHits(
-    const edm4hep::TrackerHitCollection* const trackerhits_coll,
+    const edm4hep::TrackerHit3DCollection* const trackerhits_coll,
     const std::string& cellIDstr,
     TrackerHitMapT& trackerhits_vec)
   {

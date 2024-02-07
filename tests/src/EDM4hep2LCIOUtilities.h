@@ -6,12 +6,20 @@
 #include <vector>
 #include <tuple>
 
+#if __has_include("edm4hep/TrackerHit3DCollection.h")
+#include "edm4hep/TrackerHit3DCollection.h"
+#else
+#include "edm4hep/TrackerHitCollection.h"
+namespace edm4hep {
+  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+} // namespace edm4hep
+#endif
+
 namespace edm4hep {
   class CalorimeterHitCollection;
   class MCParticleCollection;
   class RawCalorimeterHitCollection;
   class RawTimeSeriesCollection;
-  class TrackerHitCollection;
   class TrackerHitPlaneCollection;
   class TrackCollection;
   class SimCalorimeterHitCollection;
@@ -110,7 +118,7 @@ edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int
 /**
  * Create a TrackerHit collection
  */
-edm4hep::TrackerHitCollection createTrackerHits(const int num_elements);
+edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements);
 
 /**
  * Create a track collection with tracks that have links to other tracks (in the
@@ -120,7 +128,7 @@ edm4hep::TrackCollection createTracks(
   const int num_elements,
   const int subdetectorhitnumbers,
   const int num_track_states,
-  const edm4hep::TrackerHitCollection& trackerHits,
+  const edm4hep::TrackerHit3DCollection& trackerHits,
   const std::vector<std::size_t>& link_trackerhit_idcs,
   const std::vector<test_config::IdxPair>& track_link_tracks_idcs);
 

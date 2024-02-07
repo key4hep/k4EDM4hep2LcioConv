@@ -5,7 +5,6 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
-#include "edm4hep/TrackerHitCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/ClusterCollection.h"
 
@@ -199,7 +198,7 @@ bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackColle
   return true;
 }
 
-bool compare(const edm4hep::TrackerHitCollection& origColl, const edm4hep::TrackerHitCollection& roundtripColl)
+bool compare(const edm4hep::TrackerHit3DCollection& origColl, const edm4hep::TrackerHit3DCollection& roundtripColl)
 {
   REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
   for (size_t i = 0; i < origColl.size(); ++i) {

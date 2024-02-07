@@ -24,7 +24,7 @@ int main()
   ASSERT_SAME_OR_ABORT(edm4hep::MCParticleCollection, "mcParticles");
   ASSERT_SAME_OR_ABORT(edm4hep::SimCalorimeterHitCollection, "simCaloHits");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackCollection, "tracks");
-  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitCollection, "trackerHits");
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHit3DCollection, "trackerHits");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes");
   ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters");
 

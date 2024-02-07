@@ -277,10 +277,10 @@ namespace LCIO2EDM4hepConv {
   }
 
   template<typename HitMapT>
-  std::unique_ptr<edm4hep::TrackerHitCollection>
+  std::unique_ptr<edm4hep::TrackerHit3DCollection>
   convertTrackerHits(const std::string& name, EVENT::LCCollection* LCCollection, HitMapT& TrackerHitMap)
   {
-    auto dest = std::make_unique<edm4hep::TrackerHitCollection>();
+    auto dest = std::make_unique<edm4hep::TrackerHit3DCollection>();
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       auto* rval = static_cast<EVENT::TrackerHit*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
@@ -1067,7 +1067,7 @@ namespace LCIO2EDM4hepConv {
       return handleSubsetColl<edm4hep::RawTimeSeriesCollection>(LCCollection, typeMapping.tpcHits);
     }
     else if (type == "TrackerHit") {
-      return handleSubsetColl<edm4hep::TrackerHitCollection>(LCCollection, typeMapping.trackerHits);
+      return handleSubsetColl<edm4hep::TrackerHit3DCollection>(LCCollection, typeMapping.trackerHits);
     }
     else if (type == "TrackerHitPlane") {
       return handleSubsetColl<edm4hep::TrackerHitPlaneCollection>(LCCollection, typeMapping.trackerHitPlanes);

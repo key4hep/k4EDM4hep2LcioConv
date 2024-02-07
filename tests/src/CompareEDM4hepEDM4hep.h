@@ -13,7 +13,7 @@ bool compare(
 
 bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackCollection& roundtripColl);
 
-bool compare(const edm4hep::TrackerHitCollection& origColl, const edm4hep::TrackerHitCollection& roundtripColl);
+bool compare(const edm4hep::TrackerHit3DCollection& origColl, const edm4hep::TrackerHit3DCollection& roundtripColl);
 
 bool compare(
   const edm4hep::TrackerHitPlaneCollection& origColl,
