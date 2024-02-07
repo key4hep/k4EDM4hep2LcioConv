@@ -4,7 +4,15 @@
 #include <IOIMPL/LCFactory.h>
 #include <UTIL/CheckCollections.h>
 
+#include "podio/podioVersion.h"
+#if PODIO_BUILD_VERSION >= PODIO_VERSION(0, 99, 0)
+#include "podio/ROOTWriter.h"
+#else
 #include "podio/ROOTFrameWriter.h"
+namespace podio {
+  using ROOTWriter = podio::ROOTFrameWriter;
+}
+#endif
 
 #include <fstream>
 #include <iostream>
@@ -156,7 +164,7 @@ int main(int argc, char* argv[])
   std::cout << "Number of events in file: " << lcreader->getNumberOfEvents() << '\n';
   std::cout << "Number of runs in file: " << lcreader->getNumberOfRuns() << '\n';
 
-  podio::ROOTFrameWriter writer(args.outputFile);
+  podio::ROOTWriter writer(args.outputFile);
 
   for (auto j = 0u; j < lcreader->getNumberOfRuns(); ++j) {
     if (j % 1 == 0) {

@@ -100,8 +100,8 @@ namespace LCIO2EDM4hepConv {
       lval.setColorFlow(edm4hep::Vector2i(rval->getColorFlow()));
       lval.setVertex(edm4hep::Vector3d(rval->getVertex()));
       lval.setEndpoint(edm4hep::Vector3d(rval->getEndpoint()));
-      lval.setMomentum(Vector3fFrom(rval->getMomentum()));
-      lval.setMomentumAtEndpoint(Vector3fFrom(rval->getMomentumAtEndpoint()));
+      lval.setMomentum(rval->getMomentum());
+      lval.setMomentumAtEndpoint(rval->getMomentumAtEndpoint());
 
       const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, mcparticlesMap);
       if (!inserted) {
