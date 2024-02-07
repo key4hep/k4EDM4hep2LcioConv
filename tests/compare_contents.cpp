@@ -2,7 +2,16 @@
 #include "ObjectMapping.h"
 #include "ComparisonUtils.h"
 
+#include "podio/podioVersion.h"
+#if PODIO_BUILD_VERSION >= PODIO_VERSION(0, 99, 0)
+#include "podio/ROOTReader.h"
+#else
 #include "podio/ROOTFrameReader.h"
+namespace podio {
+  using ROOTReader = podio::ROOTFrameReader;
+}
+#endif
+
 #include "podio/Frame.h"
 
 #include <IOIMPL/LCFactory.h>
@@ -22,7 +31,7 @@ int main(int argc, char* argv[])
   auto lcreader = IOIMPL::LCFactory::getInstance()->createLCReader();
   lcreader->open(argv[1]);
 
-  auto edmreader = podio::ROOTFrameReader();
+  auto edmreader = podio::ROOTReader();
   edmreader.openFile(argv[2]);
 
   // loop going over every name of the lcio collection and checking if a
