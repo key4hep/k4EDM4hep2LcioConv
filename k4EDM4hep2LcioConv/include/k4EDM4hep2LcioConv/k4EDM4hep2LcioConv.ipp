@@ -392,23 +392,6 @@ namespace EDM4hep2LCIOConv {
           subdetEnergies.push_back(edmEnergy);
         }
 
-        // Convert ParticleIDs associated to the recoparticle
-        for (const auto& edm_pid : edm_cluster.getParticleIDs()) {
-          if (edm_pid.isAvailable()) {
-            auto* lcio_pid = new lcio::ParticleIDImpl;
-
-            lcio_pid->setType(edm_pid.getType());
-            lcio_pid->setPDG(edm_pid.getPDG());
-            lcio_pid->setLikelihood(edm_pid.getLikelihood());
-            lcio_pid->setAlgorithmType(edm_pid.getAlgorithmType());
-            for (const auto& param : edm_pid.getParameters()) {
-              lcio_pid->addParameter(param);
-            }
-
-            lcio_cluster->addParticleID(lcio_pid);
-          }
-        }
-
         // Add LCIO and EDM4hep pair collections to vec
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster, clusterMap);
 
