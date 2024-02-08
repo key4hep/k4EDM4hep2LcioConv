@@ -472,12 +472,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  template<typename ClusterMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertClusters(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    ClusterMapT& clusterMap,
-    PIDMapT& particleIDMap)
+  template<typename ClusterMapT>
+  std::unique_ptr<edm4hep::ClusterCollection>
+  convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap)
   {
     auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     auto dest = std::make_unique<edm4hep::ClusterCollection>();
@@ -503,26 +500,8 @@ namespace LCIO2EDM4hepConv {
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
       }
-
-      // Need to convert the particle IDs here, since they are part of the cluster
-      // collection in LCIO
-      for (const auto lcioPid : rval->getParticleIDs()) {
-        auto pid = convertParticleID(lcioPid);
-        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(lcioPid, pid, particleIDMap);
-        if (pidInserted) {
-          lval.addToParticleIDs(pid);
-          particleIDs->push_back(pid);
-        }
-        else {
-          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
-        }
-      }
     }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_particleIDs", std::move(particleIDs));
-    return results;
+    return dest;
   }
 
   template<typename ObjectMappingT>
@@ -544,7 +523,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertTracks(name, LCCollection, typeMapping.tracks));
     }
     else if (type == "Cluster") {
-      return convertClusters(name, LCCollection, typeMapping.clusters, typeMapping.particleIDs);
+      retColls.emplace_back(name, convertClusters(name, LCCollection, typeMapping.clusters));
     }
     else if (type == "SimCalorimeterHit") {
       retColls.emplace_back(name, convertSimCalorimeterHits(name, LCCollection, typeMapping.simCaloHits));

@@ -291,12 +291,9 @@ namespace LCIO2EDM4hepConv {
    * part of the Cluster collection in LCIO. The name of this collection is
    * <name>_particleIDs
    */
-  template<typename ClusterMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertClusters(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    ClusterMapT& clusterMap,
-    PIDMapT& particleIDMap);
+  template<typename ClusterMapT>
+  std::unique_ptr<edm4hep::ClusterCollection>
+  convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap);
 
   /**
    * Create an EventHeaderCollection and fills it with the Metadata.
