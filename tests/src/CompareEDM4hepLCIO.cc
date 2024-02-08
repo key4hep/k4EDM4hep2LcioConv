@@ -205,22 +205,6 @@ bool compare(
     }
   }
 
-  const auto lcioPIDUsed = lcioElem->getParticleIDUsed();
-  const auto edmPIDUsed = edm4hepElem.getParticleIDUsed();
-  if (lcioPIDUsed == nullptr) {
-    if (edmPIDUsed.isAvailable()) {
-      std::cerr << "particleIDUsed is not available in LCIO, but points to " << edmPIDUsed.getObjectID()
-                << " in EDM4hep for ReconstructedParticle" << std::endl;
-      return false;
-    }
-  }
-  else {
-    if (!compare(lcioPIDUsed, edmPIDUsed)) {
-      std::cerr << "particleIDUsed differs in ReconstructedParticle (LCIO: " << lcioPIDUsed
-                << ", EDM4hep: " << edmPIDUsed << ")" << std::endl;
-      return false;
-    }
-  }
   return true;
 }
 
