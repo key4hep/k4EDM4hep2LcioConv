@@ -159,20 +159,6 @@ namespace LCIO2EDM4hepConv {
           lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
         }
       }
-
-      const auto lcioPidUsed = rval->getParticleIDUsed();
-      if (lcioPidUsed == nullptr) {
-        continue;
-      }
-      if (const auto edm4hepPid = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioPidUsed, particleIDMap)) {
-        lval.setParticleIDUsed(edm4hepPid.value());
-      }
-      else {
-        auto pid = convertParticleID(lcioPidUsed);
-        particleIDs->push_back(pid);
-        k4EDM4hep2LcioConv::detail::mapInsert(lcioPidUsed, pid, particleIDMap);
-        lval.setParticleIDUsed(pid);
-      }
     }
 
     std::vector<CollNamePair> results;
