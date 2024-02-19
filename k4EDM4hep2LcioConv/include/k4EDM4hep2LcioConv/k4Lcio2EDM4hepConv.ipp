@@ -1,5 +1,8 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
+#include <UTIL/PIDHandler.h>
+#include <edm4hep/ParticleIDCollection.h>
+
 namespace LCIO2EDM4hepConv {
   template<typename LCIOType>
   void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event)
@@ -122,7 +125,17 @@ namespace LCIO2EDM4hepConv {
     PIDMapT& particleIDMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
-    auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
+
+    // Set up a PIDHandler to split off the ParticlID objects stored in the
+    // reconstructed particles into separate collections. Each algorithm id /
+    // name get's a separate collection
+    auto pidHandler = UTIL::PIDHandler(LCCollection);
+    // TODO: parameter names
+    std::map<int, std::unique_ptr<edm4hep::ParticleIDCollection>> particleIDs;
+    for (const auto id : pidHandler.getAlgorithmIDs()) {
+      particleIDs.emplace(id, std::make_unique<edm4hep::ParticleIDCollection>());
+    }
+
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
@@ -146,25 +159,32 @@ namespace LCIO2EDM4hepConv {
       }
 
       // Need to convert the particle IDs here, since they are part of the reco
-      // particle collection in LCIO
+      // particle collection in LCIO.
       for (const auto lcioPid : rval->getParticleIDs()) {
         auto pid = convertParticleID(lcioPid);
+        pid.setParticle(lval);
         const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(
           lcioPid, pid, particleIDMap, k4EDM4hep2LcioConv::detail::InsertMode::Checked);
-        if (pidInserted) {
-          // TODO
-          particleIDs->push_back(pid);
+        if (!pidInserted) {
+          // Does this ever happen?
+          std::cerr << "WARNING: Duplicating an LCIO ParticleID object during conversion" << std::endl;
+        }
+        if (auto pidIt = particleIDs.find(pid.getAlgorithmType()); pidIt != particleIDs.end()) {
+          pidIt->second->push_back(pid);
         }
         else {
-          // TODO
+          std::cerr << "ERROR: Found a PID object with an algorithm ID that is not known to the PIDHandler (id = "
+                    << pid.getAlgorithmType() << ")" << std::endl;
         }
       }
     }
 
     std::vector<CollNamePair> results;
-    results.reserve(2);
+    results.reserve(particleIDs.size() + 1);
     results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_particleIDs", std::move(particleIDs));
+    for (auto& [id, coll] : particleIDs) {
+      results.emplace_back(name + "_PID_" + pidHandler.getAlgorithmName(id), std::move(coll));
+    }
     return results;
   }
 
