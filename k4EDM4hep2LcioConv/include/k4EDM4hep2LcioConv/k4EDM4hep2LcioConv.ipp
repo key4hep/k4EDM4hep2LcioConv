@@ -456,43 +456,6 @@ namespace EDM4hep2LCIOConv {
         float rp[3] = {edm_rp.getReferencePoint()[0], edm_rp.getReferencePoint()[1], edm_rp.getReferencePoint()[2]};
         lcio_recp->setReferencePoint(rp);
         lcio_recp->setGoodnessOfPID(edm_rp.getGoodnessOfPID());
-
-        // Convert ParticleIDs associated to the recoparticle
-        for (const auto& edm_pid : edm_rp.getParticleIDs()) {
-          if (edm_pid.isAvailable()) {
-            auto* lcio_pid = new lcio::ParticleIDImpl;
-
-            lcio_pid->setType(edm_pid.getType());
-            lcio_pid->setPDG(edm_pid.getPDG());
-            lcio_pid->setLikelihood(edm_pid.getLikelihood());
-            lcio_pid->setAlgorithmType(edm_pid.getAlgorithmType());
-            for (const auto& param : edm_pid.getParameters()) {
-              lcio_pid->addParameter(param);
-            }
-
-            lcio_recp->addParticleID(lcio_pid);
-          }
-        }
-
-        // Link sinlge associated Particle
-        auto edm_pid_used = edm_rp.getParticleIDUsed();
-        if (edm_pid_used.isAvailable()) {
-          for (const auto& lcio_pid : lcio_recp->getParticleIDs()) {
-            bool is_same = true;
-            is_same = is_same && (lcio_pid->getType() == edm_pid_used.getType());
-            is_same = is_same && (lcio_pid->getPDG() == edm_pid_used.getPDG());
-            is_same = is_same && (lcio_pid->getLikelihood() == edm_pid_used.getLikelihood());
-            is_same = is_same && (lcio_pid->getAlgorithmType() == edm_pid_used.getAlgorithmType());
-            for (auto i = 0u; i < edm_pid_used.parameters_size(); ++i) {
-              is_same = is_same && (edm_pid_used.getParameters(i) == lcio_pid->getParameters()[i]);
-            }
-            if (is_same) {
-              lcio_recp->setParticleIDUsed(lcio_pid);
-              break;
-            }
-          }
-        }
-
         // Add LCIO and EDM4hep pair collections to vec
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_recp, edm_rp, recoparticles_vec);
 

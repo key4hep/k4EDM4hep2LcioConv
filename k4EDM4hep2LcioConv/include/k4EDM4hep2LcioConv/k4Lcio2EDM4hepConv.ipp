@@ -152,11 +152,11 @@ namespace LCIO2EDM4hepConv {
         const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(
           lcioPid, pid, particleIDMap, k4EDM4hep2LcioConv::detail::InsertMode::Checked);
         if (pidInserted) {
-          lval.addToParticleIDs(pid);
+          // TODO
           particleIDs->push_back(pid);
         }
         else {
-          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
+          // TODO
         }
       }
     }
