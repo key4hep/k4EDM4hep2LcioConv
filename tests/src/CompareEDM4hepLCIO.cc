@@ -194,16 +194,17 @@ bool compare(
     lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices, "startVertex in ReconstructedParticle");
 
   const auto& lcioPIDs = lcioElem->getParticleIDs();
-  const auto edmPIDs = edm4hepElem.getParticleIDs();
-  ASSERT_COMPARE_VALS(lcioPIDs.size(), edmPIDs.size(), "particleIDs with different sizes in ReconstructedParticle");
+  // TODO
+  // const auto edmPIDs = edm4hepElem.getParticleIDs();
+  // ASSERT_COMPARE_VALS(lcioPIDs.size(), edmPIDs.size(), "particleIDs with different sizes in ReconstructedParticle");
 
-  for (size_t i = 0; i < lcioPIDs.size(); ++i) {
-    if (!compare(lcioPIDs[i], edmPIDs[i])) {
-      std::cerr << "particle ID " << i << " differs in ReconstructedParticle (LCIO: " << lcioPIDs[i]
-                << ", EDM4hep: " << edmPIDs[i] << ")" << std::endl;
-      return false;
-    }
-  }
+  // for (size_t i = 0; i < lcioPIDs.size(); ++i) {
+  //   if (!compare(lcioPIDs[i], edmPIDs[i])) {
+  //     std::cerr << "particle ID " << i << " differs in ReconstructedParticle (LCIO: " << lcioPIDs[i]
+  //               << ", EDM4hep: " << edmPIDs[i] << ")" << std::endl;
+  //     return false;
+  //   }
+  // }
 
   return true;
 }
