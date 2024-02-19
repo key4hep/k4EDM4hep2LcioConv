@@ -200,9 +200,9 @@ namespace LCIO2EDM4hepConv {
    * Convert a ReconstructedParticle collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    *
-   * NOTE: Also populates a ParticleID collection, as those are persisted as
+   * NOTE: Also populates ParticleID collections, as those are persisted as
    * part of the ReconstructedParticles in LCIO. The name of this collection is
-   * <name>_particleIDs
+   * <name>_<pid_algo_name>
    */
   template<typename RecoMapT, typename PIDMapT>
   std::vector<CollNamePair> convertReconstructedParticles(
