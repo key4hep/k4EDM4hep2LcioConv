@@ -193,18 +193,25 @@ bool compare(
   ASSERT_COMPARE_RELATION(
     lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices, "startVertex in ReconstructedParticle");
 
+  // ParticleIDs need special treatment because they live in different
+  // collections in EDM4hep. Here we make sure that all ParticleIDs have been
+  // converted and mapped correctly by checking the ParticleID content and
+  // making sure that it points back to the converted reco particle
   const auto& lcioPIDs = lcioElem->getParticleIDs();
-  // TODO
-  // const auto edmPIDs = edm4hepElem.getParticleIDs();
-  // ASSERT_COMPARE_VALS(lcioPIDs.size(), edmPIDs.size(), "particleIDs with different sizes in ReconstructedParticle");
-
-  // for (size_t i = 0; i < lcioPIDs.size(); ++i) {
-  //   if (!compare(lcioPIDs[i], edmPIDs[i])) {
-  //     std::cerr << "particle ID " << i << " differs in ReconstructedParticle (LCIO: " << lcioPIDs[i]
-  //               << ", EDM4hep: " << edmPIDs[i] << ")" << std::endl;
-  //     return false;
-  //   }
-  // }
+  for (size_t i = 0; i < lcioPIDs.size(); ++i) {
+    if (auto it = objectMaps.particleIDs.find(lcioPIDs[i]); it != objectMaps.particleIDs.end()) {
+      const auto& [lcioPid, edm4hepPid] = *it;
+      if (!compare(lcioPid, edm4hepPid) || edm4hepPid.getParticle() != edm4hepElem) {
+        std::cerr << "particle ID " << i << " is not mapped to the correct EDM4hep particle ID (LCIO: " << lcioPid
+                  << ", EDM4hep: " << edm4hepPid << ")" << std::endl;
+        return false;
+      }
+    }
+    else {
+      std::cerr << "Cannot find a converted ParticleID object for particle ID " << i << std::endl;
+      return false;
+    }
+  }
 
   return true;
 }
