@@ -59,12 +59,10 @@ inline bool nanSafeComp(T x, U y)
 
 // Only enable for vectors
 template<typename T, typename = void>
-struct has_size_method : std::false_type {
-};
+struct has_size_method : std::false_type {};
 
 template<typename T>
-struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {
-};
+struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {};
 
 template<typename T, typename... Ts>
 constexpr bool isAnyOf = (std::is_same_v<T, Ts> || ...);
@@ -178,7 +176,7 @@ inline bool compareRelation(
     // not fill relations if the original relations in LCIO were empty
     const auto nonNullLcio =
       std::count_if(lcioRange.begin(), lcioRange.end(), [](const auto e) { return e != nullptr; });
-    if (nonNullLcio != edm4hepRange.size()) {
+    if ((unsigned) nonNullLcio != edm4hepRange.size()) {
       std::cerr << msg << " different sizes (even after taking null values into account)" << std::endl;
       return false;
     }

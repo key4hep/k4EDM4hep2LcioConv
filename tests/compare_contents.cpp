@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
         return 1;
       }
 
-      if (edmEvent.get(name)->size() != lcioColl->getNumberOfElements()) {
+      if (edmEvent.get(name)->size() != (unsigned) lcioColl->getNumberOfElements()) {
         std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
                   << ", EDM4hep: " << coll->size() << std::endl;
         return 1;
