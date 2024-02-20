@@ -117,12 +117,9 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  template<typename RecoMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertReconstructedParticles(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    RecoMapT& recoparticlesMap,
-    PIDMapT& particleIDMap)
+  template<typename RecoMapT>
+  std::vector<CollNamePair>
+  convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection, RecoMapT& recoparticlesMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
 
@@ -163,12 +160,6 @@ namespace LCIO2EDM4hepConv {
       for (const auto lcioPid : rval->getParticleIDs()) {
         auto pid = convertParticleID(lcioPid);
         pid.setParticle(lval);
-        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(
-          lcioPid, pid, particleIDMap, k4EDM4hep2LcioConv::detail::InsertMode::Checked);
-        if (!pidInserted) {
-          // Does this ever happen?
-          std::cerr << "WARNING: Duplicating an LCIO ParticleID object during conversion" << std::endl;
-        }
         if (auto pidIt = particleIDs.find(pid.getAlgorithmType()); pidIt != particleIDs.end()) {
           pidIt->second->push_back(pid);
         }
@@ -482,7 +473,6 @@ namespace LCIO2EDM4hepConv {
   std::unique_ptr<edm4hep::ClusterCollection>
   convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap)
   {
-    auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     auto dest = std::make_unique<edm4hep::ClusterCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -520,7 +510,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertMCParticles(name, LCCollection, typeMapping.mcParticles));
     }
     else if (type == "ReconstructedParticle") {
-      return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles, typeMapping.particleIDs);
+      return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles);
     }
     else if (type == "Vertex") {
       retColls.emplace_back(name, convertVertices(name, LCCollection, typeMapping.vertices));
