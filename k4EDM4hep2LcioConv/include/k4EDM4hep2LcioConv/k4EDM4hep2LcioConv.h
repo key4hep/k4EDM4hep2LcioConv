@@ -123,23 +123,19 @@ namespace EDM4hep2LCIOConv {
     const edm4hep::RawCalorimeterHitCollection* const rawcalohit_coll,
     RawCaloHitMapT& raw_calo_hits_vec);
 
-  template<typename SimCaloHitMapT, typename MCParticleMapT>
+  template<typename SimCaloHitMapT>
   lcio::LCCollectionVec* convSimCalorimeterHits(
     const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
     const std::string& cellIDstr,
-    SimCaloHitMapT& sim_calo_hits_vec,
-    const MCParticleMapT& mcparticles);
+    SimCaloHitMapT& sim_calo_hits_vec);
 
   template<typename TPCHitMapT>
   lcio::LCCollectionVec* convTPCHits(
     const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
     TPCHitMapT& tpc_hits_vec);
 
-  template<typename ClusterMapT, typename CaloHitMapT>
-  lcio::LCCollectionVec* convClusters(
-    const edm4hep::ClusterCollection* const cluster_coll,
-    ClusterMapT& cluster_vec,
-    const CaloHitMapT& calohits_vec);
+  template<typename ClusterMapT>
+  lcio::LCCollectionVec* convClusters(const edm4hep::ClusterCollection* const cluster_coll, ClusterMapT& cluster_vec);
 
   template<typename VertexMapT, typename RecoPartMapT>
   lcio::LCCollectionVec* convVertices(

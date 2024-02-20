@@ -28,7 +28,7 @@ int main()
     }
     try {
       const auto* lcColl = lcioEvent->getCollection(name);
-      if (lcColl->getNumberOfElements() != edmColl->size()) {
+      if ((unsigned) lcColl->getNumberOfElements() != edmColl->size()) {
         std::cerr << "Collection " << name << " has different sizes. EDM4hep: " << edmColl->size()
                   << ", LCIO: " << lcColl->getNumberOfElements() << std::endl;
         return 1;

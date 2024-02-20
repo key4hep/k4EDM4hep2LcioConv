@@ -95,7 +95,7 @@ ParsedArgs parseArgs(std::vector<std::string> argv)
     std::exit(0);
   }
 
-  auto argc = argv.size();
+  int argc = argv.size();
   if (argc < 3 || argc > 7) {
     printUsageAndExit();
   }
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 
   podio::ROOTWriter writer(args.outputFile);
 
-  for (auto j = 0u; j < lcreader->getNumberOfRuns(); ++j) {
+  for (int j = 0; j < lcreader->getNumberOfRuns(); ++j) {
     if (j % 1 == 0) {
       std::cout << "processing RunHeader: " << j << std::endl;
     }
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
   }
 
   const int nEvt = args.nEvents > 0 ? args.nEvents : lcreader->getNumberOfEvents();
-  for (auto i = 0u; i < nEvt; ++i) {
+  for (int i = 0; i < nEvt; ++i) {
     if (i % 10 == 0) {
       std::cout << "processing Event: " << i << std::endl;
     }

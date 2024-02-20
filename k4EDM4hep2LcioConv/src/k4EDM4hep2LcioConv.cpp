@@ -62,7 +62,7 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits, objectMappings.mcParticles);
+        auto lcColl = convSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
@@ -70,7 +70,7 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
-        auto lcColl = convClusters(coll, objectMappings.clusters, objectMappings.caloHits);
+        auto lcColl = convClusters(coll, objectMappings.clusters);
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
@@ -89,7 +89,7 @@ namespace EDM4hep2LCIOConv {
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
         convEventHeader(coll, lcioEvent.get());
       }
-      else if (auto coll = dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
+      else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
         // "converted" as part of FillMissingCollectoins at the end
         continue;
       }

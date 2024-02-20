@@ -22,7 +22,7 @@ namespace EDM4hep2LCIOConv {
         // The Type of the Tracks need to be set bitwise in LCIO since the setType(int) function is private for the LCIO
         // TrackImpl and only a setTypeBit(bitnumber) function can be used to set the Type bit by bit.
         int type = edm_tr.getType();
-        for (int i = 0; i < sizeof(int) * 8; i++) {
+        for (auto i = 0u; i < sizeof(int) * 8; i++) {
           lcio_tr->setTypeBit(i, type & (1 << i));
         }
         lcio_tr->setChi2(edm_tr.getChi2());
@@ -33,7 +33,7 @@ namespace EDM4hep2LCIOConv {
 
         // Loop over the hit Numbers in the track
         lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
-        for (int i = 0; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
+        for (auto i = 0u; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
           lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubdetectorHitNumbers(i);
         }
 
@@ -41,7 +41,7 @@ namespace EDM4hep2LCIOConv {
         const int hit_number_limit = 50;
         if (edm_tr.subdetectorHitNumbers_size() < hit_number_limit) {
           lcio_tr->subdetectorHitNumbers().resize(hit_number_limit);
-          for (int i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit; ++i) {
+          for (auto i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit; ++i) {
             lcio_tr->subdetectorHitNumbers()[i] = 0;
           }
         }
@@ -326,12 +326,11 @@ namespace EDM4hep2LCIOConv {
   // Convert EDM4hep Sim Calorimeter Hits to LCIO
   // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
   // Add converted LCIO Collection Vector to LCIO event
-  template<typename SimCaloHitMapT, typename MCParticleMapT>
+  template<typename SimCaloHitMapT>
   lcio::LCCollectionVec* convSimCalorimeterHits(
     const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
     const std::string& cellIDstr,
-    SimCaloHitMapT& sim_calo_hits_vec,
-    const MCParticleMapT& mcparticles)
+    SimCaloHitMapT& sim_calo_hits_vec)
   {
     auto* simcalohits = new lcio::LCCollectionVec(lcio::LCIO::SIMCALORIMETERHIT);
 
@@ -387,7 +386,7 @@ namespace EDM4hep2LCIOConv {
         lcio_tpchit->setQuality(edm_tpchit.getQuality());
 
         std::vector<int> rawdata;
-        for (int i = 0; i < edm_tpchit.adcCounts_size(); ++i) {
+        for (auto i = 0u; i < edm_tpchit.adcCounts_size(); ++i) {
           rawdata.push_back(edm_tpchit.getAdcCounts(i));
         }
 
@@ -407,11 +406,8 @@ namespace EDM4hep2LCIOConv {
   // Convert EDM4hep Clusters to LCIO
   // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
   // Add converted LCIO Collection Vector to LCIO event
-  template<typename ClusterMapT, typename CaloHitMapT>
-  lcio::LCCollectionVec* convClusters(
-    const edm4hep::ClusterCollection* const cluster_coll,
-    ClusterMapT& cluster_vec,
-    const CaloHitMapT& calohits_vec)
+  template<typename ClusterMapT>
+  lcio::LCCollectionVec* convClusters(const edm4hep::ClusterCollection* const cluster_coll, ClusterMapT& cluster_vec)
   {
     auto* clusters = new lcio::LCCollectionVec(lcio::LCIO::CLUSTER);
 
@@ -421,7 +417,7 @@ namespace EDM4hep2LCIOConv {
         auto* lcio_cluster = new lcio::ClusterImpl();
 
         std::bitset<sizeof(uint32_t)> type_bits = edm_cluster.getType();
-        for (int j = 0; j < sizeof(uint32_t); j++) {
+        for (auto j = 0u; j < sizeof(uint32_t); j++) {
           lcio_cluster->setTypeBit(j, (type_bits[j] == 0) ? false : true);
         }
         lcio_cluster->setEnergy(edm_cluster.getEnergy());
@@ -578,7 +574,7 @@ namespace EDM4hep2LCIOConv {
             is_same = is_same && (lcio_pid->getPDG() == edm_pid_used.getPDG());
             is_same = is_same && (lcio_pid->getLikelihood() == edm_pid_used.getLikelihood());
             is_same = is_same && (lcio_pid->getAlgorithmType() == edm_pid_used.getAlgorithmType());
-            for (int i = 0; i < edm_pid_used.parameters_size(); ++i) {
+            for (auto i = 0u; i < edm_pid_used.parameters_size(); ++i) {
               is_same = is_same && (edm_pid_used.getParameters(i) == lcio_pid->getParameters()[i]);
             }
             if (is_same) {
@@ -800,7 +796,7 @@ namespace EDM4hep2LCIOConv {
     // collection(s) should be converted!
     for (auto& [lcio_sch, edm_sch] : update_pairs.simCaloHits) {
       // add associated Contributions (MCParticles)
-      for (int i = 0; i < edm_sch.contributions_size(); ++i) {
+      for (auto i = 0u; i < edm_sch.contributions_size(); ++i) {
         const auto& contrib = edm_sch.getContributions(i);
         if (not contrib.isAvailable()) {
           // We need a logging library independent of Gaudi for this!
@@ -810,7 +806,6 @@ namespace EDM4hep2LCIOConv {
         auto edm_contrib_mcp = contrib.getParticle();
         std::array<float, 3> step_position {
           contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
-        bool mcp_found = false;
         EVENT::MCParticle* lcio_mcp = nullptr;
         if (edm_contrib_mcp.isAvailable()) {
           // if we have the MCParticle we look for its partner
