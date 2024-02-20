@@ -59,10 +59,12 @@ inline bool nanSafeComp(T x, U y)
 
 // Only enable for vectors
 template<typename T, typename = void>
-struct has_size_method : std::false_type {};
+struct has_size_method : std::false_type {
+};
 
 template<typename T>
-struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {};
+struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>> : std::true_type {
+};
 
 template<typename T, typename... Ts>
 constexpr bool isAnyOf = (std::is_same_v<T, Ts> || ...);

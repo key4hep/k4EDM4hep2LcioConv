@@ -44,7 +44,6 @@ find_package(LCIO 2.20.1 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP 0.10.1 REQUIRED)
 
-
 add_subdirectory(k4EDM4hep2LcioConv)
 add_subdirectory(standalone)
 
