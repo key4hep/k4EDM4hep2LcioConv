@@ -37,10 +37,13 @@ endif()
 
 # Ninja compiler output
 include(cmake/compiler_output.cmake)
+include(cmake/build_flags.cmake)
+k4edm4hep2lcioconv_set_compiler_flags()
 
 find_package(LCIO 2.20.1 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP 0.10.1 REQUIRED)
+
 
 add_subdirectory(k4EDM4hep2LcioConv)
 add_subdirectory(standalone)
