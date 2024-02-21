@@ -700,6 +700,31 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
+  template<typename ClusterMapT, typename CaloHitMapT>
+  void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap)
+  {
+    // Resolve relations for clusters
+    for (auto& [lcio_cluster, edm_cluster] : clustersMap) {
+      for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
+        if (edm_linked_cluster.isAvailable()) {
+          if (
+            const auto lcio_cluster_linked =
+              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, clustersMap)) {
+            lcio_cluster->addCluster(lcio_cluster_linked.value());
+          }
+        }
+      }
+
+      for (const auto& edm_calohit : edm_cluster.getHits()) {
+        if (edm_calohit.isAvailable()) {
+          if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, caloHitMap)) {
+            lcio_cluster->addHit(lcio_calohit.value(), 1.0);
+          }
+        }
+      }
+    }
+  }
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& collection_pairs)
   {
@@ -766,26 +791,7 @@ namespace EDM4hep2LCIOConv {
 
     resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
 
-    // Resolve relations for clusters
-    for (auto& [lcio_cluster, edm_cluster] : update_pairs.clusters) {
-      for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
-        if (edm_linked_cluster.isAvailable()) {
-          if (
-            const auto lcio_cluster_linked =
-              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, lookup_pairs.clusters)) {
-            lcio_cluster->addCluster(lcio_cluster_linked.value());
-          }
-        }
-      }
-
-      for (const auto& edm_calohit : edm_cluster.getHits()) {
-        if (edm_calohit.isAvailable()) {
-          if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, lookup_pairs.caloHits)) {
-            lcio_cluster->addHit(lcio_calohit.value(), 1.0);
-          }
-        }
-      }
-    }
+    resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);
   }
 
 } // namespace EDM4hep2LCIOConv

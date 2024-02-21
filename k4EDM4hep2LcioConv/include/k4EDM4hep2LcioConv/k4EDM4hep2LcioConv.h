@@ -349,6 +349,12 @@ namespace EDM4hep2LCIOConv {
     const ClusterMapT& clusterMap,
     const TrackMapT& trackMap);
 
+  /**
+   * Resolve the relations for Clusters
+   */
+  template<typename ClusterMapT, typename CaloHitMapT>
+  void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap);
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& update_pairs);
 
