@@ -364,13 +364,16 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
   collections.reserve(recoIdcs.size());
 
   int algoId = 0;
+  float param = 0;
   for (const auto& idcs : recoIdcs) {
     algoId++;
     auto& coll = collections.emplace_back();
     for (const auto idx : idcs) {
       auto pid = coll.create();
       pid.setAlgorithmType(algoId);
+      pid.setType(idx);
       pid.setParticle(recoParticles[idx]);
+      pid.addToParameters(param++);
     }
   }
 

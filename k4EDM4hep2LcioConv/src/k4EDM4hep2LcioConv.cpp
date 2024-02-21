@@ -1,6 +1,6 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 #include "edm4hep/Constants.h"
-#include "EVENT/MCParticle.h"
+#include "UTIL/PIDHandler.h"
 
 namespace EDM4hep2LCIOConv {
 
@@ -29,10 +29,21 @@ namespace EDM4hep2LCIOConv {
     return std::find(coll->begin(), coll->end(), collection_name) != coll->end();
   }
 
+  std::tuple<std::string, std::string> getPidAlgoName(const std::string& collectionName)
+  {
+    const auto pidPos = collectionName.find("_PID_");
+    return {collectionName.substr(pidPos + 5), collectionName.substr(0, pidPos)};
+  }
+
   std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
   {
     auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
     auto objectMappings = CollectionsPairVectors {};
+
+    // We simply collect all pairs of PID algorithm names and the RecoParticle
+    // collection to which they belong (assuming the naming convention
+    // introduced in the LCIO to EDM4hep conversion)
+    std::vector<std::tuple<std::string, std::string>> pidAlgoNames;
 
     const auto& collections = edmEvent.getAvailableCollections();
     for (const auto& name : collections) {
@@ -92,11 +103,12 @@ namespace EDM4hep2LCIOConv {
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
         convertEventHeader(coll, lcioEvent.get());
       }
-      else if (
-        dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection) ||
-        dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
-        // "converted" as part of FillMissingCollectoins at the end or as part
-        // of the reconstructed particle
+      else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
+        convertParticleIDs(coll, objectMappings.particleIDs, pidAlgoNames.size());
+        pidAlgoNames.emplace_back(getPidAlgoName(name));
+      }
+      else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
+        // "converted" during relation resolving later
         continue;
       }
       else {
@@ -108,6 +120,12 @@ namespace EDM4hep2LCIOConv {
                   << "SimCalorimeterHit, Vertex, ReconstructedParticle, "
                   << "MCParticle." << std::endl;
       }
+    }
+
+    for (const auto& [algoName, recoCollName] : pidAlgoNames) {
+      std::cout << "Adding PID algo " << algoName << " to reco collection " << recoCollName << '\n';
+      UTIL::PIDHandler pidHandler(lcioEvent->getCollection(recoCollName));
+      std::cout << "assigned algo id " << pidHandler.addAlgorithm(algoName, {}) << '\n';
     }
 
     resolveRelations(objectMappings);
