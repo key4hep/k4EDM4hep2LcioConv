@@ -19,6 +19,8 @@ namespace edm4hep {
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/ReconstructedParticleCollection.h"
+#include <edm4hep/ParticleIDCollection.h>
 
 #include "podio/Frame.h"
 
@@ -326,6 +328,42 @@ edm4hep::ClusterCollection createClusters(
   return clusterColl;
 }
 
+std::tuple<edm4hep::ReconstructedParticleCollection, edm4hep::ParticleIDCollection> createRecoParticles(
+  const int nRecos,
+  const edm4hep::TrackCollection& tracks,
+  const std::vector<test_config::IdxPair>& trackIdcs,
+  const edm4hep::ClusterCollection& clusters,
+  const std::vector<test_config::IdxPair>& clusterIdcs,
+  const std::vector<test_config::IdxPair>& recIdcs,
+  const std::vector<test_config::IdxPair>& pidAlgTypes)
+{
+  auto recoColl = edm4hep::ReconstructedParticleCollection {};
+  auto pidColl = edm4hep::ParticleIDCollection {};
+  for (int i = 0; i < nRecos; ++i) {
+    auto reco = recoColl.create();
+    reco.setCharge(1.23f);
+    reco.setMomentum({1.0f, 2.0f * i, 3.0f + i});
+  }
+
+  for (const auto& [recIdx, trkIdx] : trackIdcs) {
+    recoColl[recIdx].addToTracks(tracks[trkIdx]);
+  }
+  for (const auto& [recIdx, cluIdx] : clusterIdcs) {
+    recoColl[recIdx].addToClusters(clusters[cluIdx]);
+  }
+  for (const auto& [fromIdx, toIdx] : recIdcs) {
+    recoColl[fromIdx].addToParticles(recoColl[toIdx]);
+  }
+
+  for (const auto& [recIdx, pidAlgType] : pidAlgTypes) {
+    auto pid = pidColl.create();
+    pid.setAlgorithmType(pidAlgType);
+    recoColl[recIdx].addToParticleIDs(pid);
+  }
+
+  return {std::move(recoColl), std::move(pidColl)};
+}
+
 podio::Frame createExampleEvent()
 {
   podio::Frame event;
@@ -348,7 +386,7 @@ podio::Frame createExampleEvent()
       test_config::trackTrackerHitIdcs,
       test_config::trackTrackIdcs),
     "tracks");
-  event.put(
+  const auto& clusters = event.put(
     createClusters(
       test_config::nClusters,
       caloHits,
@@ -361,6 +399,19 @@ podio::Frame createExampleEvent()
     test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
   event.put(std::move(tmpSimCaloHits), "simCaloHits");
   event.put(std::move(tmpCaloHitConts), "caloHitContributions");
+
+  auto [recColl, pidColl] = createRecoParticles(
+    test_config::nRecoParticles,
+    tracks,
+    test_config::recoTrackIdcs,
+    clusters,
+    test_config::recoClusterIdcs,
+    test_config::recoRecoIdcs,
+    test_config::recoPIDTypes);
+
+  event.put(std::move(recColl), "recos");
+  // Make sure to use the same name as is generated for the LCIO to EDM4hep conversion
+  event.put(std::move(pidColl), "recos_particleIDs");
 
   return event;
 }

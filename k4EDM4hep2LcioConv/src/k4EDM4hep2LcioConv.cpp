@@ -89,8 +89,11 @@ namespace EDM4hep2LCIOConv {
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
         convEventHeader(coll, lcioEvent.get());
       }
-      else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
-        // "converted" as part of FillMissingCollectoins at the end
+      else if (
+        dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection) ||
+        dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
+        // "converted" as part of FillMissingCollectoins at the end or as part
+        // of the reconstructed particle
         continue;
       }
       else {

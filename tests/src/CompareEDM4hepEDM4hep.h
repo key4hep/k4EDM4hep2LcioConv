@@ -21,4 +21,8 @@ bool compare(
 
 bool compare(const edm4hep::ClusterCollection& origColl, const edm4hep::ClusterCollection& roundtripColl);
 
+bool compare(
+  const edm4hep::ReconstructedParticleCollection& origColl,
+  const edm4hep::ReconstructedParticleCollection& roundtripColl);
+
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPEDM4HEP_H

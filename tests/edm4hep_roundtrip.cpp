@@ -27,6 +27,7 @@ int main()
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHit3DCollection, "trackerHits");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes");
   ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters");
+  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "recos");
 
   return 0;
 }

@@ -26,6 +26,8 @@ namespace edm4hep {
   class CaloHitContributionCollection;
   class EventHeaderCollection;
   class ClusterCollection;
+  class ReconstructedParticleCollection;
+  class ParticleIDCollection;
 } // namespace edm4hep
 
 namespace podio {
@@ -88,6 +90,29 @@ namespace test_config {
   /// cluster. First index is the cluster to which the second index cluster will
   /// be added
   const static std::vector<IdxPair> clusterClusterIdcs = {{0, 4}, {0, 3}, {0, 1}, {4, 3}, {4, 2}, {2, 3}, {1, 1}};
+
+  /// The number of reco particles to create
+  constexpr static int nRecoParticles = 6;
+  /// The related clusters that should be associated to the reco particles.
+  /// First index is the reco particle, second is the index of the cluster in
+  /// its collection
+  const static std::vector<IdxPair> recoClusterIdcs = {{0, 4}, {0, 3}, {2, 2}, {5, 1}, {5, 0}};
+
+  /// The related tracks that should be associated to the reco particles. First
+  /// index is the reco particle, second is the index of the track in its
+  /// collection
+  const static std::vector<IdxPair> recoTrackIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}};
+
+  /// The related reco partiles that should be associated to the reco particles.
+  /// First index is the reco particle, second is the index of the related reco
+  /// particle
+  const static std::vector<IdxPair> recoRecoIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}, {1, 2}, {2, 4}};
+
+  /// The ParticleIDs algorithmType that will be create for some reco particles.
+  /// The first index is the reco paritcle to which a ParticleID with algorithm
+  /// type of the second index will be attached
+  const static std::vector<IdxPair> recoPIDTypes = {{0, 1}, {0, 2}, {1, 1}, {2, 1}, {2, 2}, {3, 1}, {4, 2}};
+
 } // namespace test_config
 
 /**
@@ -151,6 +176,15 @@ edm4hep::ClusterCollection createClusters(
   const std::vector<test_config::IdxPair>& clusterHitIdcs,
   const std::vector<test_config::IdxPair>& clusterClusterIdcs);
 
+std::tuple<edm4hep::ReconstructedParticleCollection, edm4hep::ParticleIDCollection> createRecoParticles(
+  const int nRecos,
+  const edm4hep::TrackCollection& tracks,
+  const std::vector<test_config::IdxPair>& trackIdcs,
+  const edm4hep::ClusterCollection& clusters,
+  const std::vector<test_config::IdxPair>& clusterIdcs,
+  const std::vector<test_config::IdxPair>& recIdcs,
+  const std::vector<test_config::IdxPair>& pidAlgTypes);
+
 /**
  * Create an example event that can be used to test the converter.
  *
@@ -159,16 +193,19 @@ edm4hep::ClusterCollection createClusters(
  * The following table gives an overview of the contents. The arguments for
  * calling the individual creation functions are taken from the test_config
  * namespace.
- * | Name                 | Data type           | comment                  |
- * |----------------------+---------------------+--------------------------|
- * | mcParticles          | MCParticle          | createMCParticles        |
- * | caloHits             | CalorimeterHit      | createCalorimeterHits    |
- * | rawCaloHits          | RawCalorimeterHit   | createRawCalorimeterHits |
- * | tpcHits              | RawTimeSeries       | createTPCHits            |
- * | trackerHits          | TrackerHit          | createTrackerHits        |
- * | simCaloHits          | SimCalorimeterHit   | createSimCalorimeterHits |
- * | caloHitContributions | CaloHitContribution | createSimCalorimeterHits |
- * | clusters             | ClusterCollection   | createClusters           |
+ *
+ * | Name                 | Data type                       | comment                  |
+ * |----------------------|---------------------------------|--------------------------|
+ * | mcParticles          | MCParticle                      | createMCParticles        |
+ * | caloHits             | CalorimeterHit                  | createCalorimeterHits    |
+ * | rawCaloHits          | RawCalorimeterHit               | createRawCalorimeterHits |
+ * | tpcHits              | RawTimeSeries                   | createTPCHits            |
+ * | trackerHits          | TrackerHit                      | createTrackerHits        |
+ * | simCaloHits          | SimCalorimeterHit               | createSimCalorimeterHits |
+ * | caloHitContributions | CaloHitContribution             | createSimCalorimeterHits |
+ * | clusters             | ClusterCollection               | createClusters           |
+ * | recos                | ReconstructedParticleCollection | createRecoParticles      |
+ * | recos_particleIDs    | ParticleIDCollection            | createRecoParticles      |
  */
 podio::Frame createExampleEvent();
 
