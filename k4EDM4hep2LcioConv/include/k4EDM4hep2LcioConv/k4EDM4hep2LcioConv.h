@@ -304,11 +304,22 @@ namespace EDM4hep2LCIOConv {
     return convertReconstructedParticles(recos_coll, recoparticles_vec).release();
   }
 
+  /**
+   * Convert EDM4hep MCParticles to LCIO. Simultaneously populate mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
   template<typename MCPartMapT>
-  lcio::LCCollectionVec* convMCParticles(
-    const edm4hep::MCParticleCollection* const mcparticle_coll,
-    MCPartMapT& mc_particles_vec);
+  std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(
+    const edm4hep::MCParticleCollection* const edmCollection,
+    MCPartMapT& mcParticleMap);
 
+  template<typename MCPartMapT>
+  [[deprecated("Use convertMCParticles")]] lcio::LCCollectionVec* convMCParticles(
+    const edm4hep::MCParticleCollection* const mcparticle_coll,
+    MCPartMapT& mc_particles_vec)
+  {
+    return convertMCParticles(mcparticle_coll, mc_particles_vec).release();
+  }
 
   /**
    * Convert EDM4hep EventHeader to LCIO. This will directly populate the
@@ -320,6 +331,12 @@ namespace EDM4hep2LCIOConv {
   [[deprecated("Use convertEventheader instead")]] void convEventHeader(
     const edm4hep::EventHeaderCollection* const header_coll,
     lcio::LCEventImpl* const lcio_event);
+
+  /**
+   * Resolve the relations for MCParticles
+   */
+  template<typename MCParticleMapT, typename MCParticleLookupMapT>
+  void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap, const MCParticleLookupMapT& lookupMap);
 
   /**
    * Resolve the relations for Tracks

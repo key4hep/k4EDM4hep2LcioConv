@@ -521,17 +521,14 @@ namespace EDM4hep2LCIOConv {
     return recops;
   }
 
-  // Convert MC Particles to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
   template<typename MCPartMapT>
-  lcio::LCCollectionVec* convMCParticles(
-    const edm4hep::MCParticleCollection* const mcparticle_coll,
-    MCPartMapT& mc_particles_vec)
+  std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(
+    const edm4hep::MCParticleCollection* const edmCollection,
+    MCPartMapT& mcParticleMap)
   {
-    auto* mcparticles = new lcio::LCCollectionVec(lcio::LCIO::MCPARTICLE);
+    auto mcparticles = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::MCPARTICLE);
 
-    for (const auto& edm_mcp : (*mcparticle_coll)) {
+    for (const auto& edm_mcp : (*edmCollection)) {
       auto* lcio_mcp = new lcio::MCParticleImpl;
       if (edm_mcp.isAvailable()) {
         lcio_mcp->setPDG(edm_mcp.getPDG());
@@ -567,27 +564,30 @@ namespace EDM4hep2LCIOConv {
         lcio_mcp->setOverlay(edm_mcp.isOverlay());
 
         // Add LCIO and EDM4hep pair collections to vec
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_mcp, edm_mcp, mc_particles_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_mcp, edm_mcp, mcParticleMap);
 
         // Add to reconstructed particles collection
         mcparticles->addElement(lcio_mcp);
       }
     }
 
+    return mcparticles;
+  }
+
+  template<typename MCParticleMapT, typename MCParticleLookupMapT>
+  void resolveRelationsMCParticles(MCParticleMapT& mcParticlesMap, const MCParticleLookupMapT& lookupMap)
+  {
     // Add parent MCParticles after converting all MCparticles
-    for (auto& [lcio_mcp, edm_mcp] : mc_particles_vec) {
+    for (auto& [lcio_mcp, edm_mcp] : mcParticlesMap) {
       for (const auto& emd_parent_mcp : edm_mcp.getParents()) {
         if (emd_parent_mcp.isAvailable()) {
           // Search for the parent mcparticle in the converted vector
-          if (
-            const auto lcio_mcp_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(emd_parent_mcp, mc_particles_vec)) {
+          if (const auto lcio_mcp_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(emd_parent_mcp, lookupMap)) {
             lcio_mcp->addParent(lcio_mcp_linked.value());
           }
         }
       }
     }
-
-    return mcparticles;
   }
 
   template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
@@ -771,6 +771,7 @@ namespace EDM4hep2LCIOConv {
   template<typename ObjectMappingT, typename ObjectMappingU>
   void FillMissingCollections(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs)
   {
+    resolveRelationsMCParticles(update_pairs.mcParticles, lookup_pairs.mcParticles);
     resolveRelationsTracks(
       update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.tpcHits, lookup_pairs.trackerHitPlanes);
     resolveRelationsRecoParticles(
