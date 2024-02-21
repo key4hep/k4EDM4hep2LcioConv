@@ -328,17 +328,15 @@ edm4hep::ClusterCollection createClusters(
   return clusterColl;
 }
 
-std::tuple<edm4hep::ReconstructedParticleCollection, edm4hep::ParticleIDCollection> createRecoParticles(
+edm4hep::ReconstructedParticleCollection createRecoParticles(
   const int nRecos,
   const edm4hep::TrackCollection& tracks,
   const std::vector<test_config::IdxPair>& trackIdcs,
   const edm4hep::ClusterCollection& clusters,
   const std::vector<test_config::IdxPair>& clusterIdcs,
-  const std::vector<test_config::IdxPair>& recIdcs,
-  const std::vector<test_config::IdxPair>& pidAlgTypes)
+  const std::vector<test_config::IdxPair>& recIdcs)
 {
   auto recoColl = edm4hep::ReconstructedParticleCollection {};
-  auto pidColl = edm4hep::ParticleIDCollection {};
   for (int i = 0; i < nRecos; ++i) {
     auto reco = recoColl.create();
     reco.setCharge(1.23f);
@@ -355,13 +353,28 @@ std::tuple<edm4hep::ReconstructedParticleCollection, edm4hep::ParticleIDCollecti
     recoColl[fromIdx].addToParticles(recoColl[toIdx]);
   }
 
-  for (const auto& [recIdx, pidAlgType] : pidAlgTypes) {
-    auto pid = pidColl.create();
-    pid.setAlgorithmType(pidAlgType);
-    recoColl[recIdx].addToParticleIDs(pid);
+  return recoColl;
+}
+
+std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
+  const std::vector<std::vector<int>>& recoIdcs,
+  const edm4hep::ReconstructedParticleCollection& recoParticles)
+{
+  std::vector<edm4hep::ParticleIDCollection> collections;
+  collections.reserve(recoIdcs.size());
+
+  int algoId = 0;
+  for (const auto& idcs : recoIdcs) {
+    algoId++;
+    auto& coll = collections.emplace_back();
+    for (const auto idx : idcs) {
+      auto pid = coll.create();
+      pid.setAlgorithmType(algoId);
+      pid.setParticle(recoParticles[idx]);
+    }
   }
 
-  return {std::move(recoColl), std::move(pidColl)};
+  return collections;
 }
 
 podio::Frame createExampleEvent()
@@ -401,18 +414,22 @@ podio::Frame createExampleEvent()
   event.put(std::move(tmpSimCaloHits), "simCaloHits");
   event.put(std::move(tmpCaloHitConts), "caloHitContributions");
 
-  auto [recColl, pidColl] = createRecoParticles(
-    test_config::nRecoParticles,
-    tracks,
-    test_config::recoTrackIdcs,
-    clusters,
-    test_config::recoClusterIdcs,
-    test_config::recoRecoIdcs,
-    test_config::recoPIDTypes);
+  const auto& recoColl = event.put(
+    createRecoParticles(
+      test_config::nRecoParticles,
+      tracks,
+      test_config::recoTrackIdcs,
+      clusters,
+      test_config::recoClusterIdcs,
+      test_config::recoRecoIdcs),
+    "recos");
 
-  event.put(std::move(recColl), "recos");
-  // Make sure to use the same name as is generated for the LCIO to EDM4hep conversion
-  event.put(std::move(pidColl), "recos_particleIDs");
+  int algoId = 1;
+  for (auto& pidColl : createParticleIDs(test_config::pidRecoIdcs, recoColl)) {
+    // Make sure to use the same name as is generated for the LCIO to EDM4hep
+    // conversion
+    event.put(std::move(pidColl), "recos_PID_algo" + std::to_string(algoId++));
+  }
 
   return event;
 }
