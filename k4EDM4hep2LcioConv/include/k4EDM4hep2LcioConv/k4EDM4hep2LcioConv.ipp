@@ -420,19 +420,15 @@ namespace EDM4hep2LCIOConv {
     return clusters;
   }
 
-  // Convert EDM4hep Vertices to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
-  template<typename VertexMapT, typename RecoPartMapT>
-  lcio::LCCollectionVec* convVertices(
-    const edm4hep::VertexCollection* const vertex_coll,
-    VertexMapT& vertex_vec,
-    const RecoPartMapT& recoparticles_vec)
+  template<typename VertexMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertVertices(
+    const edm4hep::VertexCollection* const edmCollection,
+    VertexMapT& vertexMap)
   {
-    auto* vertices = new lcio::LCCollectionVec(lcio::LCIO::VERTEX);
+    auto vertices = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::VERTEX);
 
     // Loop over EDM4hep vertex converting them to lcio vertex
-    for (const auto& edm_vertex : (*vertex_coll)) {
+    for (const auto& edm_vertex : (*edmCollection)) {
       if (edm_vertex.isAvailable()) {
         auto* lcio_vertex = new lcio::VertexImpl();
         lcio_vertex->setPrimary(edm_vertex.getPrimary());
@@ -446,19 +442,8 @@ namespace EDM4hep2LCIOConv {
           lcio_vertex->addParameter(param);
         }
 
-        // Link sinlge associated Particle if found in converted ones
-        edm4hep::ReconstructedParticle vertex_rp = edm_vertex.getAssociatedParticle();
-        if (vertex_rp.isAvailable()) {
-          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(vertex_rp, recoparticles_vec)) {
-            lcio_vertex->setAssociatedParticle(lcio_rp.value());
-          }
-          else {
-            lcio_vertex->setAssociatedParticle(nullptr);
-          }
-        }
-
         // Add LCIO and EDM4hep pair collections to vec
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_vertex, edm_vertex, vertex_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_vertex, edm_vertex, vertexMap);
 
         // Add to lcio tracks collection
         vertices->addElement(lcio_vertex);
@@ -701,6 +686,19 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
+  template<typename VertexMapT, typename RecoParticleMapT>
+  void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap)
+  {
+    for (auto& [lcio_vertex, edm_vertex] : vertexMap) {
+      const auto edm_rp = edm_vertex.getAssociatedParticle();
+      if (edm_rp.isAvailable()) {
+        if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, recoParticleMap)) {
+          lcio_vertex->setAssociatedParticle(lcio_rp.value());
+        }
+      }
+    }
+  }
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& collection_pairs)
   {
@@ -753,19 +751,7 @@ namespace EDM4hep2LCIOConv {
 
     } // reconstructed particles
 
-    // Fill missing Vertices collections
-    for (auto& [lcio_vertex, edm_vertex] : update_pairs.vertices) {
-      // Link Reconstructed Particles
-      if (lcio_vertex->getAssociatedParticle() == nullptr) {
-        const auto edm_rp = edm_vertex.getAssociatedParticle();
-        if (edm_rp.isAvailable()) {
-          if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, lookup_pairs.recoParticles)) {
-            lcio_vertex->setAssociatedParticle(lcio_rp.value());
-          }
-        }
-      }
-
-    } // vertices
+    resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
 
     // Fill SimCaloHit collections with contributions
     //

@@ -74,8 +74,8 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
-        auto lcColl = convVertices(coll, objectMappings.vertices, objectMappings.recoParticles);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertVertices(coll, objectMappings.vertices);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::MCParticleCollection*>(edmCollection)) {
         auto lcColl = convMCParticles(coll, objectMappings.mcParticles);

@@ -267,11 +267,21 @@ namespace EDM4hep2LCIOConv {
     return convClusters(cluster_coll, cluster_vec);
   }
 
+  /**
+   * Convert EDM4hep Vertices to LCIO. Simultaneously populate mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename VertexMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertVertices(
+    const edm4hep::VertexCollection* const edmCollection,
+    VertexMapT& vertexMap);
+
   template<typename VertexMapT, typename RecoPartMapT>
-  lcio::LCCollectionVec* convVertices(
-    const edm4hep::VertexCollection* const vertex_coll,
-    VertexMapT& vertex_vec,
-    const RecoPartMapT& recoparticles_vec);
+  [[deprecated("Use convertVertices instead")]] lcio::LCCollectionVec*
+  convVertices(const edm4hep::VertexCollection* const vertex_coll, VertexMapT& vertex_vec, const RecoPartMapT&)
+  {
+    return convertVertices(vertex_coll, vertex_vec).release();
+  }
 
   template<typename RecoPartMapT, typename TrackMapT, typename VertexMapT, typename ClusterMapT>
   lcio::LCCollectionVec* convReconstructedParticles(
@@ -303,6 +313,12 @@ namespace EDM4hep2LCIOConv {
    */
   template<typename SimTrHitMapT, typename MCParticleMapT>
   void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap);
+
+  /**
+   * Resolve the relations for Vertex
+   */
+  template<typename VertexMapT, typename RecoParticleMapT>
+  void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
 
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& update_pairs);
