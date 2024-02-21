@@ -309,7 +309,17 @@ namespace EDM4hep2LCIOConv {
     const edm4hep::MCParticleCollection* const mcparticle_coll,
     MCPartMapT& mc_particles_vec);
 
-  void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
+
+  /**
+   * Convert EDM4hep EventHeader to LCIO. This will directly populate the
+   * corresponding information in the passed LCEvent. The input collection needs
+   * to be of length 1!
+   */
+  void convertEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
+
+  [[deprecated("Use convertEventheader instead")]] void convEventHeader(
+    const edm4hep::EventHeaderCollection* const header_coll,
+    lcio::LCEventImpl* const lcio_event);
 
   /**
    * Resolve the relations for Tracks

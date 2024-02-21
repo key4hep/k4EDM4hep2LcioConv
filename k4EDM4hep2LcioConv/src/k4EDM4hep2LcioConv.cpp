@@ -4,8 +4,12 @@
 
 namespace EDM4hep2LCIOConv {
 
-  // The EventHeaderCollection should be of length 1
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
+  {
+    convertEventHeader(header_coll, lcio_event);
+  }
+
+  void convertEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
   {
     if (header_coll->size() != 1) {
       return;
@@ -86,7 +90,7 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
-        convEventHeader(coll, lcioEvent.get());
+        convertEventHeader(coll, lcioEvent.get());
       }
       else if (
         dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection) ||
