@@ -38,8 +38,8 @@ namespace EDM4hep2LCIOConv {
         metadata.getParameter<std::string>(podio::collMetadataParamName(name, edm4hep::CellIDEncoding));
 
       if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
-        auto lcColl = convTracks(coll, objectMappings.tracks, objectMappings.trackerHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTracks(coll, objectMappings.tracks);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
         auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerHits);

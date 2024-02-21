@@ -87,11 +87,21 @@ namespace EDM4hep2LCIOConv {
     ObjectMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcParticles {};
   };
 
+  /**
+   * Convert EDM4hep Tracks to LCIO. Simultaneously populate the mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename TrackMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertTracks(
+    const edm4hep::TrackCollection* const edmCollection,
+    TrackMapT& trackMap);
+
   template<typename TrackMapT, typename TrackerHitMapT>
-  lcio::LCCollectionVec* convTracks(
-    const edm4hep::TrackCollection* const tracks_coll,
-    TrackMapT& tracks_vec,
-    const TrackerHitMapT& trackerhits_vec);
+  [[deprecated("Use convertTracks instead")]] lcio::LCCollectionVec*
+  convTracks(const edm4hep::TrackCollection* const tracks_coll, TrackMapT& tracks_vec, const TrackerHitMapT&)
+  {
+    return convertTracks(tracks_coll, tracks_vec).release();
+  }
 
   template<typename TrackerHitMapT>
   lcio::LCCollectionVec* convTrackerHits(
@@ -174,6 +184,16 @@ namespace EDM4hep2LCIOConv {
     MCPartMapT& mc_particles_vec);
 
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event);
+
+  /**
+   * Resolve the relations for Tracks
+   */
+  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
+  void resolveRelationsTracks(
+    TrackMapT& tracksMap,
+    const TrackHitMapT& trackerHitMap,
+    const TPCHitMapT&,
+    const THPlaneHitMapT&);
 
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& update_pairs);

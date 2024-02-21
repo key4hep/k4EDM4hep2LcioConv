@@ -4,19 +4,15 @@
 
 namespace EDM4hep2LCIOConv {
 
-  // Convert EDM4hep Tracks to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add LCIO Collection Vector to LCIO event
-  template<typename TrackMapT, typename TrackerHitMapT>
-  lcio::LCCollectionVec* convTracks(
-    const edm4hep::TrackCollection* const tracks_coll,
-    TrackMapT& tracks_vec,
-    const TrackerHitMapT& trackerhits_vec)
+  template<typename TrackMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertTracks(
+    const edm4hep::TrackCollection* const edmCollection,
+    TrackMapT& trackMap)
   {
-    auto* tracks = new lcio::LCCollectionVec(lcio::LCIO::TRACK);
+    auto tracks = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACK);
 
     // Loop over EDM4hep tracks converting them to lcio tracks.
-    for (const auto& edm_tr : (*tracks_coll)) {
+    for (const auto& edm_tr : (*edmCollection)) {
       if (edm_tr.isAvailable()) {
         auto* lcio_tr = new lcio::TrackImpl();
         // The Type of the Tracks need to be set bitwise in LCIO since the setType(int) function is private for the LCIO
@@ -46,17 +42,8 @@ namespace EDM4hep2LCIOConv {
           }
         }
 
-        // Link multiple associated TrackerHits if found in converted ones
-        for (const auto& edm_rp_trh : edm_tr.getTrackerHits()) {
-          if (edm_rp_trh.isAvailable()) {
-            if (const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp_trh, trackerhits_vec)) {
-              lcio_tr->addHit(lcio_trh.value());
-            }
-          }
-        }
-
         // Loop over the track states in the track
-        const podio::RelationRange<edm4hep::TrackState> edm_track_states = edm_tr.getTrackStates();
+        const auto edm_track_states = edm_tr.getTrackStates();
         for (const auto& tr_state : edm_track_states) {
           const auto& cov = tr_state.covMatrix;
           std::array<float, 3> refP = {tr_state.referencePoint.x, tr_state.referencePoint.y, tr_state.referencePoint.z};
@@ -75,21 +62,10 @@ namespace EDM4hep2LCIOConv {
         }
 
         // Save intermediate tracks ref
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_tr, edm_tr, tracks_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_tr, edm_tr, trackMap);
 
         // Add to lcio tracks collection
         tracks->addElement(lcio_tr);
-      }
-    }
-
-    // Link associated tracks after converting all tracks
-    for (auto& [lcio_tr, edm_tr] : tracks_vec) {
-      for (const auto& edm_linked_tr : edm_tr.getTracks()) {
-        if (edm_linked_tr.isAvailable()) {
-          // Search the linked track in the converted vector
-          if (const auto lcio_tr_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_tr, tracks_vec))
-            lcio_tr->addTrack(lcio_tr_linked.value());
-        }
       }
     }
 
@@ -711,6 +687,36 @@ namespace EDM4hep2LCIOConv {
     return mcparticles;
   }
 
+  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
+  void resolveRelationsTracks(
+    TrackMapT& tracksMap,
+    const TrackHitMapT& trackerHitMap,
+    const TPCHitMapT&,
+    const THPlaneHitMapT&)
+  {
+    for (auto& [lcio_tr, edm_tr] : tracksMap) {
+      auto tracks = edm_tr.getTracks();
+      for (auto t : tracks) {
+        if (!t.isAvailable()) {
+          continue;
+        }
+        if (const auto track = k4EDM4hep2LcioConv::detail::mapLookupFrom(t, tracksMap)) {
+          lcio_tr->addTrack(track.value());
+        }
+      }
+
+      auto trackerHits = edm_tr.getTrackerHits();
+      for (auto th : trackerHits) {
+        if (!th.isAvailable()) {
+          continue;
+        }
+        if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitMap)) {
+          lcio_tr->addHit(hit.value());
+        }
+      }
+    }
+  }
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& collection_pairs)
   {
@@ -723,21 +729,8 @@ namespace EDM4hep2LCIOConv {
   template<typename ObjectMappingT, typename ObjectMappingU>
   void FillMissingCollections(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs)
   {
-    // Fill missing Tracks collections
-    for (auto& [lcio_tr, edm_tr] : update_pairs.tracks) {
-      if (lcio_tr->getTrackerHits().size() == 0) {
-        for (const auto& edm_tr_trh : edm_tr.getTrackerHits()) {
-          if (const auto lcio_trh = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, lookup_pairs.trackerHits)) {
-            lcio_tr->addHit(lcio_trh.value());
-          }
-          else if (
-            const auto lcio_trh =
-              k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_tr_trh, lookup_pairs.trackerHitPlanes)) {
-            lcio_tr->addHit(lcio_trh.value());
-          }
-        }
-      }
-    }
+    resolveRelationsTracks(
+      update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.tpcHits, lookup_pairs.trackerHitPlanes);
 
     // Fill missing ReconstructedParticle collections
     for (auto& [lcio_rp, edm_rp] : update_pairs.recoParticles) {
