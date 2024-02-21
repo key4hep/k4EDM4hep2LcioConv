@@ -159,24 +159,20 @@ namespace EDM4hep2LCIOConv {
     return trackerHitPlanes;
   }
 
-  // Convert EDM4hep SimTrackerHits to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add LCIO Collection Vector to LCIO event
-  template<typename SimTrHitMapT, typename MCParticleMapT>
-  lcio::LCCollectionVec* convSimTrackerHits(
-    const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll,
+  template<typename SimTrHitMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertSimTrackerHits(
+    const edm4hep::SimTrackerHitCollection* const edmCollection,
     const std::string& cellIDstr,
-    SimTrHitMapT& simtrackerhits_vec,
-    const MCParticleMapT& mcparticles_vec)
+    SimTrHitMapT& simTrHitMap)
   {
-    auto* simtrackerhits = new lcio::LCCollectionVec(lcio::LCIO::SIMTRACKERHIT);
+    auto simtrackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMTRACKERHIT);
 
     if (cellIDstr != "") {
-      lcio::CellIDEncoder<lcio::SimTrackerHitImpl> idEnc(cellIDstr, simtrackerhits);
+      lcio::CellIDEncoder<lcio::SimTrackerHitImpl> idEnc(cellIDstr, simtrackerhits.get());
     }
 
     // Loop over EDM4hep simtrackerhits converting them to LCIO simtrackerhits
-    for (const auto& edm_strh : (*simtrackerhits_coll)) {
+    for (const auto& edm_strh : (*edmCollection)) {
       if (edm_strh.isAvailable()) {
         auto* lcio_strh = new lcio::SimTrackerHitImpl();
 
@@ -196,20 +192,8 @@ namespace EDM4hep2LCIOConv {
         lcio_strh->setOverlay(edm_strh.isOverlay());
         lcio_strh->setProducedBySecondary(edm_strh.isProducedBySecondary());
 
-        // Link converted MCParticle to the SimTrackerHit if found
-        const auto edm_strh_mcp = edm_strh.getParticle();
-        if (edm_strh_mcp.isAvailable()) {
-          if (const auto& lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcparticles_vec)) {
-            lcio_strh->setMCParticle(lcio_mcp.value());
-          }
-          else {
-            // If MCParticle available, but not found in converted vec, add nullptr
-            lcio_strh->setMCParticle(nullptr);
-          }
-        }
-
         // Save intermediate simtrackerhits ref
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_strh, edm_strh, simtrackerhits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_strh, edm_strh, simTrHitMap);
 
         // Add to lcio simtrackerhits collection
         simtrackerhits->addElement(lcio_strh);
@@ -704,6 +688,19 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
+  template<typename SimTrHitMapT, typename MCParticleMapT>
+  void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap)
+  {
+    for (auto& [lcio_strh, edm_strh] : simTrHitMap) {
+      auto edm_strh_mcp = edm_strh.getMCParticle();
+      if (edm_strh_mcp.isAvailable()) {
+        if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcParticleMap)) {
+          lcio_strh->setMCParticle(lcio_mcp.value());
+        }
+      }
+    }
+  }
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& collection_pairs)
   {
@@ -810,17 +807,7 @@ namespace EDM4hep2LCIOConv {
       lcio_sch->setEnergy(edm_sch.getEnergy());
     } // SimCaloHit
 
-    // Fill missing SimTrackerHit collections
-    for (auto& [lcio_strh, edm_strh] : update_pairs.simTrackerHits) {
-      const auto lcio_strh_mcp = lcio_strh->getMCParticle();
-      if (lcio_strh_mcp == nullptr) {
-        const auto edm_strh_mcp = edm_strh.getParticle();
-        if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, lookup_pairs.mcParticles)) {
-          lcio_strh->setMCParticle(lcio_mcp.value());
-        }
-      }
-
-    } // SimTrackerHits
+    resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
 
     // Resolve relations for clusters
     for (auto& [lcio_cluster, edm_cluster] : update_pairs.clusters) {

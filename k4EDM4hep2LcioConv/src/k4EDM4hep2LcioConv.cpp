@@ -50,8 +50,8 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
-        auto lcColl = convSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits, objectMappings.mcParticles);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
         auto lcColl = convertCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);

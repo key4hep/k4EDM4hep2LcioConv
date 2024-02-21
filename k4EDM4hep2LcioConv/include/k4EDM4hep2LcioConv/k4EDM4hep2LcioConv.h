@@ -141,12 +141,25 @@ namespace EDM4hep2LCIOConv {
     return convertTrackerHitPlanes(trackerhits_coll, cellIDstr, trackerhits_vec).release();
   }
 
+  /**
+   * Convert EDM4hep SimTrackerHits to LCIO. Simultaneously populate mapping
+   * from EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename SimTrHitMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertSimTrackerHits(
+    const edm4hep::SimTrackerHitCollection* const edmCollection,
+    const std::string& cellIDstr,
+    SimTrHitMapT& simTrHitMap);
+
   template<typename SimTrHitMapT, typename MCParticleMapT>
-  lcio::LCCollectionVec* convSimTrackerHits(
+  [[deprecated("Use convertSimTrackerHits instead")]] lcio::LCCollectionVec* convSimTrackerHits(
     const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll,
     const std::string& cellIDstr,
     SimTrHitMapT& simtrackerhits_vec,
-    const MCParticleMapT& mcparticles_vec);
+    const MCParticleMapT&)
+  {
+    return convertSimTrackerHits(simtrackerhits_coll, cellIDstr, simtrackerhits_vec).release();
+  }
 
   /**
    * Convert EDM4hep CalorimeterHits to LCIO. Simultaneously populate mapping
@@ -284,6 +297,12 @@ namespace EDM4hep2LCIOConv {
     const TrackHitMapT& trackerHitMap,
     const TPCHitMapT&,
     const THPlaneHitMapT&);
+
+  /**
+   * Resolve the relations for SimTrackerHits
+   */
+  template<typename SimTrHitMapT, typename MCParticleMapT>
+  void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap);
 
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& update_pairs);
