@@ -613,9 +613,7 @@ namespace LCIO2EDM4hepConv {
   template<typename MCParticleMapT, typename MCParticleLookupMapT>
   void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap, const MCParticleLookupMapT& lookupMap)
   {
-    int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
-      edmnum++;
       auto daughters = lcio->getDaughters();
       auto parents = lcio->getParents();
 
@@ -680,9 +678,7 @@ namespace LCIO2EDM4hepConv {
     const ClusterMapT& clusterMap,
     const TrackMapT& tracksMap)
   {
-    int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
-      edmnum++;
 
       const auto& vertex = lcio->getStartVertex();
       if (vertex != nullptr) {
