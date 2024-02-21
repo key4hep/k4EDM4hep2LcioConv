@@ -725,6 +725,40 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
+  template<typename SimCaloHitMapT, typename MCParticleMapT>
+  void resolveRelationsSimCaloHit(SimCaloHitMapT& simCaloHitMap, const MCParticleMapT& mcParticleMap)
+  {
+    // Fill SimCaloHit collections with contributions
+    //
+    // We loop over all pairs of lcio and edm4hep simcalo hits and add the
+    // contributions, by now MCParticle collection(s) should be converted!
+    for (auto& [lcio_sch, edm_sch] : simCaloHitMap) {
+      const auto contribs = edm_sch.getContributions();
+      for (const auto& contrib : contribs) {
+        if (not contrib.isAvailable()) {
+          // We need a logging library independent of Gaudi for this!
+          // std::cout << "WARNING: CaloHit Contribution is not available!" << std::endl;
+          continue;
+        }
+        auto edm_contrib_mcp = contrib.getParticle();
+        std::array<float, 3> step_position {
+          contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
+        EVENT::MCParticle* lcio_mcp = nullptr;
+        if (edm_contrib_mcp.isAvailable()) {
+          // if we have the MCParticle we look for its partner
+          lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, mcParticleMap).value_or(nullptr);
+        }
+        // add associated Contributions (MCParticles)
+        // we add contribution with whatever lcio mc particle we found
+        lcio_sch->addMCParticleContribution(
+          lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
+      }
+      // We need to reset the energy to the original one, because adding
+      // contributions alters the energy in LCIO
+      lcio_sch->setEnergy(edm_sch.getEnergy());
+    }
+  }
+
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& collection_pairs)
   {
@@ -739,58 +773,15 @@ namespace EDM4hep2LCIOConv {
   {
     resolveRelationsTracks(
       update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.tpcHits, lookup_pairs.trackerHitPlanes);
-
     resolveRelationsRecoParticles(
       update_pairs.recoParticles,
       lookup_pairs.recoParticles,
       lookup_pairs.vertices,
       lookup_pairs.clusters,
       lookup_pairs.tracks);
-
     resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
-
-    // Fill SimCaloHit collections with contributions
-    //
-    // We loop over all pairs of lcio and edm4hep simcalo hits and add the contributions, by now MCParticle
-    // collection(s) should be converted!
-    for (auto& [lcio_sch, edm_sch] : update_pairs.simCaloHits) {
-      // add associated Contributions (MCParticles)
-      for (auto i = 0u; i < edm_sch.contributions_size(); ++i) {
-        const auto& contrib = edm_sch.getContributions(i);
-        if (not contrib.isAvailable()) {
-          // We need a logging library independent of Gaudi for this!
-          // std::cout << "WARNING: CaloHit Contribution is not available!" << std::endl;
-          continue;
-        }
-        auto edm_contrib_mcp = contrib.getParticle();
-        std::array<float, 3> step_position {
-          contrib.getStepPosition()[0], contrib.getStepPosition()[1], contrib.getStepPosition()[2]};
-        EVENT::MCParticle* lcio_mcp = nullptr;
-        if (edm_contrib_mcp.isAvailable()) {
-          // if we have the MCParticle we look for its partner
-          lcio_mcp =
-            k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, lookup_pairs.mcParticles).value_or(nullptr);
-        }
-        else { // edm mcp available
-               // std::cout << "WARNING: edm4hep contribution is not available!"  << std::endl;
-        }
-        // we add contribution with whatever lcio mc particle we found
-        lcio_sch->addMCParticleContribution(
-          lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(), step_position.data());
-        // if (!lcio_mcp) {
-        //   std::cout << "WARNING: No MCParticle found for this contribution."
-        //             << "Make Sure MCParticles are converted! "
-        //             << edm_contrib_mcp.id()
-        //             << std::endl;
-        // }
-      } // all emd4hep contributions
-      // We need to reset the energy to the original one, because adding
-      // contributions alters the energy in LCIO
-      lcio_sch->setEnergy(edm_sch.getEnergy());
-    } // SimCaloHit
-
+    resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
     resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
-
     resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);
   }
 

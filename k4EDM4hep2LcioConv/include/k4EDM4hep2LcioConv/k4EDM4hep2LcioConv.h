@@ -334,6 +334,13 @@ namespace EDM4hep2LCIOConv {
   void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
 
   /**
+   * Resolve the relations for SimCalorimeterHit. This is also the step where
+   * the LCIO SimCalorimeterHits get their contributions attached.
+   */
+  template<typename SimCaloHitMapT, typename MCParticleMapT>
+  void resolveRelationsSimCaloHit(SimCaloHitMapT& simCaloHitMap, const MCParticleMapT& mcParticleMap);
+
+  /**
    * Resolve the relations for ReconstructedParticles
    */
   template<
