@@ -103,17 +103,43 @@ namespace EDM4hep2LCIOConv {
     return convertTracks(tracks_coll, tracks_vec).release();
   }
 
+  /**
+   * Convert EDM4hep TrackerHits to LCIO. Simultaneously populate mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
   template<typename TrackerHitMapT>
-  lcio::LCCollectionVec* convTrackerHits(
+  std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(
+    const edm4hep::TrackerHit3DCollection* const edmCollection,
+    const std::string& cellIDStr,
+    TrackerHitMapT& trackerHitMap);
+
+  template<typename TrackerHitMapT>
+  [[deprecated("Use convertTrackerHits instead")]] lcio::LCCollectionVec* convTrackerHits(
     const edm4hep::TrackerHit3DCollection* const trackerhits_coll,
     const std::string& cellIDstr,
-    TrackerHitMapT& trackerhits_vec);
+    TrackerHitMapT& trackerhits_vec)
+  {
+    return convertTrackerHits(trackerhits_coll, cellIDstr, trackerhits_vec).release();
+  }
+
+  /**
+   * Convert EDM4hep TrackerHitPlanes to LCIO. Simultaneously populate mapping
+   * from EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename TrackerHitPlaneMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertTrackerHitPlanes(
+    const edm4hep::TrackerHitPlaneCollection* const edmCollection,
+    const std::string& cellIDstr,
+    TrackerHitPlaneMapT& trackerHitsMap);
 
   template<typename TrackerHitPlaneMapT>
-  lcio::LCCollectionVec* convTrackerHitPlanes(
+  [[deprecated("Use convertTrackerHitPlanes instead")]] lcio::LCCollectionVec* convTrackerHitPlanes(
     const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll,
     const std::string& cellIDstr,
-    TrackerHitPlaneMapT& trackerhits_vec);
+    TrackerHitPlaneMapT& trackerhits_vec)
+  {
+    return convertTrackerHitPlanes(trackerhits_coll, cellIDstr, trackerhits_vec).release();
+  }
 
   template<typename SimTrHitMapT, typename MCParticleMapT>
   lcio::LCCollectionVec* convSimTrackerHits(
@@ -122,22 +148,60 @@ namespace EDM4hep2LCIOConv {
     SimTrHitMapT& simtrackerhits_vec,
     const MCParticleMapT& mcparticles_vec);
 
+  /**
+   * Convert EDM4hep CalorimeterHits to LCIO. Simultaneously populate mapping
+   * from EDM4hep to LCIO objects for relation resolving in a second step.
+   */
   template<typename CaloHitMapT>
-  lcio::LCCollectionVec* convCalorimeterHits(
+  std::unique_ptr<lcio::LCCollectionVec> convertCalorimeterHits(
+    const edm4hep::CalorimeterHitCollection* const edmCollection,
+    const std::string& cellIDstr,
+    CaloHitMapT& caloHitMap);
+
+  template<typename CaloHitMapT>
+  [[deprecated("Use convertCalorimeterHits instead")]] lcio::LCCollectionVec* convCalorimeterHits(
     const edm4hep::CalorimeterHitCollection* const calohit_coll,
     const std::string& cellIDstr,
-    CaloHitMapT& calo_hits_vec);
+    CaloHitMapT& calo_hits_vec)
+  {
+    return convertCalorimeterHits(calohit_coll, cellIDstr, calo_hits_vec).release();
+  }
+
+  /**
+   * Convert EDM4hep RawCalorimeterHits to LCIO. Simultaneously populate mapping
+   * from EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename RawCaloHitMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertRawCalorimeterHits(
+    const edm4hep::RawCalorimeterHitCollection* const edmCollection,
+    RawCaloHitMapT& rawCaloHitMap);
 
   template<typename RawCaloHitMapT>
-  lcio::LCCollectionVec* convRawCalorimeterHits(
+  [[deprecated("use convertRawCalorimeterHits instead")]] lcio::LCCollectionVec* convRawCalorimeterHits(
     const edm4hep::RawCalorimeterHitCollection* const rawcalohit_coll,
-    RawCaloHitMapT& raw_calo_hits_vec);
+    RawCaloHitMapT& raw_calo_hits_vec)
+  {
+    return convertRawCalorimeterHits(rawcalohit_coll, raw_calo_hits_vec).release();
+  }
+
+  /**
+   * Convert EDM4hep SimCalorimeterHits to LCIO. Simultaneously populate mapping
+   * from EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename SimCaloHitMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertSimCalorimeterHits(
+    const edm4hep::SimCalorimeterHitCollection* const edmCollection,
+    const std::string& cellIDstr,
+    SimCaloHitMapT& simCaloHitMap);
 
   template<typename SimCaloHitMapT>
   lcio::LCCollectionVec* convSimCalorimeterHits(
     const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
     const std::string& cellIDstr,
-    SimCaloHitMapT& sim_calo_hits_vec);
+    SimCaloHitMapT& sim_calo_hits_vec)
+  {
+    return convertSimCalorimeterHits(simcalohit_coll, cellIDstr, sim_calo_hits_vec).release();
+  }
 
   template<typename SimCaloHitMapT, typename MCParticleMapT>
   [[deprecated("remove MCParticleMap argument since it is unused")]] lcio::LCCollectionVec* convSimCalorimeterHits(
@@ -149,13 +213,39 @@ namespace EDM4hep2LCIOConv {
     return convSimCalorimeterHits(simcalohit_coll, cellIDstr, sim_calo_hits_vec);
   }
 
+  /**
+   * Convert EDM4hep TPC Hits to LCIO. Simultaneously populate mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
   template<typename TPCHitMapT>
-  lcio::LCCollectionVec* convTPCHits(
+  std::unique_ptr<lcio::LCCollectionVec> convertTPCHits(
+    const edm4hep::RawTimeSeriesCollection* const edmCollection,
+    TPCHitMapT& tpcHitMap);
+
+  template<typename TPCHitMapT>
+  [[deprecated("Use convertTPCHits instead")]] lcio::LCCollectionVec* convTPCHits(
     const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
-    TPCHitMapT& tpc_hits_vec);
+    TPCHitMapT& tpc_hits_vec)
+  {
+    return convertTPCHits(tpchit_coll, tpc_hits_vec).release();
+  }
+
+  /**
+   * Convert EDM4hep Clusters to LCIO. Simultaneously populate mapping from
+   * EDM4hep to LCIO objects for relation resolving in a second step.
+   */
+  template<typename ClusterMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertClusters(
+    const edm4hep::ClusterCollection* const edmCollection,
+    ClusterMapT& clusterMap);
 
   template<typename ClusterMapT>
-  lcio::LCCollectionVec* convClusters(const edm4hep::ClusterCollection* const cluster_coll, ClusterMapT& cluster_vec);
+  [[deprecated("Use convertClusters instead")]] lcio::LCCollectionVec* convClusters(
+    const edm4hep::ClusterCollection* const cluster_coll,
+    ClusterMapT& cluster_vec)
+  {
+    return convertClusters(cluster_coll, cluster_vec).release();
+  }
 
   template<typename ClusterMapT, typename CaloHitMapT>
   [[deprecated("remove CaloHitMap argument since it is unused")]] lcio::LCCollectionVec*

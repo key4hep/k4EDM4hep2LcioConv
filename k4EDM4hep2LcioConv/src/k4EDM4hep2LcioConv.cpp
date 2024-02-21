@@ -42,36 +42,36 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
-        auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::TrackerHitPlaneCollection*>(edmCollection)) {
-        auto lcColl = convTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
         auto lcColl = convSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits, objectMappings.mcParticles);
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::RawCalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convRawCalorimeterHits(coll, objectMappings.rawCaloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertRawCalorimeterHits(coll, objectMappings.rawCaloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
-        auto lcColl = convTPCHits(coll, objectMappings.tpcHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTPCHits(coll, objectMappings.tpcHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
-        auto lcColl = convClusters(coll, objectMappings.clusters);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertClusters(coll, objectMappings.clusters);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
         auto lcColl = convVertices(coll, objectMappings.vertices, objectMappings.recoParticles);

@@ -72,23 +72,20 @@ namespace EDM4hep2LCIOConv {
     return tracks;
   }
 
-  // Convert EDM4hep TrackerHits to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add LCIO Collection Vector to LCIO event
   template<typename TrackerHitMapT>
-  lcio::LCCollectionVec* convTrackerHits(
-    const edm4hep::TrackerHit3DCollection* const trackerhits_coll,
+  std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(
+    const edm4hep::TrackerHit3DCollection* const edmColection,
     const std::string& cellIDstr,
-    TrackerHitMapT& trackerhits_vec)
+    TrackerHitMapT& trackerHitMap)
   {
-    auto* trackerhits = new lcio::LCCollectionVec(lcio::LCIO::TRACKERHIT);
+    auto trackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHIT);
 
     if (cellIDstr != "") {
-      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerhits);
+      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerhits.get());
     }
 
     // Loop over EDM4hep trackerhits converting them to lcio trackerhits
-    for (const auto& edm_trh : (*trackerhits_coll)) {
+    for (const auto& edm_trh : (*edmColection)) {
       if (edm_trh.isAvailable()) {
         auto* lcio_trh = new lcio::TrackerHitImpl();
 
@@ -106,7 +103,7 @@ namespace EDM4hep2LCIOConv {
         lcio_trh->setQuality(edm_trh.getQuality());
 
         // Save intermediate trackerhits ref
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerhits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerHitMap);
 
         // Add to lcio trackerhits collection
         trackerhits->addElement(lcio_trh);
@@ -117,18 +114,18 @@ namespace EDM4hep2LCIOConv {
   }
 
   template<typename TrackerHitPlaneMapT>
-  lcio::LCCollectionVec* convTrackerHitPlanes(
-    const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll,
+  std::unique_ptr<lcio::LCCollectionVec> convertTrackerHitPlanes(
+    const edm4hep::TrackerHitPlaneCollection* const edmCollection,
     const std::string& cellIDstr,
-    TrackerHitPlaneMapT& trackerhits_vec)
+    TrackerHitPlaneMapT& trackerHitsMap)
   {
-    auto* trackerHitPlanes = new lcio::LCCollectionVec(lcio::LCIO::TRACKERHITPLANE);
+    auto trackerHitPlanes = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHITPLANE);
 
     if (cellIDstr != "") {
-      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerHitPlanes);
+      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerHitPlanes.get());
     }
 
-    for (const auto& edm_trh : (*trackerhits_coll)) {
+    for (const auto& edm_trh : (*edmCollection)) {
       if (edm_trh.isAvailable()) {
         auto* lcio_trh = new lcio::TrackerHitPlaneImpl();
 
@@ -153,7 +150,7 @@ namespace EDM4hep2LCIOConv {
         lcio_trh->setV(posV.data());
         lcio_trh->setdV(edm_trh.getDv());
 
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerhits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_trh, edm_trh, trackerHitsMap);
 
         trackerHitPlanes->addElement(lcio_trh);
       }
@@ -226,18 +223,18 @@ namespace EDM4hep2LCIOConv {
   // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
   // Add converted LCIO Collection Vector to LCIO event
   template<typename CaloHitMapT>
-  lcio::LCCollectionVec* convCalorimeterHits(
-    const edm4hep::CalorimeterHitCollection* const calohit_coll,
+  std::unique_ptr<lcio::LCCollectionVec> convertCalorimeterHits(
+    const edm4hep::CalorimeterHitCollection* const edmCollection,
     const std::string& cellIDstr,
-    CaloHitMapT& calo_hits_vec)
+    CaloHitMapT& caloHitMap)
   {
-    auto* calohits = new lcio::LCCollectionVec(lcio::LCIO::CALORIMETERHIT);
+    auto calohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CALORIMETERHIT);
 
     if (cellIDstr != "") {
-      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, calohits);
+      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, calohits.get());
     }
 
-    for (const auto& edm_calohit : (*calohit_coll)) {
+    for (const auto& edm_calohit : (*edmCollection)) {
       if (edm_calohit.isAvailable()) {
         auto* lcio_calohit = new lcio::CalorimeterHitImpl();
 
@@ -257,7 +254,7 @@ namespace EDM4hep2LCIOConv {
         // lcio_calohit->setRawHit(EVENT::LCObject* rawHit );
 
         // Save Calorimeter Hits LCIO and EDM4hep collections
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_calohit, edm_calohit, calo_hits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_calohit, edm_calohit, caloHitMap);
 
         // Add to lcio tracks collection
         calohits->addElement(lcio_calohit);
@@ -267,17 +264,14 @@ namespace EDM4hep2LCIOConv {
     return calohits;
   }
 
-  // Convert EDM4hep RAW Calorimeter Hits to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
   template<typename RawCaloHitMapT>
-  lcio::LCCollectionVec* convRawCalorimeterHits(
-    const edm4hep::RawCalorimeterHitCollection* const rawcalohit_coll,
-    RawCaloHitMapT& raw_calo_hits_vec)
+  std::unique_ptr<lcio::LCCollectionVec> convertRawCalorimeterHits(
+    const edm4hep::RawCalorimeterHitCollection* const edmCollection,
+    RawCaloHitMapT& rawCaloHitMap)
   {
-    auto* rawcalohits = new lcio::LCCollectionVec(lcio::LCIO::RAWCALORIMETERHIT);
+    auto rawcalohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::RAWCALORIMETERHIT);
 
-    for (const auto& edm_raw_calohit : (*rawcalohit_coll)) {
+    for (const auto& edm_raw_calohit : (*edmCollection)) {
       if (edm_raw_calohit.isAvailable()) {
         auto* lcio_rawcalohit = new lcio::RawCalorimeterHitImpl();
 
@@ -289,7 +283,7 @@ namespace EDM4hep2LCIOConv {
         lcio_rawcalohit->setTimeStamp(edm_raw_calohit.getTimeStamp());
 
         // Save Raw Calorimeter Hits LCIO and EDM4hep collections
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_rawcalohit, edm_raw_calohit, raw_calo_hits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_rawcalohit, edm_raw_calohit, rawCaloHitMap);
 
         // Add to lcio tracks collection
         rawcalohits->addElement(lcio_rawcalohit);
@@ -299,22 +293,19 @@ namespace EDM4hep2LCIOConv {
     return rawcalohits;
   }
 
-  // Convert EDM4hep Sim Calorimeter Hits to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
   template<typename SimCaloHitMapT>
-  lcio::LCCollectionVec* convSimCalorimeterHits(
-    const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
+  std::unique_ptr<lcio::LCCollectionVec> convertSimCalorimeterHits(
+    const edm4hep::SimCalorimeterHitCollection* const edmCollection,
     const std::string& cellIDstr,
-    SimCaloHitMapT& sim_calo_hits_vec)
+    SimCaloHitMapT& simCaloHitMap)
   {
-    auto* simcalohits = new lcio::LCCollectionVec(lcio::LCIO::SIMCALORIMETERHIT);
+    auto simcalohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMCALORIMETERHIT);
 
     if (cellIDstr != "") {
-      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, simcalohits);
+      lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, simcalohits.get());
     }
 
-    for (const auto& edm_sim_calohit : (*simcalohit_coll)) {
+    for (const auto& edm_sim_calohit : (*edmCollection)) {
       if (edm_sim_calohit.isAvailable()) {
         auto* lcio_simcalohit = new lcio::SimCalorimeterHitImpl();
 
@@ -331,7 +322,7 @@ namespace EDM4hep2LCIOConv {
         // MCParticles converted
 
         // Save Sim Calorimeter Hits LCIO and EDM4hep collections
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_simcalohit, edm_sim_calohit, sim_calo_hits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_simcalohit, edm_sim_calohit, simCaloHitMap);
 
         // Add to sim calo hits collection
         simcalohits->addElement(lcio_simcalohit);
@@ -341,17 +332,14 @@ namespace EDM4hep2LCIOConv {
     return simcalohits;
   }
 
-  // Convert EDM4hep TPC Hits to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
   template<typename TPCHitMapT>
-  lcio::LCCollectionVec* convTPCHits(
-    const edm4hep::RawTimeSeriesCollection* const tpchit_coll,
-    TPCHitMapT& tpc_hits_vec)
+  std::unique_ptr<lcio::LCCollectionVec> convertTPCHits(
+    const edm4hep::RawTimeSeriesCollection* const edmCollection,
+    TPCHitMapT& tpcHitMap)
   {
-    auto* tpchits = new lcio::LCCollectionVec(lcio::LCIO::TPCHIT);
+    auto tpchits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TPCHIT);
 
-    for (const auto& edm_tpchit : (*tpchit_coll)) {
+    for (const auto& edm_tpchit : (*edmCollection)) {
       if (edm_tpchit.isAvailable()) {
         auto* lcio_tpchit = new lcio::TPCHitImpl();
 
@@ -369,7 +357,7 @@ namespace EDM4hep2LCIOConv {
         lcio_tpchit->setRawData(rawdata.data(), edm_tpchit.adcCounts_size());
 
         // Save TPC Hits LCIO and EDM4hep collections
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_tpchit, edm_tpchit, tpc_hits_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_tpchit, edm_tpchit, tpcHitMap);
 
         // Add to lcio tracks collection
         tpchits->addElement(lcio_tpchit);
@@ -379,16 +367,15 @@ namespace EDM4hep2LCIOConv {
     return tpchits;
   }
 
-  // Convert EDM4hep Clusters to LCIO
-  // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
-  // Add converted LCIO Collection Vector to LCIO event
   template<typename ClusterMapT>
-  lcio::LCCollectionVec* convClusters(const edm4hep::ClusterCollection* const cluster_coll, ClusterMapT& cluster_vec)
+  std::unique_ptr<lcio::LCCollectionVec> convertClusters(
+    const edm4hep::ClusterCollection* const edmCollection,
+    ClusterMapT& clusterMap)
   {
-    auto* clusters = new lcio::LCCollectionVec(lcio::LCIO::CLUSTER);
+    auto clusters = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CLUSTER);
 
     // Loop over EDM4hep clusters converting them to lcio clusters
-    for (const auto& edm_cluster : (*cluster_coll)) {
+    for (const auto& edm_cluster : (*edmCollection)) {
       if (edm_cluster.isAvailable()) {
         auto* lcio_cluster = new lcio::ClusterImpl();
 
@@ -439,7 +426,7 @@ namespace EDM4hep2LCIOConv {
         }
 
         // Add LCIO and EDM4hep pair collections to vec
-        k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster, cluster_vec);
+        k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster, clusterMap);
 
         // Add to lcio tracks collection
         clusters->addElement(lcio_cluster);
