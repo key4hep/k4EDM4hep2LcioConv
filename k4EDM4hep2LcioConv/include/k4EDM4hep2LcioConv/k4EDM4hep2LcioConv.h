@@ -283,13 +283,26 @@ namespace EDM4hep2LCIOConv {
     return convertVertices(vertex_coll, vertex_vec).release();
   }
 
+  /**
+   * Convert EDM4hep ReconstructedParticles to LCIO. Simultaneously populate
+   * mapping from EDM4hep to LCIO objects for relation resolving in a second
+   * step.
+   */
+  template<typename RecoParticleMapT>
+  std::unique_ptr<lcio::LCCollectionVec> convertReconstructedParticles(
+    const edm4hep::ReconstructedParticleCollection* const edmCollection,
+    RecoParticleMapT& recoParticleMap);
+
   template<typename RecoPartMapT, typename TrackMapT, typename VertexMapT, typename ClusterMapT>
-  lcio::LCCollectionVec* convReconstructedParticles(
+  [[deprecated("Use convertReconstructedParticle instead")]] lcio::LCCollectionVec* convReconstructedParticles(
     const edm4hep::ReconstructedParticleCollection* const recos_coll,
     RecoPartMapT& recoparticles_vec,
-    const TrackMapT& tracks_vec,
-    const VertexMapT& vertex_vec,
-    const ClusterMapT& clusters_vec);
+    const TrackMapT&,
+    const VertexMapT&,
+    const ClusterMapT&)
+  {
+    return convertReconstructedParticles(recos_coll, recoparticles_vec).release();
+  }
 
   template<typename MCPartMapT>
   lcio::LCCollectionVec* convMCParticles(
@@ -319,6 +332,22 @@ namespace EDM4hep2LCIOConv {
    */
   template<typename VertexMapT, typename RecoParticleMapT>
   void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
+
+  /**
+   * Resolve the relations for ReconstructedParticles
+   */
+  template<
+    typename RecoParticleMapT,
+    typename RecoParticleLookupMapT,
+    typename VertexMapT,
+    typename ClusterMapT,
+    typename TrackMapT>
+  void resolveRelationsRecoParticles(
+    RecoParticleMapT& recoParticleMap,
+    const RecoParticleLookupMapT& recoLookupMap,
+    const VertexMapT& vertexMap,
+    const ClusterMapT& clusterMap,
+    const TrackMapT& trackMap);
 
   template<typename ObjectMappingT>
   void FillMissingCollections(ObjectMappingT& update_pairs);

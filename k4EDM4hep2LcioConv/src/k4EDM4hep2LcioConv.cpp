@@ -82,9 +82,8 @@ namespace EDM4hep2LCIOConv {
         lcioEvent->addCollection(lcColl, name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::ReconstructedParticleCollection*>(edmCollection)) {
-        auto lcColl = convReconstructedParticles(
-          coll, objectMappings.recoParticles, objectMappings.tracks, objectMappings.vertices, objectMappings.clusters);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertReconstructedParticles(coll, objectMappings.recoParticles);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
         convEventHeader(coll, lcioEvent.get());
