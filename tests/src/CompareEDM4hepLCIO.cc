@@ -18,8 +18,6 @@
  * the single object compare. All comparison functions return true if all
  * comparisons succeeded or false in case any comparison failed returning as
  * early as possible.
- *
- * TODO: Also compare relations
  */
 
 /// Convert the two 32 bit cellIDs into one 64 bit value
