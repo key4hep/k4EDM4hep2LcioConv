@@ -389,13 +389,30 @@ namespace EDM4hep2LCIOConv {
   template<typename ClusterMapT, typename CaloHitMapT>
   void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap);
 
+  /**
+   * Resolve all relations in all converted objects that are held in the map.
+   * Dispatch to the correpsonding implementation for all the types that have
+   * relations
+   */
   template<typename ObjectMappingT>
-  void FillMissingCollections(ObjectMappingT& update_pairs);
+  void resolveRelations(ObjectMappingT& typeMapping);
 
-  /// Update the relations of the objects in the update_pairs map, by linking
-  /// them according to the contents of the lookup_pairs map
   template<typename ObjectMappingT, typename ObjectMappingU>
-  void FillMissingCollections(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs);
+  void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
+
+  template<typename ObjectMappingT>
+  [[deprecated("Use resolveRelations instead")]] void FillMissingCollections(ObjectMappingT& update_pairs)
+  {
+    resolveRelations(update_pairs);
+  }
+
+  template<typename ObjectMappingT, typename ObjectMappingU>
+  [[deprecated("Use resolveRelations instead")]] void FillMissingCollections(
+    ObjectMappingT& update_pairs,
+    const ObjectMappingU& lookup_pairs)
+  {
+    resolveRelations(update_pairs, lookup_pairs);
+  }
 
   bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 

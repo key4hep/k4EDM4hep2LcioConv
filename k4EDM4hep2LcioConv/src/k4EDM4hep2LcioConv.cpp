@@ -110,7 +110,7 @@ namespace EDM4hep2LCIOConv {
       }
     }
 
-    FillMissingCollections(objectMappings);
+    resolveRelations(objectMappings);
 
     return lcioEvent;
   }

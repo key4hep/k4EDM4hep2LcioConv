@@ -302,7 +302,7 @@ namespace EDM4hep2LCIOConv {
           edm_sim_calohit.getPosition()[0], edm_sim_calohit.getPosition()[1], edm_sim_calohit.getPosition()[2]};
         lcio_simcalohit->setPosition(positions.data());
 
-        // Contributions are converted in FillMissingCollections to make it a higher probability that we have the
+        // Contributions are converted in resolveRelations to make it a higher probability that we have the
         // MCParticles converted
 
         // Save Sim Calorimeter Hits LCIO and EDM4hep collections
@@ -760,16 +760,16 @@ namespace EDM4hep2LCIOConv {
   }
 
   template<typename ObjectMappingT>
-  void FillMissingCollections(ObjectMappingT& collection_pairs)
+  void resolveRelations(ObjectMappingT& collection_pairs)
   {
-    FillMissingCollections(collection_pairs, collection_pairs);
+    resolveRelations(collection_pairs, collection_pairs);
   }
 
   // Depending on the order of the collections in the parameters,
   // and for the mutual dependencies between some collections,
   // go over the possible missing associated collections and fill them.
   template<typename ObjectMappingT, typename ObjectMappingU>
-  void FillMissingCollections(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs)
+  void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs)
   {
     resolveRelationsMCParticles(update_pairs.mcParticles, lookup_pairs.mcParticles);
     resolveRelationsTracks(
