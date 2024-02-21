@@ -108,11 +108,8 @@ namespace test_config {
   /// particle
   const static std::vector<IdxPair> recoRecoIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}, {1, 2}, {2, 4}};
 
-  /// The ParticleIDs algorithmType that will be create for some reco particles.
-  /// The first index is the reco paritcle to which a ParticleID with algorithm
-  /// type of the second index will be attached
-  const static std::vector<IdxPair> recoPIDTypes = {{0, 1}, {0, 2}, {1, 1}, {2, 1}, {2, 2}, {3, 1}, {4, 2}};
-
+  /// The number of entries for the generated ParticleID collections
+  const static std::vector<std::vector<int>> pidRecoIdcs = {{1, 3, 4}, {2, 3}, {0, 1, 2, 3, 4, 5}};
 } // namespace test_config
 
 /**
@@ -176,14 +173,17 @@ edm4hep::ClusterCollection createClusters(
   const std::vector<test_config::IdxPair>& clusterHitIdcs,
   const std::vector<test_config::IdxPair>& clusterClusterIdcs);
 
-std::tuple<edm4hep::ReconstructedParticleCollection, edm4hep::ParticleIDCollection> createRecoParticles(
+edm4hep::ReconstructedParticleCollection createRecoParticles(
   const int nRecos,
   const edm4hep::TrackCollection& tracks,
   const std::vector<test_config::IdxPair>& trackIdcs,
   const edm4hep::ClusterCollection& clusters,
   const std::vector<test_config::IdxPair>& clusterIdcs,
-  const std::vector<test_config::IdxPair>& recIdcs,
-  const std::vector<test_config::IdxPair>& pidAlgTypes);
+  const std::vector<test_config::IdxPair>& recIdcs);
+
+std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
+  const std::vector<std::vector<int>>& recoIdcs,
+  const edm4hep::ReconstructedParticleCollection& recoParticles);
 
 /**
  * Create an example event that can be used to test the converter.
