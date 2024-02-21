@@ -17,7 +17,7 @@
 int main()
 {
   const auto origEvent = createExampleEvent();
-  const auto lcioEvent = EDM4hep2LCIOConv::convEvent(origEvent);
+  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(origEvent);
   const auto roundtripEvent = LCIO2EDM4hepConv::convertEvent(lcioEvent.get());
 
   ASSERT_SAME_OR_ABORT(edm4hep::CalorimeterHitCollection, "caloHits");

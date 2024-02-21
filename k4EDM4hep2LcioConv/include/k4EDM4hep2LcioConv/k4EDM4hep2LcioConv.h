@@ -402,9 +402,16 @@ namespace EDM4hep2LCIOConv {
   /**
    * Convert an edm4hep event to an LCEvent
    */
-  std::unique_ptr<lcio::LCEventImpl> convEvent(
+  std::unique_ptr<lcio::LCEventImpl> convertEvent(
     const podio::Frame& edmEvent,
     const podio::Frame& metadata = podio::Frame {});
+
+  [[deprecated("Use convertEvent")]] std::unique_ptr<lcio::LCEventImpl> convEvent(
+    const podio::Frame& edmEvent,
+    const podio::Frame& metadata = podio::Frame {})
+  {
+    return convertEvent(edmEvent, metadata);
+  }
 
 } // namespace EDM4hep2LCIOConv
 

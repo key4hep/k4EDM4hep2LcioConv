@@ -29,7 +29,7 @@ namespace EDM4hep2LCIOConv {
     return std::find(coll->begin(), coll->end(), collection_name) != coll->end();
   }
 
-  std::unique_ptr<lcio::LCEventImpl> convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
+  std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
   {
     auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
     auto objectMappings = CollectionsPairVectors {};

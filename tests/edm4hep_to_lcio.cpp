@@ -12,7 +12,7 @@
 int main()
 {
   const auto edmEvent = createExampleEvent();
-  const auto lcioEvent = EDM4hep2LCIOConv::convEvent(edmEvent);
+  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(edmEvent);
 
   if (!compareEventHeader(lcioEvent.get(), &edmEvent)) {
     return 1;
