@@ -1,3 +1,11 @@
+# v00-08-02
+
+* 2024-02-07 tmadlener ([PR#50](https://github.com/key4hep/k4edm4hep2lcioconv/pull/50))
+  - Make it possible to keep working with MCParticle momenta based on floats for now. See https://github.com/key4hep/EDM4hep/pull/266
+
+* 2024-02-07 tmadlener ([PR#45](https://github.com/key4hep/k4edm4hep2lcioconv/pull/45))
+  - Make the upcoming renaming of `TrackerHit` -> `TrackerHit3D` transparent
+
 # v00-08-01
 
 * 2024-02-07 jmcarcell ([PR#48](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/48))
