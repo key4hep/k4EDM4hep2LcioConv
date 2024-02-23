@@ -195,6 +195,7 @@ edm4hep::TrackCollection createTracks(
   const int subdetectorhitnumbers,
   const int num_track_states,
   const edm4hep::TrackerHit3DCollection& trackerHits,
+  const edm4hep::TrackerHitPlaneCollection& trackerHitPlanes,
   const std::vector<std::size_t>& link_trackerhit_idcs,
   const std::vector<test_config::IdxPair>& track_link_tracks_idcs)
 {
@@ -220,6 +221,7 @@ edm4hep::TrackCollection createTracks(
 
     for (auto& idx : link_trackerhit_idcs) {
       elem.addToTrackerHits(trackerHits[idx]);
+      elem.addToTrackerHits(trackerHitPlanes[idx]);
     }
 
     for (int j = 0; j < num_track_states; ++j) {
@@ -342,6 +344,7 @@ podio::Frame createExampleEvent()
       test_config::nSubdetectorHitNumbers,
       test_config::nTrackStates,
       trackerHits,
+      trackerHitPlanes,
       test_config::trackTrackerHitIdcs,
       test_config::trackTrackIdcs),
     "tracks");
