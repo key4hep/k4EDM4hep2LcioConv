@@ -224,7 +224,7 @@ namespace EDM4hep2LCIOConv {
         lcio_strh->setProducedBySecondary(edm_strh.isProducedBySecondary());
 
         // Link converted MCParticle to the SimTrackerHit if found
-        const auto edm_strh_mcp = edm_strh.getMCParticle();
+        const auto edm_strh_mcp = edm_strh.getParticle();
         if (edm_strh_mcp.isAvailable()) {
           if (const auto& lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcparticles_vec)) {
             lcio_strh->setMCParticle(lcio_mcp.value());
@@ -541,7 +541,7 @@ namespace EDM4hep2LCIOConv {
     for (const auto& edm_rp : (*recos_coll)) {
       auto* lcio_recp = new lcio::ReconstructedParticleImpl;
       if (edm_rp.isAvailable()) {
-        lcio_recp->setType(edm_rp.getType());
+        lcio_recp->setType(edm_rp.getPDG());
         float m[3] = {edm_rp.getMomentum()[0], edm_rp.getMomentum()[1], edm_rp.getMomentum()[2]};
         lcio_recp->setMomentum(m);
         lcio_recp->setEnergy(edm_rp.getEnergy());
@@ -839,7 +839,7 @@ namespace EDM4hep2LCIOConv {
     for (auto& [lcio_strh, edm_strh] : update_pairs.simTrackerHits) {
       const auto lcio_strh_mcp = lcio_strh->getMCParticle();
       if (lcio_strh_mcp == nullptr) {
-        const auto edm_strh_mcp = edm_strh.getMCParticle();
+        const auto edm_strh_mcp = edm_strh.getParticle();
         if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, lookup_pairs.mcParticles)) {
           lcio_strh->setMCParticle(lcio_mcp.value());
         }
