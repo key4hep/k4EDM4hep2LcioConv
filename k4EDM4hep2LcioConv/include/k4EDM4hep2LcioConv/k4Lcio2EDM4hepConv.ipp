@@ -100,8 +100,8 @@ namespace LCIO2EDM4hepConv {
       lval.setColorFlow(edm4hep::Vector2i(rval->getColorFlow()));
       lval.setVertex(edm4hep::Vector3d(rval->getVertex()));
       lval.setEndpoint(edm4hep::Vector3d(rval->getEndpoint()));
-      lval.setMomentum(Vector3fFrom(rval->getMomentum()));
-      lval.setMomentumAtEndpoint(Vector3fFrom(rval->getMomentumAtEndpoint()));
+      lval.setMomentum(rval->getMomentum());
+      lval.setMomentumAtEndpoint(rval->getMomentumAtEndpoint());
 
       const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, mcparticlesMap);
       if (!inserted) {
@@ -135,7 +135,7 @@ namespace LCIO2EDM4hepConv {
       lval.setMass(rval->getMass());
       lval.setMomentum(Vector3fFrom(rval->getMomentum()));
       lval.setReferencePoint(rval->getReferencePoint());
-      lval.setType(rval->getType());
+      lval.setPDG(rval->getType());
 
       const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, recoparticlesMap);
       if (!inserted) {
@@ -657,7 +657,7 @@ namespace LCIO2EDM4hepConv {
         continue;
       }
       if (const auto edmP = k4EDM4hep2LcioConv::detail::mapLookupTo(mcps, mcparticlesMap)) {
-        edm.setMCParticle(edmP.value());
+        edm.setParticle(edmP.value());
       }
       else {
         std::cerr << "Cannot find corresponding EDM4hep MCParticle for the LCIO MCParticle, "

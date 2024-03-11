@@ -180,7 +180,7 @@ bool compare(
   const edm4hep::ReconstructedParticle& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in ReconstructedParticle");
+  ASSERT_COMPARE_VALS(lcioElem->getType(), edm4hepElem.getPDG(), "type/PDG in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEnergy, "energy in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in ReconstructedParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getReferencePoint, "referencePoint in ReconstructedParticle");
@@ -298,7 +298,10 @@ bool compare(
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in SimTrackerHit");
 
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getMCParticle, objectMaps.mcParticles, "MCParticle in SimTrackerHit");
+  if (!compareRelation(
+        lcioElem->getMCParticle(), edm4hepElem.getParticle(), objectMaps.mcParticles, "MC particle in SimTrackerHit")) {
+    return false;
+  }
 
   return true;
 }
