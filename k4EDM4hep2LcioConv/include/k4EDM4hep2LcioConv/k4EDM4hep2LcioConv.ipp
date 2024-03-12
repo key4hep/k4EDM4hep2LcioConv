@@ -627,7 +627,7 @@ namespace EDM4hep2LCIOConv {
   void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap)
   {
     for (auto& [lcio_strh, edm_strh] : simTrHitMap) {
-      auto edm_strh_mcp = edm_strh.getMCParticle();
+      auto edm_strh_mcp = edm_strh.getParticle();
       if (edm_strh_mcp.isAvailable()) {
         if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcParticleMap)) {
           lcio_strh->setMCParticle(lcio_mcp.value());
