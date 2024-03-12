@@ -376,7 +376,7 @@ podio::Frame createExampleEvent()
   event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
   const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
   const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
-  event.put(
+  const auto& tracks = event.put(
     createTracks(
       test_config::nTracks,
       test_config::nSubdetectorHitNumbers,
@@ -386,6 +386,7 @@ podio::Frame createExampleEvent()
       test_config::trackTrackerHitIdcs,
       test_config::trackTrackIdcs),
     "tracks");
+
   const auto& clusters = event.put(
     createClusters(
       test_config::nClusters,

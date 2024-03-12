@@ -341,12 +341,12 @@ namespace EDM4hep2LCIOConv {
   /**
    * Resolve the relations for Tracks
    */
-  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
+  template<typename TrackMapT, typename TrackHitMapT, typename THPlaneHitMapT, typename TPCHitMapT>
   void resolveRelationsTracks(
     TrackMapT& tracksMap,
     const TrackHitMapT& trackerHitMap,
-    const TPCHitMapT&,
-    const THPlaneHitMapT&);
+    const THPlaneHitMapT& trackerHiPlaneMap,
+    const TPCHitMapT&);
 
   /**
    * Resolve the relations for SimTrackerHits

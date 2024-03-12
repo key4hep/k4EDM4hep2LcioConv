@@ -590,12 +590,12 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
-  template<typename TrackMapT, typename TrackHitMapT, typename TPCHitMapT, typename THPlaneHitMapT>
+  template<typename TrackMapT, typename TrackHitMapT, typename THPlaneHitMapT, typename TPCHitMapT>
   void resolveRelationsTracks(
     TrackMapT& tracksMap,
     const TrackHitMapT& trackerHitMap,
-    const TPCHitMapT&,
-    const THPlaneHitMapT&)
+    const THPlaneHitMapT& trackerHitPlaneMap,
+    const TPCHitMapT&)
   {
     for (auto& [lcio_tr, edm_tr] : tracksMap) {
       auto tracks = edm_tr.getTracks();
@@ -614,6 +614,9 @@ namespace EDM4hep2LCIOConv {
           continue;
         }
         if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitMap)) {
+          lcio_tr->addHit(hit.value());
+        }
+        else if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitPlaneMap)) {
           lcio_tr->addHit(hit.value());
         }
       }
@@ -773,7 +776,7 @@ namespace EDM4hep2LCIOConv {
   {
     resolveRelationsMCParticles(update_pairs.mcParticles, lookup_pairs.mcParticles);
     resolveRelationsTracks(
-      update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.tpcHits, lookup_pairs.trackerHitPlanes);
+      update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.trackerHitPlanes, lookup_pairs.tpcHits);
     resolveRelationsRecoParticles(
       update_pairs.recoParticles,
       lookup_pairs.recoParticles,
