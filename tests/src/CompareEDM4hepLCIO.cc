@@ -35,10 +35,7 @@ auto to64BitCellID(LcioT* obj)
 
 // ================= CalorimeterHit ================
 
-bool compare(
-  const EVENT::CalorimeterHit* lcioElem,
-  const edm4hep::CalorimeterHit& edm4hepElem,
-  const ObjectMappings& objectMaps)
+bool compare(const EVENT::CalorimeterHit* lcioElem, const edm4hep::CalorimeterHit& edm4hepElem, const ObjectMappings&)
 {
   const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in CalorimeterHit");
@@ -155,7 +152,7 @@ bool compare(const EVENT::ParticleID* lcioElem, const edm4hep::ParticleID& edm4h
 bool compare(
   const EVENT::RawCalorimeterHit* lcioElem,
   const edm4hep::RawCalorimeterHit& edm4hepElem,
-  const ObjectMappings& objectMaps)
+  const ObjectMappings&)
 {
   const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in RawCalorimeterHit");
@@ -250,7 +247,8 @@ bool compare(
 
   // Contributions are not part of the "proper LCIO"
   const auto edmContributions = edm4hepElem.getContributions();
-  ASSERT_COMPARE_VALS(lcioElem->getNMCContributions(), edmContributions.size(), "number of CaloHitContributions");
+  ASSERT_COMPARE_VALS(
+    (unsigned) lcioElem->getNMCContributions(), edmContributions.size(), "number of CaloHitContributions");
 
   for (int iCont = 0; iCont < lcioElem->getNMCContributions(); ++iCont) {
     const auto& edmContrib = edmContributions[iCont];
@@ -290,7 +288,8 @@ bool compare(
   const edm4hep::SimTrackerHit& edm4hepElem,
   const ObjectMappings& objectMaps)
 {
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in SimTrackerHit");
+  const auto lcioCellID = to64BitCellID(lcioElem);
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEDep, "EDep in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTime, "time in SimTrackerHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPathLength, "pathLength in SimTrackerHit");
@@ -316,9 +315,10 @@ bool compare(
 
 // ================= TPCHit ================
 
-bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4hepElem, const ObjectMappings& objectMaps)
+bool compare(const EVENT::TPCHit* lcioElem, const edm4hep::RawTimeSeries& edm4hepElem, const ObjectMappings&)
 {
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getCellID, "cellID in TPCHit");
+  const uint64_t lcioCellID = lcioElem->getCellID();
+  ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TPCHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getQuality, "quality in TPCHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getTime, "time in TPCHit");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCharge, "charge in TPCHit");
@@ -422,10 +422,7 @@ bool compare(
 
 // ================= TrackerHit ================
 
-bool compare(
-  const EVENT::TrackerHit* lcioElem,
-  const edm4hep::TrackerHit3D& edm4hepElem,
-  const ObjectMappings& objectMaps)
+bool compare(const EVENT::TrackerHit* lcioElem, const edm4hep::TrackerHit3D& edm4hepElem, const ObjectMappings&)
 {
   const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHit");
@@ -450,10 +447,7 @@ bool compare(
 
 // ================= TrackerHitPlane ================
 
-bool compare(
-  const EVENT::TrackerHitPlane* lcioElem,
-  const edm4hep::TrackerHitPlane& edm4hepElem,
-  const ObjectMappings& objectMaps)
+bool compare(const EVENT::TrackerHitPlane* lcioElem, const edm4hep::TrackerHitPlane& edm4hepElem, const ObjectMappings&)
 {
   const auto lcioCellID = to64BitCellID(lcioElem);
   ASSERT_COMPARE_VALS(lcioCellID, edm4hepElem.getCellID(), "cellID in TrackerHitPlane");
@@ -513,12 +507,12 @@ bool compare(
 
 bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent)
 {
-
   const auto& edmEventHeader = edmEvent->get<edm4hep::EventHeaderCollection>("EventHeader")[0];
 
   ASSERT_COMPARE(lcevt, edmEventHeader, getEventNumber, "Event Number is not the same");
   ASSERT_COMPARE(lcevt, edmEventHeader, getRunNumber, "Run Number is not the same");
-  ASSERT_COMPARE(lcevt, edmEventHeader, getTimeStamp, "TimeStamp in EventHeader is not the same");
+  const uint64_t lcioTimeStamp = lcevt->getTimeStamp();
+  ASSERT_COMPARE_VALS(lcioTimeStamp, edmEventHeader.getTimeStamp(), "TimeStamp in EventHeader is not the same");
   ASSERT_COMPARE(lcevt, edmEventHeader, getWeight, "Weight in EventHeader is not the same");
 
   return true;

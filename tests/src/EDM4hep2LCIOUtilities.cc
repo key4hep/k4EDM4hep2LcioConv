@@ -47,8 +47,8 @@ constexpr auto createCov()
     return i * (2 * N - i - 1) / 2 + j;
   };
 
-  for (int i = 0; i < N; ++i) {
-    for (int j = 0; j < i; ++j) {
+  for (auto i = 0u; i < N; ++i) {
+    for (auto j = 0u; j < i; ++j) {
       const auto index = to_lower_tri(i, j);
       result[index] = i + 10 * j;
     }
@@ -315,11 +315,11 @@ edm4hep::ClusterCollection createClusters(
     }
   }
 
-  for (const auto [cluIdx, hitIdx] : clusterHitIdcs) {
+  for (const auto& [cluIdx, hitIdx] : clusterHitIdcs) {
     clusterColl[cluIdx].addToHits(caloHits[hitIdx]);
   }
 
-  for (const auto [targetI, sourceI] : clusterHitIdcs) {
+  for (const auto& [targetI, sourceI] : clusterClusterIdcs) {
     clusterColl[targetI].addToClusters(clusterColl[sourceI]);
   }
 
@@ -334,11 +334,11 @@ podio::Frame createExampleEvent()
   const auto& mcParticles =
     event.put(createMCParticles(test_config::nMCParticles, test_config::mcpParentIdcs), "mcParticles");
   const auto& caloHits = event.put(createCalorimeterHits(test_config::nCaloHits), "caloHits");
-  const auto& rawCaloHits = event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
-  const auto& tpcHits = event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
+  event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
+  event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
   const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
   const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
-  const auto& tracks = event.put(
+  event.put(
     createTracks(
       test_config::nTracks,
       test_config::nSubdetectorHitNumbers,
@@ -359,7 +359,7 @@ podio::Frame createExampleEvent()
 
   auto [tmpSimCaloHits, tmpCaloHitConts] = createSimCalorimeterHits(
     test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
-  const auto& simCaloHits = event.put(std::move(tmpSimCaloHits), "simCaloHits");
+  event.put(std::move(tmpSimCaloHits), "simCaloHits");
   event.put(std::move(tmpCaloHitConts), "caloHitContributions");
 
   return event;

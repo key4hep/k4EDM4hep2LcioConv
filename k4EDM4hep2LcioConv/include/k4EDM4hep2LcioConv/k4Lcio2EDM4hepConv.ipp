@@ -8,7 +8,7 @@ namespace LCIO2EDM4hepConv {
     // handle srting params
     EVENT::StringVec keys;
     const auto stringKeys = params.getStringKeys(keys);
-    for (int i = 0; i < stringKeys.size(); i++) {
+    for (auto i = 0u; i < stringKeys.size(); i++) {
       EVENT::StringVec sValues;
       const auto stringVals = params.getStringVals(stringKeys[i], sValues);
       event.putParameter(stringKeys[i], stringVals);
@@ -16,7 +16,7 @@ namespace LCIO2EDM4hepConv {
     // handle float params
     EVENT::StringVec fkeys;
     const auto floatKeys = params.getFloatKeys(fkeys);
-    for (int i = 0; i < floatKeys.size(); i++) {
+    for (auto i = 0u; i < floatKeys.size(); i++) {
       EVENT::FloatVec fValues;
       const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
       event.putParameter(floatKeys[i], floatVals);
@@ -24,7 +24,7 @@ namespace LCIO2EDM4hepConv {
     // handle int params
     EVENT::StringVec ikeys;
     const auto intKeys = params.getIntKeys(ikeys);
-    for (int i = 0; i < intKeys.size(); i++) {
+    for (auto i = 0u; i < intKeys.size(); i++) {
       EVENT::IntVec iValues;
       const auto intVals = params.getIntVals(intKeys[i], iValues);
       event.putParameter(intKeys[i], intVals);
@@ -32,7 +32,7 @@ namespace LCIO2EDM4hepConv {
     // handle double params
     EVENT::StringVec dkeys;
     const auto dKeys = params.getDoubleKeys(dkeys);
-    for (int i = 0; i < dKeys.size(); i++) {
+    for (auto i = 0u; i < dKeys.size(); i++) {
       EVENT::DoubleVec dValues;
       const auto dVals = params.getDoubleVals(dKeys[i], dValues);
       event.putParameter(dKeys[i], dVals);
@@ -587,7 +587,7 @@ namespace LCIO2EDM4hepConv {
     auto contrCollection = std::make_unique<edm4hep::CaloHitContributionCollection>();
     for (auto& [lcioHit, edmHit] : SimCaloHitMap) {
       auto NMCParticle = lcioHit->getNMCParticles();
-      for (unsigned j = 0; j < NMCParticle; j++) {
+      for (int j = 0; j < NMCParticle; j++) {
         auto edm_contr = contrCollection->create();
         edmHit.addToContributions(edm_contr);
 
@@ -613,9 +613,7 @@ namespace LCIO2EDM4hepConv {
   template<typename MCParticleMapT, typename MCParticleLookupMapT>
   void resolveRelationsMCParticles(MCParticleMapT& mcparticlesMap, const MCParticleLookupMapT& lookupMap)
   {
-    int edmnum = 1;
     for (auto& [lcio, edm] : mcparticlesMap) {
-      edmnum++;
       auto daughters = lcio->getDaughters();
       auto parents = lcio->getParents();
 
@@ -680,9 +678,7 @@ namespace LCIO2EDM4hepConv {
     const ClusterMapT& clusterMap,
     const TrackMapT& tracksMap)
   {
-    int edmnum = 1;
     for (auto& [lcio, edm] : recoparticlesMap) {
-      edmnum++;
 
       const auto& vertex = lcio->getStartVertex();
       if (vertex != nullptr) {

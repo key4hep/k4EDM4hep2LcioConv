@@ -178,7 +178,7 @@ inline bool compareRelation(
     // not fill relations if the original relations in LCIO were empty
     const auto nonNullLcio =
       std::count_if(lcioRange.begin(), lcioRange.end(), [](const auto e) { return e != nullptr; });
-    if (nonNullLcio != edm4hepRange.size()) {
+    if ((unsigned) nonNullLcio != edm4hepRange.size()) {
       std::cerr << msg << " different sizes (even after taking null values into account)" << std::endl;
       return false;
     }

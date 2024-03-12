@@ -35,7 +35,7 @@ namespace podio {
 namespace test_config {
   constexpr static int nMCParticles = 5; ///< The number of MCParticles to generate
 
-  using IdxPair = std::pair<std::size_t, std::size_t>;
+  using IdxPair = std::pair<int, int>;
   /// How to create the MC particle hierarchy, e.g. {4, 0} means that mc[4] will
   /// have mc[0] as a parent, and mc[0] will get mc[4] as a daughter
   const static std::vector<IdxPair> mcpParentIdcs = {{4, 0}, {4, 1}, {3, 2}, {3, 0}, {3, 1}, {2, 1}};
@@ -61,7 +61,7 @@ namespace test_config {
   constexpr static int nCaloHitContributions = 4; ///< The number of CalorimeterHit Contributions
   /// idcs to setup relations between SimCalorimeterHits, CaloHitContributions
   /// and MCParticles (in this order)
-  using CaloContIdx = std::tuple<std::size_t, std::size_t, std::size_t>;
+  using CaloContIdx = std::tuple<int, int, int>;
   /// The index values to use for setting up the relations
   const static std::vector<CaloContIdx> simCaloHitMCIdcs = {
     {0, 0, 0},
