@@ -337,7 +337,7 @@ podio::Frame createExampleEvent()
   event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
   event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
   const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
-  event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
+  const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
   event.put(
     createTracks(
       test_config::nTracks,
