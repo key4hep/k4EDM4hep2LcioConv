@@ -4,8 +4,12 @@
 
 namespace EDM4hep2LCIOConv {
 
-  // The EventHeaderCollection should be of length 1
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
+  {
+    convertEventHeader(header_coll, lcio_event);
+  }
+
+  void convertEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
   {
     if (header_coll->size() != 1) {
       return;
@@ -25,7 +29,7 @@ namespace EDM4hep2LCIOConv {
     return std::find(coll->begin(), coll->end(), collection_name) != coll->end();
   }
 
-  std::unique_ptr<lcio::LCEventImpl> convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
+  std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
   {
     auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
     auto objectMappings = CollectionsPairVectors {};
@@ -38,59 +42,61 @@ namespace EDM4hep2LCIOConv {
         metadata.getParameter<std::string>(podio::collMetadataParamName(name, edm4hep::CellIDEncoding));
 
       if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
-        auto lcColl = convTracks(coll, objectMappings.tracks, objectMappings.trackerHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTracks(coll, objectMappings.tracks);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
-        auto lcColl = convTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::TrackerHitPlaneCollection*>(edmCollection)) {
-        auto lcColl = convTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
-        auto lcColl = convSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits, objectMappings.mcParticles);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::RawCalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convRawCalorimeterHits(coll, objectMappings.rawCaloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertRawCalorimeterHits(coll, objectMappings.rawCaloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
-        auto lcColl = convSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
-        auto lcColl = convTPCHits(coll, objectMappings.tpcHits);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertTPCHits(coll, objectMappings.tpcHits);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
-        auto lcColl = convClusters(coll, objectMappings.clusters);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertClusters(coll, objectMappings.clusters);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
-        auto lcColl = convVertices(coll, objectMappings.vertices, objectMappings.recoParticles);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertVertices(coll, objectMappings.vertices);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::MCParticleCollection*>(edmCollection)) {
-        auto lcColl = convMCParticles(coll, objectMappings.mcParticles);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertMCParticles(coll, objectMappings.mcParticles);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::ReconstructedParticleCollection*>(edmCollection)) {
-        auto lcColl = convReconstructedParticles(
-          coll, objectMappings.recoParticles, objectMappings.tracks, objectMappings.vertices, objectMappings.clusters);
-        lcioEvent->addCollection(lcColl, name);
+        auto lcColl = convertReconstructedParticles(coll, objectMappings.recoParticles);
+        lcioEvent->addCollection(lcColl.release(), name);
       }
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
-        convEventHeader(coll, lcioEvent.get());
+        convertEventHeader(coll, lcioEvent.get());
       }
-      else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
-        // "converted" as part of FillMissingCollectoins at the end
+      else if (
+        dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection) ||
+        dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
+        // "converted" as part of FillMissingCollectoins at the end or as part
+        // of the reconstructed particle
         continue;
       }
       else {
@@ -104,7 +110,7 @@ namespace EDM4hep2LCIOConv {
       }
     }
 
-    FillMissingCollections(objectMappings);
+    resolveRelations(objectMappings);
 
     return lcioEvent;
   }

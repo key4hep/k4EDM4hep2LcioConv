@@ -36,5 +36,5 @@ auto* lcio_converted_sim_tracker_hit_ptr = convSimTrackerHits(
 // Some collections that need to be linked to other collections may be converted
 // after these are linked. Running this function after all conversions guarantees correct links
 // between collections.
-FillMissingCollections(collection_pairs);
+resolveRelations(collection_pairs);
 ```

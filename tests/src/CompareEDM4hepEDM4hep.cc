@@ -7,6 +7,7 @@
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/ReconstructedParticleCollection.h"
 
 #include <edm4hep/TrackState.h>
 #include <iostream>
@@ -273,6 +274,62 @@ bool compare(const edm4hep::ClusterCollection& origColl, const edm4hep::ClusterC
     REQUIRE_SAME(origSubdetE.size(), subdetE.size(), "sizes of subdetector energies in cluster " << i);
     for (size_t iSE = 0; iSE < origSubdetE.size(); ++iSE) {
       REQUIRE_SAME(origSubdetE[iSE], subdetE[iSE], "subdetector energy " << iSE << " in cluster " << i);
+    }
+  }
+
+  return true;
+}
+
+bool compare(
+  const edm4hep::ReconstructedParticleCollection& origColl,
+  const edm4hep::ReconstructedParticleCollection& roundtripColl)
+{
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    auto origReco = origColl[i];
+    auto reco = roundtripColl[i];
+
+    REQUIRE_SAME(origReco.getCharge(), reco.getCharge(), "charge in reco particle " << i);
+    REQUIRE_SAME(origReco.getMomentum(), reco.getMomentum(), "momentum in reco particle " << i);
+
+    const auto origRelClusters = origReco.getClusters();
+    const auto relClusters = reco.getClusters();
+    REQUIRE_SAME(origRelClusters.size(), relClusters.size(), "number of related clusters in reco particle " << i);
+    for (size_t iC = 0; iC < relClusters.size(); ++iC) {
+      REQUIRE_SAME(
+        origRelClusters[iC].getObjectID(),
+        relClusters[iC].getObjectID(),
+        "related cluster " << iC << " in reco particle " << i);
+    }
+
+    const auto origRelTracks = origReco.getTracks();
+    const auto relTracks = reco.getTracks();
+    REQUIRE_SAME(origRelTracks.size(), relTracks.size(), "number of related tracks in reco particle " << i);
+    for (size_t iT = 0; iT < relTracks.size(); ++iT) {
+      REQUIRE_SAME(
+        origRelTracks[iT].getObjectID(),
+        relTracks[iT].getObjectID(),
+        "related track " << iT << " in reco particle " << i);
+    }
+
+    const auto origRelParticles = origReco.getParticles();
+    const auto relParticles = reco.getParticles();
+    REQUIRE_SAME(origRelParticles.size(), relParticles.size(), "number of related particles in reco particle " << i);
+    for (size_t iP = 0; iP < relParticles.size(); ++iP) {
+      REQUIRE_SAME(
+        origRelParticles[iP].getObjectID(),
+        relParticles[iP].getObjectID(),
+        "related particle " << iP << " in reco particle " << i);
+    }
+
+    const auto origRelPIDs = origReco.getParticleIDs();
+    const auto relPIDs = reco.getParticleIDs();
+    REQUIRE_SAME(origRelPIDs.size(), relPIDs.size(), "number of related ParticleIDs in reco particle" << i);
+    for (size_t iP = 0; iP < relPIDs.size(); ++iP) {
+      REQUIRE_SAME(
+        origRelPIDs[iP].getObjectID(),
+        relPIDs[iP].getObjectID(),
+        "related ParticleID " << iP << " in reco particle " << i);
     }
   }
 
