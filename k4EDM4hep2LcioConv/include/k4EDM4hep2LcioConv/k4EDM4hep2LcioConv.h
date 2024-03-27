@@ -85,6 +85,7 @@ namespace EDM4hep2LCIOConv {
     ObjectMapT<lcio::VertexImpl*, edm4hep::Vertex> vertices {};
     ObjectMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoParticles {};
     ObjectMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcParticles {};
+    ObjectMapT<lcio::ParticleIDImpl*, edm4hep::ParticleID> particleIDs {};
   };
 
   /**
@@ -322,6 +323,15 @@ namespace EDM4hep2LCIOConv {
   }
 
   /**
+   * Convert EDM4hep ParticleIDs to LCIO. NOTE: Since ParticleIDs cannot live in
+   * their own collections in LCIO this simply populates the pidMap that maps
+   * LCIO to EDM4hep particleIDs. **This just converts the data it is crucial to
+   * also resolve the relations afterwards!**
+   */
+  template<typename PidMapT>
+  void convertParticleIDs(const edm4hep::ParticleIDCollection* const edmCollection, PidMapT& pidMap, const int algoId);
+
+  /**
    * Convert EDM4hep EventHeader to LCIO. This will directly populate the
    * corresponding information in the passed LCEvent. The input collection needs
    * to be of length 1!
@@ -388,6 +398,9 @@ namespace EDM4hep2LCIOConv {
    */
   template<typename ClusterMapT, typename CaloHitMapT>
   void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap);
+
+  template<typename PidMapT, typename RecoParticleMapT>
+  void resolveRelationsParticleIDs(PidMapT& pidMap, RecoParticleMapT& recoMap);
 
   /**
    * Resolve all relations in all converted objects that are held in the map.

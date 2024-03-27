@@ -18,8 +18,6 @@
  * the single object compare. All comparison functions return true if all
  * comparisons succeeded or false in case any comparison failed returning as
  * early as possible.
- *
- * TODO: Also compare relations
  */
 
 /// Convert the two 32 bit cellIDs into one 64 bit value
@@ -193,34 +191,26 @@ bool compare(
   ASSERT_COMPARE_RELATION(
     lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices, "startVertex in ReconstructedParticle");
 
+  // ParticleIDs need special treatment because they live in different
+  // collections in EDM4hep. Here we make sure that all ParticleIDs have been
+  // converted and mapped correctly by checking the ParticleID content and
+  // making sure that it points back to the converted reco particle
   const auto& lcioPIDs = lcioElem->getParticleIDs();
-  const auto edmPIDs = edm4hepElem.getParticleIDs();
-  ASSERT_COMPARE_VALS(lcioPIDs.size(), edmPIDs.size(), "particleIDs with different sizes in ReconstructedParticle");
-
   for (size_t i = 0; i < lcioPIDs.size(); ++i) {
-    if (!compare(lcioPIDs[i], edmPIDs[i])) {
-      std::cerr << "particle ID " << i << " differs in ReconstructedParticle (LCIO: " << lcioPIDs[i]
-                << ", EDM4hep: " << edmPIDs[i] << ")" << std::endl;
+    if (auto it = objectMaps.particleIDs.find(lcioPIDs[i]); it != objectMaps.particleIDs.end()) {
+      const auto& [lcioPid, edm4hepPid] = *it;
+      if (!compare(lcioPid, edm4hepPid) || edm4hepPid.getParticle() != edm4hepElem) {
+        std::cerr << "particle ID " << i << " is not mapped to the correct EDM4hep particle ID (LCIO: " << lcioPid
+                  << ", EDM4hep: " << edm4hepPid << ")" << std::endl;
+        return false;
+      }
+    }
+    else {
+      std::cerr << "Cannot find a converted ParticleID object for particle ID " << i << std::endl;
       return false;
     }
   }
 
-  const auto lcioPIDUsed = lcioElem->getParticleIDUsed();
-  const auto edmPIDUsed = edm4hepElem.getParticleIDUsed();
-  if (lcioPIDUsed == nullptr) {
-    if (edmPIDUsed.isAvailable()) {
-      std::cerr << "particleIDUsed is not available in LCIO, but points to " << edmPIDUsed.getObjectID()
-                << " in EDM4hep for ReconstructedParticle" << std::endl;
-      return false;
-    }
-  }
-  else {
-    if (!compare(lcioPIDUsed, edmPIDUsed)) {
-      std::cerr << "particleIDUsed differs in ReconstructedParticle (LCIO: " << lcioPIDUsed
-                << ", EDM4hep: " << edmPIDUsed << ")" << std::endl;
-      return false;
-    }
-  }
   return true;
 }
 

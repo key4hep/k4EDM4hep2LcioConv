@@ -90,7 +90,6 @@ namespace LCIO2EDM4hepConv {
     ObjectMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
     ObjectMapT<lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
     ObjectMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
-    ObjectMapT<lcio::ParticleID*, edm4hep::MutableParticleID> particleIDs {};
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
@@ -200,16 +199,13 @@ namespace LCIO2EDM4hepConv {
    * Convert a ReconstructedParticle collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    *
-   * NOTE: Also populates a ParticleID collection, as those are persisted as
+   * NOTE: Also populates ParticleID collections, as those are persisted as
    * part of the ReconstructedParticles in LCIO. The name of this collection is
-   * <name>_particleIDs
+   * <name>_<pid_algo_name>
    */
-  template<typename RecoMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertReconstructedParticles(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    RecoMapT& recoparticlesMap,
-    PIDMapT& particleIDMap);
+  template<typename RecoMapT>
+  std::vector<CollNamePair>
+  convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection, RecoMapT& recoparticlesMap);
 
   /**
    * Convert a Vertex collection and return the resulting collection.
@@ -291,12 +287,9 @@ namespace LCIO2EDM4hepConv {
    * part of the Cluster collection in LCIO. The name of this collection is
    * <name>_particleIDs
    */
-  template<typename ClusterMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertClusters(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    ClusterMapT& clusterMap,
-    PIDMapT& particleIDMap);
+  template<typename ClusterMapT>
+  std::unique_ptr<edm4hep::ClusterCollection>
+  convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap);
 
   /**
    * Create an EventHeaderCollection and fills it with the Metadata.
