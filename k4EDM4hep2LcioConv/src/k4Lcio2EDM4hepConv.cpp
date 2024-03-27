@@ -145,7 +145,7 @@ namespace LCIO2EDM4hepConv {
   {
     podio::Frame runHeaderFrame;
     runHeaderFrame.putParameter("runNumber", rheader->getRunNumber());
-    runHeaderFrame.putParameter("detectoName", rheader->getDetectorName());
+    runHeaderFrame.putParameter("detectorName", rheader->getDetectorName());
     runHeaderFrame.putParameter("description", rheader->getDescription());
     auto subdetectors = rheader->getActiveSubdetectors();
     runHeaderFrame.putParameter("activeSubdetectors", *subdetectors);
