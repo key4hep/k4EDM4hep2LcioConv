@@ -400,7 +400,7 @@ namespace EDM4hep2LCIOConv {
   void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap);
 
   template<typename PidMapT, typename RecoParticleMapT>
-  void resolveRelationsParticleIDs(PidMapT& pidMap, RecoParticleMapT& recoMap);
+  void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap);
 
   /**
    * Resolve all relations in all converted objects that are held in the map.

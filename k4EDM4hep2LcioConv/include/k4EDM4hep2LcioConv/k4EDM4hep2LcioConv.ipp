@@ -724,7 +724,7 @@ namespace EDM4hep2LCIOConv {
   }
 
   template<typename PidMapT, typename RecoParticleMapT>
-  void resolveRelationsParticleIDs(PidMapT& pidMap, RecoParticleMapT& recoMap)
+  void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap)
   {
     for (auto& [lcioPid, edmPid] : pidMap) {
       const auto edmReco = edmPid.getParticle();
