@@ -4,6 +4,7 @@
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
+#include <string>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -21,6 +22,7 @@ namespace edm4hep {
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include <edm4hep/ParticleIDCollection.h>
+#include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
 
@@ -363,14 +365,11 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
   std::vector<edm4hep::ParticleIDCollection> collections;
   collections.reserve(recoIdcs.size());
 
-  int algoId = 0;
   float param = 0;
   for (const auto& idcs : recoIdcs) {
-    algoId++;
     auto& coll = collections.emplace_back();
     for (const auto idx : idcs) {
       auto pid = coll.create();
-      pid.setAlgorithmType(algoId);
       pid.setType(idx);
       pid.setParticle(recoParticles[idx]);
       pid.addToParameters(param++);
@@ -380,9 +379,11 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
   return collections;
 }
 
-podio::Frame createExampleEvent()
+std::tuple<podio::Frame, podio::Frame> createExampleEvent()
 {
-  podio::Frame event;
+  auto retTuple = std::make_tuple(podio::Frame {}, podio::Frame {});
+
+  auto& [event, metadata] = retTuple;
 
   event.put(createEventHeader(), "EventHeader");
   const auto& mcParticles =
@@ -431,8 +432,14 @@ podio::Frame createExampleEvent()
   for (auto& pidColl : createParticleIDs(test_config::pidRecoIdcs, recoColl)) {
     // Make sure to use the same name as is generated for the LCIO to EDM4hep
     // conversion
-    event.put(std::move(pidColl), "recos_PID_algo" + std::to_string(algoId++));
+    const auto pidCollName = "recos_PID_pidAlgo_" + std::to_string(algoId);
+    edm4hep::utils::PIDHandler::setAlgoInfo(
+      metadata, pidColl, pidCollName, {"pidAlgo_" + std::to_string(algoId), algoId, {"param"}});
+
+    event.put(std::move(pidColl), pidCollName);
+
+    algoId++;
   }
 
-  return event;
+  return retTuple;
 }

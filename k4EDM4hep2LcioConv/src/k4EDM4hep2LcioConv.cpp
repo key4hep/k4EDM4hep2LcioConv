@@ -1,6 +1,10 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
+
 #include "edm4hep/Constants.h"
+#include "edm4hep/utils/ParticleIDUtils.h"
+
 #include "UTIL/PIDHandler.h"
+#include <edm4hep/ParticleIDCollection.h>
 
 namespace EDM4hep2LCIOConv {
 
@@ -40,10 +44,11 @@ namespace EDM4hep2LCIOConv {
     auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
     auto objectMappings = CollectionsPairVectors {};
 
-    // We simply collect all pairs of PID algorithm names and the RecoParticle
-    // collection to which they belong (assuming the naming convention
-    // introduced in the LCIO to EDM4hep conversion)
-    std::vector<std::tuple<std::string, std::string>> pidAlgoNames;
+    // We have to convert these after all other (specifically
+    // ReconstructedParticle) collections have been converted. Otherwise we will
+    // not be able to set all the metadata for the PIDHandler (LCIO) to work
+    // properly
+    std::vector<std::tuple<std::string, const edm4hep::ParticleIDCollection*>> pidCollections {};
 
     const auto& collections = edmEvent.getAvailableCollections();
     for (const auto& name : collections) {
@@ -104,8 +109,7 @@ namespace EDM4hep2LCIOConv {
         convertEventHeader(coll, lcioEvent.get());
       }
       else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
-        convertParticleIDs(coll, objectMappings.particleIDs, pidAlgoNames.size());
-        pidAlgoNames.emplace_back(getPidAlgoName(name));
+        pidCollections.emplace_back(name, coll);
       }
       else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
         // "converted" during relation resolving later
@@ -122,10 +126,22 @@ namespace EDM4hep2LCIOConv {
       }
     }
 
-    for (const auto& [algoName, recoCollName] : pidAlgoNames) {
-      std::cout << "Adding PID algo " << algoName << " to reco collection " << recoCollName << '\n';
-      UTIL::PIDHandler pidHandler(lcioEvent->getCollection(recoCollName));
-      std::cout << "assigned algo id " << pidHandler.addAlgorithm(algoName, {}) << '\n';
+    for (const auto& [name, coll] : pidCollections) {
+      const auto pidMetaInfo = edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name);
+      if (!pidMetaInfo.has_value()) {
+        std::cerr << "Cannot find meta information for ParticleID collection " << name << std::endl;
+      }
+      const auto recoName = edmEvent.getName((*coll)[0].getParticle().id().collectionID);
+      if (!recoName.has_value()) {
+        std::cerr << "Cannot find the ReconstructedParticle collection to which ParticleIDs from \'" << name
+                  << "' point to" << std::endl;
+      }
+      int32_t algoId = -1;
+      if (pidMetaInfo.has_value() && recoName.has_value()) {
+        UTIL::PIDHandler pidHandler(lcioEvent->getCollection(recoName.value()));
+        algoId = pidHandler.addAlgorithm(pidMetaInfo->algoName, pidMetaInfo->paramNames);
+      }
+      convertParticleIDs(coll, objectMappings.particleIDs, algoId);
     }
 
     resolveRelations(objectMappings);

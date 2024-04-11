@@ -335,7 +335,7 @@ bool compare(const edm4hep::ParticleIDCollection& origColl, const edm4hep::Parti
     const auto pid = roundtripColl[i];
 
     // This might not be preserved in roundtripping
-    // REQUIRE_SAME(origPid.getAlgorithmType(), pid.getAlgorithmType(), "algorithm type in ParticleID " << i);
+    REQUIRE_SAME(origPid.getAlgorithmType(), pid.getAlgorithmType(), "algorithm type in ParticleID " << i);
 
     REQUIRE_SAME(origPid.getType(), pid.getType(), "type in ParticleID " << i);
 

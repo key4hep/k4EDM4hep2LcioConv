@@ -186,7 +186,8 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
   const edm4hep::ReconstructedParticleCollection& recoParticles);
 
 /**
- * Create an example event that can be used to test the converter.
+ * Create an example event that can be used to test the converter. Also populate
+ * a metadata frame that can be used in the conversion.
  *
  * Content:
  *
@@ -207,6 +208,6 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
  * | recos                | ReconstructedParticleCollection | createRecoParticles      |
  * | recos_particleIDs    | ParticleIDCollection            | createRecoParticles      |
  */
-podio::Frame createExampleEvent();
+std::tuple<podio::Frame, podio::Frame> createExampleEvent();
 
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H
