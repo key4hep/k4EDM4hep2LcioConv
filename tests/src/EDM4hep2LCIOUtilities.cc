@@ -428,7 +428,8 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent()
       test_config::recoRecoIdcs),
     "recos");
 
-  int algoId = 1;
+  // Start at 0 here because that is also where the PIDHandler in LCIO starts
+  int algoId = 0;
   for (auto& pidColl : createParticleIDs(test_config::pidRecoIdcs, recoColl)) {
     // Make sure to use the same name as is generated for the LCIO to EDM4hep
     // conversion

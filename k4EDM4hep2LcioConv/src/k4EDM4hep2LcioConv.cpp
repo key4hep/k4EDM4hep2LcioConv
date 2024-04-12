@@ -6,6 +6,9 @@
 #include "UTIL/PIDHandler.h"
 #include <edm4hep/ParticleIDCollection.h>
 
+#include <limits>
+#include <algorithm>
+
 namespace EDM4hep2LCIOConv {
 
   void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event)
@@ -47,8 +50,12 @@ namespace EDM4hep2LCIOConv {
     // We have to convert these after all other (specifically
     // ReconstructedParticle) collections have been converted. Otherwise we will
     // not be able to set all the metadata for the PIDHandler (LCIO) to work
-    // properly
-    std::vector<std::tuple<std::string, const edm4hep::ParticleIDCollection*>> pidCollections {};
+    // properly. Here we store the name, the collection as well as potentially
+    // available meta information that we obtain when we first come across a
+    // collection
+    std::vector<
+      std::tuple<std::string, const edm4hep::ParticleIDCollection*, std::optional<edm4hep::utils::ParticleIDMeta>>>
+      pidCollections {};
 
     const auto& collections = edmEvent.getAvailableCollections();
     for (const auto& name : collections) {
@@ -109,7 +116,7 @@ namespace EDM4hep2LCIOConv {
         convertEventHeader(coll, lcioEvent.get());
       }
       else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
-        pidCollections.emplace_back(name, coll);
+        pidCollections.emplace_back(name, coll, edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name));
       }
       else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
         // "converted" during relation resolving later
@@ -126,8 +133,16 @@ namespace EDM4hep2LCIOConv {
       }
     }
 
-    for (const auto& [name, coll] : pidCollections) {
-      const auto pidMetaInfo = edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name);
+    // Sort the particle id collections according to their algorithmType from
+    // EDM4hep. This way we will get the same algorithmTypes in LCIO **iff** all
+    // of the ParticleIDs are converted **and** all of them have meta
+    // information available
+    std::sort(pidCollections.begin(), pidCollections.end(), [](const auto& pid1, const auto& pid2) {
+      static const auto defaultPidMeta = edm4hep::utils::ParticleIDMeta {"", std::numeric_limits<int>::max(), {}};
+      return std::get<2>(pid1).value_or(defaultPidMeta).algoType < std::get<2>(pid2).value_or(defaultPidMeta).algoType;
+    });
+
+    for (const auto& [name, coll, pidMetaInfo] : pidCollections) {
       if (!pidMetaInfo.has_value()) {
         std::cerr << "Cannot find meta information for ParticleID collection " << name << std::endl;
       }
@@ -136,11 +151,22 @@ namespace EDM4hep2LCIOConv {
         std::cerr << "Cannot find the ReconstructedParticle collection to which ParticleIDs from \'" << name
                   << "' point to" << std::endl;
       }
+
+      // Use a somewhat easy to detect default value.
       int32_t algoId = -1;
+      // In case we have a reconstructed particle collection to which we can
+      // attach meta information and we have that meta information, we use the
+      // value that is assigned by the PIDHandler from LCIO
       if (pidMetaInfo.has_value() && recoName.has_value()) {
         UTIL::PIDHandler pidHandler(lcioEvent->getCollection(recoName.value()));
         algoId = pidHandler.addAlgorithm(pidMetaInfo->algoName, pidMetaInfo->paramNames);
       }
+      // If we do not have a reconstructed particle collection but some meta
+      // information from the edm4hep side, we at least preserve that
+      else if (pidMetaInfo.has_value()) {
+        algoId = pidMetaInfo->algoType;
+      }
+
       convertParticleIDs(coll, objectMappings.particleIDs, algoId);
     }
 
