@@ -4,6 +4,8 @@
 #include <IOIMPL/LCFactory.h>
 #include <UTIL/CheckCollections.h>
 
+#include <edm4hep/utils/ParticleIDUtils.h>
+
 #include "podio/podioVersion.h"
 #if PODIO_BUILD_VERSION >= PODIO_VERSION(0, 99, 0)
 #include "podio/ROOTWriter.h"
@@ -166,6 +168,8 @@ int main(int argc, char* argv[])
 
   podio::ROOTWriter writer(args.outputFile);
 
+  podio::Frame metadata {};
+
   for (int j = 0; j < lcreader->getNumberOfRuns(); ++j) {
     if (j % 1 == 0) {
       std::cout << "processing RunHeader: " << j << std::endl;
@@ -187,8 +191,25 @@ int main(int argc, char* argv[])
       colPatcher.patchCollections(evt);
     }
     const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
+
+    // For the first event we also convert some meta information for the
+    // ParticleID handling
+    if (i == 0) {
+      for (const auto& name : *evt->getCollectionNames()) {
+        auto coll = evt->getCollection(name);
+        if (coll->getTypeName() == "ReconstructedParticle") {
+          for (const auto& pidInfo : LCIO2EDM4hepConv::getPIDMetaInfo(coll)) {
+            edm4hep::utils::PIDHandler::setAlgoInfo(
+              metadata, LCIO2EDM4hepConv::getPIDCollName(name, pidInfo.algoName), pidInfo);
+          }
+        }
+      }
+    }
+
     writer.writeFrame(edmEvent, "events");
   }
+
+  writer.writeFrame(metadata, podio::Category::Metadata);
 
   writer.finish();
 

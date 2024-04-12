@@ -174,7 +174,7 @@ namespace LCIO2EDM4hepConv {
     results.reserve(particleIDs.size() + 1);
     results.emplace_back(name, std::move(dest));
     for (auto& [id, coll] : particleIDs) {
-      results.emplace_back(name + "_PID_" + pidHandler.getAlgorithmName(id), std::move(coll));
+      results.emplace_back(getPIDCollName(name, pidHandler.getAlgorithmName(id)), std::move(coll));
     }
     return results;
   }

@@ -35,6 +35,7 @@ namespace edm4hep {
 #endif
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include "edm4hep/utils/ParticleIDUtils.h"
 
 // LCIO
 #include <EVENT/CalorimeterHit.h>
@@ -170,6 +171,21 @@ namespace LCIO2EDM4hepConv {
   inline edm4hep::Vector3f Vector3fFrom(const double* v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
   inline edm4hep::Vector3f Vector3fFrom(const EVENT::FloatVec& v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
+
+  /**
+   * Get the name of a ParticleID collection from the name of the reco
+   * collection (from which it is created) and the PID algorithm name.
+   */
+  inline std::string getPIDCollName(const std::string& recoCollName, const std::string& algoName)
+  {
+    return recoCollName + "_PID_" + algoName;
+  }
+
+  /**
+   * Get the meta information for all particle id collections that are available
+   * from the PIDHandler
+   */
+  std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollection* recoColl);
 
   /**
    * Convert a TrackState

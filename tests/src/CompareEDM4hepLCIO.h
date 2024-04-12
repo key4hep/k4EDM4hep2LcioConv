@@ -34,6 +34,8 @@ namespace edm4hep {
 #endif
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include "edm4hep/utils/ParticleIDUtils.h"
+
 #include "podio/Frame.h"
 
 #include <EVENT/CalorimeterHit.h>
@@ -53,6 +55,7 @@ namespace edm4hep {
 #include <EVENT/TrackerHit.h>
 #include <EVENT/TrackerHitPlane.h>
 #include <EVENT/Vertex.h>
+#include <UTIL/PIDHandler.h>
 #include <lcio.h>
 
 bool compare(

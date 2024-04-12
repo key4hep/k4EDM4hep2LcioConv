@@ -1,5 +1,7 @@
 #include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h"
 
+#include <UTIL/PIDHandler.h>
+
 #include <iostream>
 
 namespace LCIO2EDM4hepConv {
@@ -69,6 +71,17 @@ namespace LCIO2EDM4hepConv {
     header.setTimeStamp(evt->getTimeStamp());
     header.setWeight(evt->getWeight());
     return headerColl;
+  }
+
+  std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollection* recoColl)
+  {
+    std::vector<edm4hep::utils::ParticleIDMeta> pidInfos {};
+    const auto pidHandler = UTIL::PIDHandler(recoColl);
+    for (const auto id : pidHandler.getAlgorithmIDs()) {
+      pidInfos.emplace_back(pidHandler.getAlgorithmName(id), id, pidHandler.getParameterNames(id));
+    }
+
+    return pidInfos;
   }
 
   podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert)
