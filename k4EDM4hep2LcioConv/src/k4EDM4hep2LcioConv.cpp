@@ -36,12 +36,6 @@ namespace EDM4hep2LCIOConv {
     return std::find(coll->begin(), coll->end(), collection_name) != coll->end();
   }
 
-  std::tuple<std::string, std::string> getPidAlgoName(const std::string& collectionName)
-  {
-    const auto pidPos = collectionName.find("_PID_");
-    return {collectionName.substr(pidPos + 5), collectionName.substr(0, pidPos)};
-  }
-
   void sortParticleIDs(std::vector<ParticleIDConvData>& pidCollections)
   {
     std::sort(pidCollections.begin(), pidCollections.end(), [](const auto& pid1, const auto& pid2) {
