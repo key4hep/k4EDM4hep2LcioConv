@@ -217,7 +217,7 @@ namespace LCIO2EDM4hepConv {
    *
    * NOTE: Also populates ParticleID collections, as those are persisted as
    * part of the ReconstructedParticles in LCIO. The name of this collection is
-   * <name>_<pid_algo_name>
+   * <name>_PID_<pid_algo_name> (see getPIDCollName)
    */
   template<typename RecoMapT>
   std::vector<CollNamePair>
@@ -298,10 +298,6 @@ namespace LCIO2EDM4hepConv {
   /**
    * Convert a Cluster collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
-   *
-   * NOTE: Also populates a ParticleID collection, as those are persisted as
-   * part of the Cluster collection in LCIO. The name of this collection is
-   * <name>_particleIDs
    */
   template<typename ClusterMapT>
   std::unique_ptr<edm4hep::ClusterCollection>
