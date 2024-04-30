@@ -11,7 +11,7 @@ target_include_directories(k4EDM4hep2LcioConv PUBLIC
 target_link_libraries(k4EDM4hep2LcioConv PUBLIC
   LCIO::lcio
   EDM4HEP::edm4hep
-  EDM4HEP::edm4hepUtils
+  EDM4HEP::utils
 )
 
 set(public_headers
