@@ -1,5 +1,8 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
+#include <UTIL/PIDHandler.h>
+#include <edm4hep/ParticleIDCollection.h>
+
 namespace LCIO2EDM4hepConv {
   template<typename LCIOType>
   void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event)
@@ -114,15 +117,22 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  template<typename RecoMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertReconstructedParticles(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    RecoMapT& recoparticlesMap,
-    PIDMapT& particleIDMap)
+  template<typename RecoMapT>
+  std::vector<CollNamePair>
+  convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection, RecoMapT& recoparticlesMap)
   {
     auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
-    auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
+
+    // Set up a PIDHandler to split off the ParticlID objects stored in the
+    // reconstructed particles into separate collections. Each algorithm id /
+    // name get's a separate collection
+    auto pidHandler = UTIL::PIDHandler(LCCollection);
+    // TODO: parameter names
+    std::map<int, std::unique_ptr<edm4hep::ParticleIDCollection>> particleIDs;
+    for (const auto id : pidHandler.getAlgorithmIDs()) {
+      particleIDs.emplace(id, std::make_unique<edm4hep::ParticleIDCollection>());
+    }
+
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
       auto* rval = static_cast<EVENT::ReconstructedParticle*>(LCCollection->getElementAt(i));
       auto lval = dest->create();
@@ -146,39 +156,26 @@ namespace LCIO2EDM4hepConv {
       }
 
       // Need to convert the particle IDs here, since they are part of the reco
-      // particle collection in LCIO
+      // particle collection in LCIO.
       for (const auto lcioPid : rval->getParticleIDs()) {
         auto pid = convertParticleID(lcioPid);
-        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(
-          lcioPid, pid, particleIDMap, k4EDM4hep2LcioConv::detail::InsertMode::Checked);
-        if (pidInserted) {
-          lval.addToParticleIDs(pid);
-          particleIDs->push_back(pid);
+        pid.setParticle(lval);
+        if (auto pidIt = particleIDs.find(pid.getAlgorithmType()); pidIt != particleIDs.end()) {
+          pidIt->second->push_back(pid);
         }
         else {
-          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
+          std::cerr << "ERROR: Found a PID object with an algorithm ID that is not known to the PIDHandler (id = "
+                    << pid.getAlgorithmType() << ")" << std::endl;
         }
-      }
-
-      const auto lcioPidUsed = rval->getParticleIDUsed();
-      if (lcioPidUsed == nullptr) {
-        continue;
-      }
-      if (const auto edm4hepPid = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioPidUsed, particleIDMap)) {
-        lval.setParticleIDUsed(edm4hepPid.value());
-      }
-      else {
-        auto pid = convertParticleID(lcioPidUsed);
-        particleIDs->push_back(pid);
-        k4EDM4hep2LcioConv::detail::mapInsert(lcioPidUsed, pid, particleIDMap);
-        lval.setParticleIDUsed(pid);
       }
     }
 
     std::vector<CollNamePair> results;
-    results.reserve(2);
+    results.reserve(particleIDs.size() + 1);
     results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_particleIDs", std::move(particleIDs));
+    for (auto& [id, coll] : particleIDs) {
+      results.emplace_back(getPIDCollName(name, pidHandler.getAlgorithmName(id)), std::move(coll));
+    }
     return results;
   }
 
@@ -472,14 +469,10 @@ namespace LCIO2EDM4hepConv {
     return dest;
   }
 
-  template<typename ClusterMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertClusters(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    ClusterMapT& clusterMap,
-    PIDMapT& particleIDMap)
+  template<typename ClusterMapT>
+  std::unique_ptr<edm4hep::ClusterCollection>
+  convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap)
   {
-    auto particleIDs = std::make_unique<edm4hep::ParticleIDCollection>();
     auto dest = std::make_unique<edm4hep::ClusterCollection>();
 
     for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
@@ -503,26 +496,8 @@ namespace LCIO2EDM4hepConv {
         std::cerr << "EDM4hep element  " << existingId << " did not get inserted. It belongs to the " << name
                   << " collection" << std::endl;
       }
-
-      // Need to convert the particle IDs here, since they are part of the cluster
-      // collection in LCIO
-      for (const auto lcioPid : rval->getParticleIDs()) {
-        auto pid = convertParticleID(lcioPid);
-        const auto [pidIt, pidInserted] = k4EDM4hep2LcioConv::detail::mapInsert(lcioPid, pid, particleIDMap);
-        if (pidInserted) {
-          lval.addToParticleIDs(pid);
-          particleIDs->push_back(pid);
-        }
-        else {
-          lval.addToParticleIDs(k4EDM4hep2LcioConv::detail::getMapped(pidIt));
-        }
-      }
     }
-    std::vector<CollNamePair> results;
-    results.reserve(2);
-    results.emplace_back(name, std::move(dest));
-    results.emplace_back(name + "_particleIDs", std::move(particleIDs));
-    return results;
+    return dest;
   }
 
   template<typename ObjectMappingT>
@@ -535,7 +510,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertMCParticles(name, LCCollection, typeMapping.mcParticles));
     }
     else if (type == "ReconstructedParticle") {
-      return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles, typeMapping.particleIDs);
+      return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles);
     }
     else if (type == "Vertex") {
       retColls.emplace_back(name, convertVertices(name, LCCollection, typeMapping.vertices));
@@ -544,7 +519,7 @@ namespace LCIO2EDM4hepConv {
       retColls.emplace_back(name, convertTracks(name, LCCollection, typeMapping.tracks));
     }
     else if (type == "Cluster") {
-      return convertClusters(name, LCCollection, typeMapping.clusters, typeMapping.particleIDs);
+      retColls.emplace_back(name, convertClusters(name, LCCollection, typeMapping.clusters));
     }
     else if (type == "SimCalorimeterHit") {
       retColls.emplace_back(name, convertSimCalorimeterHits(name, LCCollection, typeMapping.simCaloHits));

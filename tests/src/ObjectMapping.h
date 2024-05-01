@@ -18,11 +18,16 @@ namespace EVENT {
   class ReconstructedParticle;
   class MCParticle;
   class LCEvent;
+  class ParticleID;
 } // namespace EVENT
 
 namespace podio {
   class Frame;
 } // namespace podio
+
+namespace edm4hep {
+  class ParticleID;
+}
 
 struct ObjectMappings {
   template<typename K>
@@ -40,6 +45,8 @@ struct ObjectMappings {
   Map<const EVENT::ReconstructedParticle*> recoParticles {};
   Map<const EVENT::TPCHit*> tpcHits {};
   Map<const EVENT::Vertex*> vertices {};
+
+  std::unordered_map<const EVENT::ParticleID*, edm4hep::ParticleID> particleIDs;
 
   static ObjectMappings fromEvent(EVENT::LCEvent* lcEvt, const podio::Frame& edmEvt);
 };

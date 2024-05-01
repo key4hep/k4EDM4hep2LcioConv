@@ -11,8 +11,8 @@
 
 int main()
 {
-  const auto edmEvent = createExampleEvent();
-  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(edmEvent);
+  const auto& [edmEvent, metadata] = createExampleEvent();
+  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(edmEvent, metadata);
 
   if (!compareEventHeader(lcioEvent.get(), &edmEvent)) {
     return 1;

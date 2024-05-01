@@ -16,8 +16,8 @@
 
 int main()
 {
-  const auto origEvent = createExampleEvent();
-  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(origEvent);
+  const auto& [origEvent, metadata] = createExampleEvent();
+  const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(origEvent, metadata);
   const auto roundtripEvent = LCIO2EDM4hepConv::convertEvent(lcioEvent.get());
 
   ASSERT_SAME_OR_ABORT(edm4hep::CalorimeterHitCollection, "caloHits");
@@ -28,6 +28,9 @@ int main()
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes");
   ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters");
   ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "recos");
+  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_1");
+  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_2");
+  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_3");
 
   return 0;
 }

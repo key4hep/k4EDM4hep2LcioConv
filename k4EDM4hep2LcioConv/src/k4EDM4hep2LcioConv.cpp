@@ -1,6 +1,13 @@
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
+
 #include "edm4hep/Constants.h"
-#include "EVENT/MCParticle.h"
+#include "edm4hep/utils/ParticleIDUtils.h"
+
+#include "UTIL/PIDHandler.h"
+#include <edm4hep/ParticleIDCollection.h>
+
+#include <limits>
+#include <algorithm>
 
 namespace EDM4hep2LCIOConv {
 
@@ -29,10 +36,50 @@ namespace EDM4hep2LCIOConv {
     return std::find(coll->begin(), coll->end(), collection_name) != coll->end();
   }
 
+  void sortParticleIDs(std::vector<ParticleIDConvData>& pidCollections)
+  {
+    std::sort(pidCollections.begin(), pidCollections.end(), [](const auto& pid1, const auto& pid2) {
+      static const auto defaultPidMeta = edm4hep::utils::ParticleIDMeta {"", std::numeric_limits<int>::max(), {}};
+      return pid1.metadata.value_or(defaultPidMeta).algoType < pid2.metadata.value_or(defaultPidMeta).algoType;
+    });
+  }
+
+  std::optional<int32_t> attachParticleIDMetaData(
+    IMPL::LCEventImpl* lcEvent,
+    const podio::Frame& edmEvent,
+    const ParticleIDConvData& pidCollMetaInfo)
+  {
+    const auto& [name, coll, pidMetaInfo] = pidCollMetaInfo;
+    const auto recoName = edmEvent.getName((*coll)[0].getParticle().id().collectionID);
+    // If we can't get the reconstructed particle collection name there is not
+    // much we can do
+    if (!recoName.has_value()) {
+      return std::nullopt;
+    }
+    // If we can't get meta data information there is not much we can do either
+    if (!pidMetaInfo.has_value()) {
+      return std::nullopt;
+    }
+    if (pidMetaInfo.has_value() && !recoName.has_value()) {
+      return pidMetaInfo->algoType;
+    }
+
+    UTIL::PIDHandler pidHandler(lcEvent->getCollection(recoName.value()));
+    return pidHandler.addAlgorithm(pidMetaInfo->algoName, pidMetaInfo->paramNames);
+  }
+
   std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, const podio::Frame& metadata)
   {
     auto lcioEvent = std::make_unique<lcio::LCEventImpl>();
     auto objectMappings = CollectionsPairVectors {};
+
+    // We have to convert these after all other (specifically
+    // ReconstructedParticle) collections have been converted. Otherwise we will
+    // not be able to set all the metadata for the PIDHandler (LCIO) to work
+    // properly. Here we store the name, the collection as well as potentially
+    // available meta information that we obtain when we first come across a
+    // collection
+    std::vector<ParticleIDConvData> pidCollections {};
 
     const auto& collections = edmEvent.getAvailableCollections();
     for (const auto& name : collections) {
@@ -92,11 +139,11 @@ namespace EDM4hep2LCIOConv {
       else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
         convertEventHeader(coll, lcioEvent.get());
       }
-      else if (
-        dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection) ||
-        dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
-        // "converted" as part of FillMissingCollectoins at the end or as part
-        // of the reconstructed particle
+      else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
+        pidCollections.emplace_back(name, coll, edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name));
+      }
+      else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
+        // "converted" during relation resolving later
         continue;
       }
       else {
@@ -108,6 +155,14 @@ namespace EDM4hep2LCIOConv {
                   << "SimCalorimeterHit, Vertex, ReconstructedParticle, "
                   << "MCParticle." << std::endl;
       }
+    }
+
+    sortParticleIDs(pidCollections);
+    for (const auto& pidCollMeta : pidCollections) {
+      // Use -1 as a somewhat easy to identify value of missing reco collections
+      // or pid metadata
+      const auto algoId = attachParticleIDMetaData(lcioEvent.get(), edmEvent, pidCollMeta).value_or(-1);
+      convertParticleIDs(pidCollMeta.coll, objectMappings.particleIDs, algoId);
     }
 
     resolveRelations(objectMappings);

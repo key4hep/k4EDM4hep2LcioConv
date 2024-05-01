@@ -8,6 +8,7 @@
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
+#include "edm4hep/ParticleIDCollection.h"
 
 #include <edm4hep/TrackState.h>
 #include <iostream>
@@ -321,17 +322,32 @@ bool compare(
         relParticles[iP].getObjectID(),
         "related particle " << iP << " in reco particle " << i);
     }
-
-    const auto origRelPIDs = origReco.getParticleIDs();
-    const auto relPIDs = reco.getParticleIDs();
-    REQUIRE_SAME(origRelPIDs.size(), relPIDs.size(), "number of related ParticleIDs in reco particle" << i);
-    for (size_t iP = 0; iP < relPIDs.size(); ++iP) {
-      REQUIRE_SAME(
-        origRelPIDs[iP].getObjectID(),
-        relPIDs[iP].getObjectID(),
-        "related ParticleID " << iP << " in reco particle " << i);
-    }
   }
 
+  return true;
+}
+
+bool compare(const edm4hep::ParticleIDCollection& origColl, const edm4hep::ParticleIDCollection& roundtripColl)
+{
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    const auto origPid = origColl[i];
+    const auto pid = roundtripColl[i];
+
+    // This might not be preserved in roundtripping
+    REQUIRE_SAME(origPid.getAlgorithmType(), pid.getAlgorithmType(), "algorithm type in ParticleID " << i);
+
+    REQUIRE_SAME(origPid.getType(), pid.getType(), "type in ParticleID " << i);
+
+    const auto origParams = origPid.getParameters();
+    const auto params = pid.getParameters();
+    REQUIRE_SAME(origParams.size(), params.size(), "parameter sizes in ParticleID " << i);
+    for (size_t iP = 0; iP < params.size(); ++iP) {
+      REQUIRE_SAME(origParams[iP], params[iP], "parameter " << iP << " in ParticleID " << i);
+    }
+
+    REQUIRE_SAME(
+      origPid.getParticle().getObjectID(), pid.getParticle().getObjectID(), "related particle in ParticleID " << i);
+  }
   return true;
 }

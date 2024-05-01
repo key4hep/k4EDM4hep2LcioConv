@@ -33,6 +33,7 @@ namespace edm4hep {
 #endif
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/VertexCollection.h>
+#include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
 
@@ -59,6 +60,7 @@ namespace edm4hep {
 #include <lcio.h>
 
 #include <memory>
+#include <optional>
 
 // Preprocessor symbol that can be used in downstream code to switch on the
 // namespace for the conversion
@@ -85,7 +87,44 @@ namespace EDM4hep2LCIOConv {
     ObjectMapT<lcio::VertexImpl*, edm4hep::Vertex> vertices {};
     ObjectMapT<lcio::ReconstructedParticleImpl*, edm4hep::ReconstructedParticle> recoParticles {};
     ObjectMapT<lcio::MCParticleImpl*, edm4hep::MCParticle> mcParticles {};
+    ObjectMapT<lcio::ParticleIDImpl*, edm4hep::ParticleID> particleIDs {};
   };
+
+  /// The minimal necessary information to do late conversions of ParticleIDs,
+  /// which is necessary to have consistent algorithmType information in the
+  /// conversion
+  struct ParticleIDConvData {
+    std::string name;
+    const edm4hep::ParticleIDCollection* coll;
+    std::optional<edm4hep::utils::ParticleIDMeta> metadata;
+  };
+
+  /// Sort the ParticleIDs according to their algorithmType.
+  ///
+  /// This sorting allows for a fully consistent roundtrip conversion under the
+  /// following conditions:
+  /// - All ParticleIDs are converted (where all means all that belong to a
+  /// given ReconstructedParticle collection)
+  /// - All of these conversions had the necessary metadata available
+  ///
+  /// In case these conditions are not met, the assigned algorithmTypes might
+  /// differ between LCIO and EDM4hep, but the metadata that is set will be
+  /// consistent for usage.
+  void sortParticleIDs(std::vector<ParticleIDConvData>& pidCollections);
+
+  /// Attach the meta information for one ParticleID collection to the passed
+  /// LCIO Event
+  ///
+  /// This returns the algorithmID according to the PIDHandler that is used to
+  /// attach the information to the LCIO reconstructed particle collection. If
+  /// there is no fitting reconstructed particle collection to attach this to
+  /// but the meta data in the ParticleIDConvData is valid, the algoType of that
+  /// will be returned. If there is no reconstructed particle collection or the
+  /// meta data is invalid an empty optional is returned.
+  std::optional<int32_t> attachParticleIDMetaData(
+    IMPL::LCEventImpl* lcEvent,
+    const podio::Frame& edmEvent,
+    const ParticleIDConvData& pidCollMetaInfo);
 
   /**
    * Convert EDM4hep Tracks to LCIO. Simultaneously populate the mapping from
@@ -322,6 +361,15 @@ namespace EDM4hep2LCIOConv {
   }
 
   /**
+   * Convert EDM4hep ParticleIDs to LCIO. NOTE: Since ParticleIDs cannot live in
+   * their own collections in LCIO this simply populates the pidMap that maps
+   * LCIO to EDM4hep particleIDs. **This just converts the data it is crucial to
+   * also resolve the relations afterwards!**
+   */
+  template<typename PidMapT>
+  void convertParticleIDs(const edm4hep::ParticleIDCollection* const edmCollection, PidMapT& pidMap, const int algoId);
+
+  /**
    * Convert EDM4hep EventHeader to LCIO. This will directly populate the
    * corresponding information in the passed LCEvent. The input collection needs
    * to be of length 1!
@@ -388,6 +436,9 @@ namespace EDM4hep2LCIOConv {
    */
   template<typename ClusterMapT, typename CaloHitMapT>
   void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap);
+
+  template<typename PidMapT, typename RecoParticleMapT>
+  void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap);
 
   /**
    * Resolve all relations in all converted objects that are held in the map.

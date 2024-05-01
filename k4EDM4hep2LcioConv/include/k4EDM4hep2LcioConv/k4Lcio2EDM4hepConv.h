@@ -35,6 +35,7 @@ namespace edm4hep {
 #endif
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include "edm4hep/utils/ParticleIDUtils.h"
 
 // LCIO
 #include <EVENT/CalorimeterHit.h>
@@ -90,7 +91,6 @@ namespace LCIO2EDM4hepConv {
     ObjectMapT<lcio::ReconstructedParticle*, edm4hep::MutableReconstructedParticle> recoParticles {};
     ObjectMapT<lcio::MCParticle*, edm4hep::MutableMCParticle> mcParticles {};
     ObjectMapT<lcio::TrackerHitPlane*, edm4hep::MutableTrackerHitPlane> trackerHitPlanes {};
-    ObjectMapT<lcio::ParticleID*, edm4hep::MutableParticleID> particleIDs {};
   };
 
   using CollNamePair = std::tuple<std::string, std::unique_ptr<podio::CollectionBase>>;
@@ -173,6 +173,21 @@ namespace LCIO2EDM4hepConv {
   inline edm4hep::Vector3f Vector3fFrom(const EVENT::FloatVec& v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
   /**
+   * Get the name of a ParticleID collection from the name of the reco
+   * collection (from which it is created) and the PID algorithm name.
+   */
+  inline std::string getPIDCollName(const std::string& recoCollName, const std::string& algoName)
+  {
+    return recoCollName + "_PID_" + algoName;
+  }
+
+  /**
+   * Get the meta information for all particle id collections that are available
+   * from the PIDHandler
+   */
+  std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollection* recoColl);
+
+  /**
    * Convert a TrackState
    */
   edm4hep::TrackState convertTrackState(const EVENT::TrackState* trackState);
@@ -200,16 +215,13 @@ namespace LCIO2EDM4hepConv {
    * Convert a ReconstructedParticle collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
    *
-   * NOTE: Also populates a ParticleID collection, as those are persisted as
+   * NOTE: Also populates ParticleID collections, as those are persisted as
    * part of the ReconstructedParticles in LCIO. The name of this collection is
-   * <name>_particleIDs
+   * <name>_PID_<pid_algo_name> (see getPIDCollName)
    */
-  template<typename RecoMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertReconstructedParticles(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    RecoMapT& recoparticlesMap,
-    PIDMapT& particleIDMap);
+  template<typename RecoMapT>
+  std::vector<CollNamePair>
+  convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection, RecoMapT& recoparticlesMap);
 
   /**
    * Convert a Vertex collection and return the resulting collection.
@@ -286,17 +298,10 @@ namespace LCIO2EDM4hepConv {
   /**
    * Convert a Cluster collection and return the resulting collection.
    * Simultaneously populates the mapping from LCIO to EDM4hep objects.
-   *
-   * NOTE: Also populates a ParticleID collection, as those are persisted as
-   * part of the Cluster collection in LCIO. The name of this collection is
-   * <name>_particleIDs
    */
-  template<typename ClusterMapT, typename PIDMapT>
-  std::vector<CollNamePair> convertClusters(
-    const std::string& name,
-    EVENT::LCCollection* LCCollection,
-    ClusterMapT& clusterMap,
-    PIDMapT& particleIDMap);
+  template<typename ClusterMapT>
+  std::unique_ptr<edm4hep::ClusterCollection>
+  convertClusters(const std::string& name, EVENT::LCCollection* LCCollection, ClusterMapT& clusterMap);
 
   /**
    * Create an EventHeaderCollection and fills it with the Metadata.

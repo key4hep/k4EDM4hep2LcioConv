@@ -10,7 +10,6 @@ namespace EDM4hep2LCIOConv {
     TrackMapT& trackMap)
   {
     auto tracks = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACK);
-
     // Loop over EDM4hep tracks converting them to lcio tracks.
     for (const auto& edm_tr : (*edmCollection)) {
       if (edm_tr.isAvailable()) {
@@ -392,23 +391,6 @@ namespace EDM4hep2LCIOConv {
           subdetEnergies.push_back(edmEnergy);
         }
 
-        // Convert ParticleIDs associated to the recoparticle
-        for (const auto& edm_pid : edm_cluster.getParticleIDs()) {
-          if (edm_pid.isAvailable()) {
-            auto* lcio_pid = new lcio::ParticleIDImpl;
-
-            lcio_pid->setType(edm_pid.getType());
-            lcio_pid->setPDG(edm_pid.getPDG());
-            lcio_pid->setLikelihood(edm_pid.getLikelihood());
-            lcio_pid->setAlgorithmType(edm_pid.getAlgorithmType());
-            for (const auto& param : edm_pid.getParameters()) {
-              lcio_pid->addParameter(param);
-            }
-
-            lcio_cluster->addParticleID(lcio_pid);
-          }
-        }
-
         // Add LCIO and EDM4hep pair collections to vec
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster, clusterMap);
 
@@ -473,43 +455,6 @@ namespace EDM4hep2LCIOConv {
         float rp[3] = {edm_rp.getReferencePoint()[0], edm_rp.getReferencePoint()[1], edm_rp.getReferencePoint()[2]};
         lcio_recp->setReferencePoint(rp);
         lcio_recp->setGoodnessOfPID(edm_rp.getGoodnessOfPID());
-
-        // Convert ParticleIDs associated to the recoparticle
-        for (const auto& edm_pid : edm_rp.getParticleIDs()) {
-          if (edm_pid.isAvailable()) {
-            auto* lcio_pid = new lcio::ParticleIDImpl;
-
-            lcio_pid->setType(edm_pid.getType());
-            lcio_pid->setPDG(edm_pid.getPDG());
-            lcio_pid->setLikelihood(edm_pid.getLikelihood());
-            lcio_pid->setAlgorithmType(edm_pid.getAlgorithmType());
-            for (const auto& param : edm_pid.getParameters()) {
-              lcio_pid->addParameter(param);
-            }
-
-            lcio_recp->addParticleID(lcio_pid);
-          }
-        }
-
-        // Link sinlge associated Particle
-        auto edm_pid_used = edm_rp.getParticleIDUsed();
-        if (edm_pid_used.isAvailable()) {
-          for (const auto& lcio_pid : lcio_recp->getParticleIDs()) {
-            bool is_same = true;
-            is_same = is_same && (lcio_pid->getType() == edm_pid_used.getType());
-            is_same = is_same && (lcio_pid->getPDG() == edm_pid_used.getPDG());
-            is_same = is_same && (lcio_pid->getLikelihood() == edm_pid_used.getLikelihood());
-            is_same = is_same && (lcio_pid->getAlgorithmType() == edm_pid_used.getAlgorithmType());
-            for (auto i = 0u; i < edm_pid_used.parameters_size(); ++i) {
-              is_same = is_same && (edm_pid_used.getParameters(i) == lcio_pid->getParameters()[i]);
-            }
-            if (is_same) {
-              lcio_recp->setParticleIDUsed(lcio_pid);
-              break;
-            }
-          }
-        }
-
         // Add LCIO and EDM4hep pair collections to vec
         k4EDM4hep2LcioConv::detail::mapInsert(lcio_recp, edm_rp, recoparticles_vec);
 
@@ -572,6 +517,22 @@ namespace EDM4hep2LCIOConv {
     }
 
     return mcparticles;
+  }
+
+  template<typename PidMapT>
+  void convertParticleIDs(const edm4hep::ParticleIDCollection* const edmCollection, PidMapT& pidMap, const int algoId)
+  {
+    for (const auto& edmPid : (*edmCollection)) {
+      auto [lcioPid, _] = k4EDM4hep2LcioConv::detail::mapInsert(new lcio::ParticleIDImpl(), edmPid, pidMap).first;
+
+      lcioPid->setType(edmPid.getType());
+      lcioPid->setPDG(edmPid.getPDG());
+      lcioPid->setLikelihood(edmPid.getLikelihood());
+      lcioPid->setAlgorithmType(algoId);
+      for (const auto& param : edmPid.getParameters()) {
+        lcioPid->addParameter(param);
+      }
+    }
   }
 
   template<typename MCParticleMapT, typename MCParticleLookupMapT>
@@ -762,6 +723,21 @@ namespace EDM4hep2LCIOConv {
     }
   }
 
+  template<typename PidMapT, typename RecoParticleMapT>
+  void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap)
+  {
+    for (auto& [lcioPid, edmPid] : pidMap) {
+      const auto edmReco = edmPid.getParticle();
+      const auto lcioReco = k4EDM4hep2LcioConv::detail::mapLookupFrom(edmReco, recoMap);
+      if (lcioReco) {
+        lcioReco.value()->addParticleID(lcioPid);
+      }
+      else {
+        std::cerr << "Cannot find a reconstructed particle to attach a ParticleID to" << std::endl;
+      }
+    }
+  }
+
   template<typename ObjectMappingT>
   void resolveRelations(ObjectMappingT& collection_pairs)
   {
@@ -783,6 +759,7 @@ namespace EDM4hep2LCIOConv {
       lookup_pairs.vertices,
       lookup_pairs.clusters,
       lookup_pairs.tracks);
+    resolveRelationsParticleIDs(lookup_pairs.particleIDs, update_pairs.recoParticles);
     resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
     resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
     resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);

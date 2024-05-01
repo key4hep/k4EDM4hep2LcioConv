@@ -1,6 +1,9 @@
 add_library(edmCompare SHARED src/CompareEDM4hepLCIO.cc src/ObjectMapping.cc src/CompareEDM4hepEDM4hep.cc)
 target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep LCIO::lcio)
-target_include_directories(edmCompare PUBLIC ${LCIO_INCLUDE_DIRS})
+target_include_directories(edmCompare
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/k4EDM4hep2LcioConv/include>
+)
 
 add_library(TestUtils SHARED src/EDM4hep2LCIOUtilities.cc)
 target_link_libraries(TestUtils PUBLIC EDM4HEP::edm4hep LCIO::lcio)
