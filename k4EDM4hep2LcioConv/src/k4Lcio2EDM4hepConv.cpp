@@ -36,12 +36,12 @@ namespace LCIO2EDM4hepConv {
       covMatrix[12],
       covMatrix[13],
       covMatrix[14],
-      0,
-      0,
-      0,
-      0,
-      0,
-      0};
+      0.f,
+      0.f,
+      0.f,
+      0.f,
+      0.f,
+      0.f};
 
     return edmtrackState;
   }
