@@ -98,7 +98,7 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
                                                                       >;
 
   if constexpr (isVectorLike) {
-    const auto vecSize = [&edm4hepV]() -> std::size_t {
+    const auto vecSize = [](EDM4hepT& edm4hepV) -> std::size_t {
       if constexpr (has_size_method<EDM4hepT>::value) {
         return edm4hepV.size();
       }
@@ -109,7 +109,7 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
         return 2;
       }
       return 0;
-    }();
+    }(edm4hepV);
     for (size_t i = 0; i < vecSize; ++i) {
       if (!nanSafeComp(lcioV[i], edm4hepV[i])) {
         std::cerr << msg << " at index " << i << ": (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")"

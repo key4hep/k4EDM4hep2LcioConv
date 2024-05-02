@@ -76,7 +76,7 @@ namespace LCIO2EDM4hepConv {
   std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollection* recoColl)
   {
     std::vector<edm4hep::utils::ParticleIDMeta> pidInfos {};
-    const auto pidHandler = UTIL::PIDHandler(recoColl);
+    auto pidHandler = UTIL::PIDHandler(recoColl);
     for (const auto id : pidHandler.getAlgorithmIDs()) {
       pidInfos.emplace_back(pidHandler.getAlgorithmName(id), id, pidHandler.getParameterNames(id));
     }
