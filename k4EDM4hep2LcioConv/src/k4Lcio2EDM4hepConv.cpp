@@ -21,27 +21,9 @@ namespace LCIO2EDM4hepConv {
     edmtrackState.referencePoint = Vector3fFrom({refPoint[0], refPoint[1], refPoint[2]});
     const auto& covMatrix = trackState->getCovMatrix();
     edmtrackState.covMatrix = {
-      covMatrix[0],
-      covMatrix[1],
-      covMatrix[2],
-      covMatrix[3],
-      covMatrix[4],
-      covMatrix[5],
-      covMatrix[6],
-      covMatrix[7],
-      covMatrix[8],
-      covMatrix[9],
-      covMatrix[10],
-      covMatrix[11],
-      covMatrix[12],
-      covMatrix[13],
-      covMatrix[14],
-      0.f,
-      0.f,
-      0.f,
-      0.f,
-      0.f,
-      0.f};
+      covMatrix[0],  covMatrix[1], covMatrix[2], covMatrix[3],  covMatrix[4],  covMatrix[5],  covMatrix[6],
+      covMatrix[7],  covMatrix[8], covMatrix[9], covMatrix[10], covMatrix[11], covMatrix[12], covMatrix[13],
+      covMatrix[14], 0.f,          0.f,          0.f,           0.f,           0.f,           0.f};
 
     return edmtrackState;
   }

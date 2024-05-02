@@ -58,8 +58,7 @@ namespace k4EDM4hep2LcioConv {
     /// Helper struct to determine the key and mapped types for map-like types or
     /// maps
     template<typename T, typename IsMap = std::bool_constant<is_map_v<T>>>
-    struct map_t_helper {
-    };
+    struct map_t_helper {};
 
     template<typename T>
     struct map_t_helper<T, std::bool_constant<true>> {
@@ -89,8 +88,7 @@ namespace k4EDM4hep2LcioConv {
     /// Helper struct to determine the Mutable type for a user facing type
     /// NOTE: Not SFINAE safe for anything that is not a podio generated class
     template<typename T, typename IsMutable = std::bool_constant<is_mutable_v<T>>>
-    struct mutable_t_helper {
-    };
+    struct mutable_t_helper {};
 
     template<typename T>
     struct mutable_t_helper<T, std::bool_constant<true>> {
