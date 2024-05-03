@@ -2,114 +2,104 @@
 #define K4EDM4HEP2LCIOCONV_TEST_EDM4HEP2LCIOUTILITIES_H
 
 #include <cstddef>
+#include <tuple>
 #include <utility>
 #include <vector>
-#include <tuple>
 
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
 #include "edm4hep/TrackerHitCollection.h"
 namespace edm4hep {
-  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
 } // namespace edm4hep
 #endif
 
 namespace edm4hep {
-  class CalorimeterHitCollection;
-  class MCParticleCollection;
-  class RawCalorimeterHitCollection;
-  class RawTimeSeriesCollection;
-  class TrackerHitPlaneCollection;
-  class TrackCollection;
-  class SimCalorimeterHitCollection;
-  class CaloHitContributionCollection;
-  class EventHeaderCollection;
-  class ClusterCollection;
-  class ReconstructedParticleCollection;
-  class ParticleIDCollection;
+class CalorimeterHitCollection;
+class MCParticleCollection;
+class RawCalorimeterHitCollection;
+class RawTimeSeriesCollection;
+class TrackerHitPlaneCollection;
+class TrackCollection;
+class SimCalorimeterHitCollection;
+class CaloHitContributionCollection;
+class EventHeaderCollection;
+class ClusterCollection;
+class ReconstructedParticleCollection;
+class ParticleIDCollection;
 } // namespace edm4hep
 
 namespace podio {
-  class Frame;
+class Frame;
 }
 
 namespace test_config {
-  constexpr static int nMCParticles = 5; ///< The number of MCParticles to generate
+constexpr static int nMCParticles = 5; ///< The number of MCParticles to generate
 
-  using IdxPair = std::pair<int, int>;
-  /// How to create the MC particle hierarchy, e.g. {4, 0} means that mc[4] will
-  /// have mc[0] as a parent, and mc[0] will get mc[4] as a daughter
-  const static std::vector<IdxPair> mcpParentIdcs = {{4, 0}, {4, 1}, {3, 2}, {3, 0}, {3, 1}, {2, 1}};
+using IdxPair = std::pair<int, int>;
+/// How to create the MC particle hierarchy, e.g. {4, 0} means that mc[4] will
+/// have mc[0] as a parent, and mc[0] will get mc[4] as a daughter
+const static std::vector<IdxPair> mcpParentIdcs = {{4, 0}, {4, 1}, {3, 2}, {3, 0}, {3, 1}, {2, 1}};
 
-  constexpr static int nCaloHits = 2;    ///< The number of CalorimeterHits to generate
-  constexpr static int nRawCaloHits = 2; ///< The number of RawCalorimeterHits to generate
+constexpr static int nCaloHits = 2;    ///< The number of CalorimeterHits to generate
+constexpr static int nRawCaloHits = 2; ///< The number of RawCalorimeterHits to generate
 
-  constexpr static int nTPCHits = 4;     ///< The number of TPCHits (RawTimeSeries) to generate
-  constexpr static int nTPCRawWords = 6; ///< The number of raw words to put into each TPCHit
+constexpr static int nTPCHits = 4;     ///< The number of TPCHits (RawTimeSeries) to generate
+constexpr static int nTPCRawWords = 6; ///< The number of raw words to put into each TPCHit
 
-  constexpr static int nTrackerHits = 5; ///< The number of TrackerHits to generate
+constexpr static int nTrackerHits = 5; ///< The number of TrackerHits to generate
 
-  constexpr static int nTracks = 4;                ///< The number of tracks to generate
-  constexpr static int nSubdetectorHitNumbers = 4; ///< The number of subdetector hits for each track
-  /// The tracker hits that should be added to each track
-  const static std::vector<std::size_t> trackTrackerHitIdcs = {0, 2, 4};
-  constexpr static int nTrackStates = 5; ///< The number of track states for each track
-  /// The tracks that should be linked, first index is the track to which the
-  /// second index will be added
-  const static std::vector<IdxPair> trackTrackIdcs = {{0, 2}, {1, 3}, {2, 3}, {3, 2}, {3, 0}};
+constexpr static int nTracks = 4;                ///< The number of tracks to generate
+constexpr static int nSubdetectorHitNumbers = 4; ///< The number of subdetector hits for each track
+/// The tracker hits that should be added to each track
+const static std::vector<std::size_t> trackTrackerHitIdcs = {0, 2, 4};
+constexpr static int nTrackStates = 5; ///< The number of track states for each track
+/// The tracks that should be linked, first index is the track to which the
+/// second index will be added
+const static std::vector<IdxPair> trackTrackIdcs = {{0, 2}, {1, 3}, {2, 3}, {3, 2}, {3, 0}};
 
-  constexpr static int nSimCaloHits = 3;          ///< The number of SimCalorimeterHits
-  constexpr static int nCaloHitContributions = 4; ///< The number of CalorimeterHit Contributions
-  /// idcs to setup relations between SimCalorimeterHits, CaloHitContributions
-  /// and MCParticles (in this order)
-  using CaloContIdx = std::tuple<int, int, int>;
-  /// The index values to use for setting up the relations
-  const static std::vector<CaloContIdx> simCaloHitMCIdcs = {
-    {0, 0, 0},
-    {0, 1, 2},
-    {0, 2, 1},
-    {0, 3, 4},
-    {1, 0, 1},
-    {1, 1, 3},
-    {1, 2, 4},
-    {1, 3, 4},
-    {2, 0, 0},
-    {2, 1, 3},
-    {2, 2, 2},
-    {2, 3, 0}};
+constexpr static int nSimCaloHits = 3;          ///< The number of SimCalorimeterHits
+constexpr static int nCaloHitContributions = 4; ///< The number of CalorimeterHit Contributions
+/// idcs to setup relations between SimCalorimeterHits, CaloHitContributions
+/// and MCParticles (in this order)
+using CaloContIdx = std::tuple<int, int, int>;
+/// The index values to use for setting up the relations
+const static std::vector<CaloContIdx> simCaloHitMCIdcs = {{0, 0, 0}, {0, 1, 2}, {0, 2, 1}, {0, 3, 4},
+                                                          {1, 0, 1}, {1, 1, 3}, {1, 2, 4}, {1, 3, 4},
+                                                          {2, 0, 0}, {2, 1, 3}, {2, 2, 2}, {2, 3, 0}};
 
-  /// The number of clusters to create
-  constexpr static int nClusters = 5;
-  /// The number of subdetector energy entries to create
-  constexpr static int nSubdetectorEnergies = 6;
-  /// The calorimeter hits that should be associated with each cluster. First
-  /// index is the cluster, second is the calorimeter hit
-  const static std::vector<IdxPair> clusterHitIdcs = {{0, 0}, {0, 1}, {1, 0}, {2, 1}, {2, 0}, {3, 0}, {3, 0}};
-  /// The clustes (from inside the same collection) that should be added to each
-  /// cluster. First index is the cluster to which the second index cluster will
-  /// be added
-  const static std::vector<IdxPair> clusterClusterIdcs = {{0, 4}, {0, 3}, {0, 1}, {4, 3}, {4, 2}, {2, 3}, {1, 1}};
+/// The number of clusters to create
+constexpr static int nClusters = 5;
+/// The number of subdetector energy entries to create
+constexpr static int nSubdetectorEnergies = 6;
+/// The calorimeter hits that should be associated with each cluster. First
+/// index is the cluster, second is the calorimeter hit
+const static std::vector<IdxPair> clusterHitIdcs = {{0, 0}, {0, 1}, {1, 0}, {2, 1}, {2, 0}, {3, 0}, {3, 0}};
+/// The clustes (from inside the same collection) that should be added to each
+/// cluster. First index is the cluster to which the second index cluster will
+/// be added
+const static std::vector<IdxPair> clusterClusterIdcs = {{0, 4}, {0, 3}, {0, 1}, {4, 3}, {4, 2}, {2, 3}, {1, 1}};
 
-  /// The number of reco particles to create
-  constexpr static int nRecoParticles = 6;
-  /// The related clusters that should be associated to the reco particles.
-  /// First index is the reco particle, second is the index of the cluster in
-  /// its collection
-  const static std::vector<IdxPair> recoClusterIdcs = {{0, 4}, {0, 3}, {2, 2}, {5, 1}, {5, 0}};
+/// The number of reco particles to create
+constexpr static int nRecoParticles = 6;
+/// The related clusters that should be associated to the reco particles.
+/// First index is the reco particle, second is the index of the cluster in
+/// its collection
+const static std::vector<IdxPair> recoClusterIdcs = {{0, 4}, {0, 3}, {2, 2}, {5, 1}, {5, 0}};
 
-  /// The related tracks that should be associated to the reco particles. First
-  /// index is the reco particle, second is the index of the track in its
-  /// collection
-  const static std::vector<IdxPair> recoTrackIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}};
+/// The related tracks that should be associated to the reco particles. First
+/// index is the reco particle, second is the index of the track in its
+/// collection
+const static std::vector<IdxPair> recoTrackIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}};
 
-  /// The related reco partiles that should be associated to the reco particles.
-  /// First index is the reco particle, second is the index of the related reco
-  /// particle
-  const static std::vector<IdxPair> recoRecoIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}, {1, 2}, {2, 4}};
+/// The related reco partiles that should be associated to the reco particles.
+/// First index is the reco particle, second is the index of the related reco
+/// particle
+const static std::vector<IdxPair> recoRecoIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}, {1, 2}, {2, 4}};
 
-  /// The number of entries for the generated ParticleID collections
-  const static std::vector<std::vector<int>> pidRecoIdcs = {{1, 3, 4}, {2, 3}, {0, 1, 2, 3, 4, 5}};
+/// The number of entries for the generated ParticleID collections
+const static std::vector<std::vector<int>> pidRecoIdcs = {{1, 3, 4}, {2, 3}, {0, 1, 2, 3, 4, 5}};
 } // namespace test_config
 
 /**
@@ -118,9 +108,8 @@ namespace test_config {
  * used to determine the daughter element, while the .second index will be used
  * to determine the parent.
  */
-edm4hep::MCParticleCollection createMCParticles(
-  const int num_elements,
-  const std::vector<test_config::IdxPair>& mcp_parents_idx);
+edm4hep::MCParticleCollection createMCParticles(const int num_elements,
+                                                const std::vector<test_config::IdxPair>& mcp_parents_idx);
 
 /**
  * Create a CalorimeterHit collection
@@ -146,44 +135,36 @@ edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements);
  * Create a track collection with tracks that have links to other tracks (in the
  * same collection) and tracker hits
  */
-edm4hep::TrackCollection createTracks(
-  const int num_elements,
-  const int subdetectorhitnumbers,
-  const int num_track_states,
-  const edm4hep::TrackerHit3DCollection& trackerHits,
-  const std::vector<std::size_t>& link_trackerhit_idcs,
-  const std::vector<test_config::IdxPair>& track_link_tracks_idcs);
+edm4hep::TrackCollection createTracks(const int num_elements, const int subdetectorhitnumbers,
+                                      const int num_track_states, const edm4hep::TrackerHit3DCollection& trackerHits,
+                                      const std::vector<std::size_t>& link_trackerhit_idcs,
+                                      const std::vector<test_config::IdxPair>& track_link_tracks_idcs);
 
 /**
  * Create a SimCalorimeterHit (and an accompanying CaloHitContribution)
  * collection with links to MCParticles
  */
-std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection> createSimCalorimeterHits(
-  const int num_elements,
-  const int num_contributions,
-  const edm4hep::MCParticleCollection& mcParticles,
-  const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs);
+std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection>
+createSimCalorimeterHits(const int num_elements, const int num_contributions,
+                         const edm4hep::MCParticleCollection& mcParticles,
+                         const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs);
 
 edm4hep::EventHeaderCollection createEventHeader();
 
-edm4hep::ClusterCollection createClusters(
-  const int num_elements,
-  const edm4hep::CalorimeterHitCollection& caloHits,
-  const int num_subdet_energies,
-  const std::vector<test_config::IdxPair>& clusterHitIdcs,
-  const std::vector<test_config::IdxPair>& clusterClusterIdcs);
+edm4hep::ClusterCollection createClusters(const int num_elements, const edm4hep::CalorimeterHitCollection& caloHits,
+                                          const int num_subdet_energies,
+                                          const std::vector<test_config::IdxPair>& clusterHitIdcs,
+                                          const std::vector<test_config::IdxPair>& clusterClusterIdcs);
 
-edm4hep::ReconstructedParticleCollection createRecoParticles(
-  const int nRecos,
-  const edm4hep::TrackCollection& tracks,
-  const std::vector<test_config::IdxPair>& trackIdcs,
-  const edm4hep::ClusterCollection& clusters,
-  const std::vector<test_config::IdxPair>& clusterIdcs,
-  const std::vector<test_config::IdxPair>& recIdcs);
+edm4hep::ReconstructedParticleCollection createRecoParticles(const int nRecos, const edm4hep::TrackCollection& tracks,
+                                                             const std::vector<test_config::IdxPair>& trackIdcs,
+                                                             const edm4hep::ClusterCollection& clusters,
+                                                             const std::vector<test_config::IdxPair>& clusterIdcs,
+                                                             const std::vector<test_config::IdxPair>& recIdcs);
 
-std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
-  const std::vector<std::vector<int>>& recoIdcs,
-  const edm4hep::ReconstructedParticleCollection& recoParticles);
+std::vector<edm4hep::ParticleIDCollection>
+createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
+                  const edm4hep::ReconstructedParticleCollection& recoParticles);
 
 /**
  * Create an example event that can be used to test the converter. Also populate

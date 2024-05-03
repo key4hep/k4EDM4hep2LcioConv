@@ -1,6 +1,6 @@
 #include "CompareEDM4hepLCIO.h"
-#include "ObjectMapping.h"
 #include "ComparisonUtils.h"
+#include "ObjectMapping.h"
 
 #include "podio/podioVersion.h"
 #if PODIO_BUILD_VERSION >= PODIO_VERSION(0, 99, 0)
@@ -8,7 +8,7 @@
 #else
 #include "podio/ROOTFrameReader.h"
 namespace podio {
-  using ROOTReader = podio::ROOTFrameReader;
+using ROOTReader = podio::ROOTFrameReader;
 }
 #endif
 
@@ -21,8 +21,7 @@ namespace podio {
 
 constexpr auto usageMsg = R"(usage: compare-contents lciofile edm4hepfile)";
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc != 3) {
     std::cerr << usageMsg << std::endl;
     return 1;
@@ -68,7 +67,7 @@ int main(int argc, char* argv[])
         return 1;
       }
 
-      if (edmEvent.get(name)->size() != (unsigned) lcioColl->getNumberOfElements()) {
+      if (edmEvent.get(name)->size() != (unsigned)lcioColl->getNumberOfElements()) {
         std::cerr << "Collection " << name << " has different sizes. LCIO: " << lcioColl->getNumberOfElements()
                   << ", EDM4hep: " << coll->size() << std::endl;
         return 1;

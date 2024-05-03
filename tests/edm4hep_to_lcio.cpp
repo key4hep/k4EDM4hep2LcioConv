@@ -1,7 +1,7 @@
-#include "EDM4hep2LCIOUtilities.h"
 #include "CompareEDM4hepLCIO.h"
-#include "ObjectMapping.h"
 #include "ComparisonUtils.h"
+#include "EDM4hep2LCIOUtilities.h"
+#include "ObjectMapping.h"
 
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
@@ -9,8 +9,7 @@
 
 #include "podio/Frame.h"
 
-int main()
-{
+int main() {
   const auto& [edmEvent, metadata] = createExampleEvent();
   const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(edmEvent, metadata);
 
@@ -21,14 +20,13 @@ int main()
   for (const auto& name : edmEvent.getAvailableCollections()) {
     const auto edmColl = edmEvent.get(name);
     const auto typeName = edmColl->getValueTypeName();
-    if (
-      typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID" ||
-      typeName == "edm4hep::EventHeader") {
+    if (typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID" ||
+        typeName == "edm4hep::EventHeader") {
       continue;
     }
     try {
       const auto* lcColl = lcioEvent->getCollection(name);
-      if ((unsigned) lcColl->getNumberOfElements() != edmColl->size()) {
+      if ((unsigned)lcColl->getNumberOfElements() != edmColl->size()) {
         std::cerr << "Collection " << name << " has different sizes. EDM4hep: " << edmColl->size()
                   << ", LCIO: " << lcColl->getNumberOfElements() << std::endl;
         return 1;
@@ -43,9 +41,8 @@ int main()
 
   for (const auto& name : edmEvent.getAvailableCollections()) {
     const auto type = edmEvent.get(name)->getTypeName();
-    if (
-      type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection" ||
-      type == "edm4hep::EventHeaderCollection") {
+    if (type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection" ||
+        type == "edm4hep::EventHeaderCollection") {
       continue;
     }
     const auto* lcioColl = lcioEvent->getCollection(name);
