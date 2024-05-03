@@ -68,6 +68,7 @@ using MutableTrackerHit3D = edm4hep::TrackerHit;
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace LCIO2EDM4hepConv {
@@ -103,13 +104,16 @@ podio::Frame convertRunHeader(EVENT::LCRunHeader* rheader);
 /**
  * Convert a complete LCEvent from LCIO to EDM4hep.
  *
- * A second, optional argument can be passed to limit the collections to
- * convert to the subset that is passed. NOTE: There is an implicit assumption
- * here that collsToConvert only contains collection names that are present in
- * the passed evt. There is no exception handling internally to guard against
- * collections that are missing.
+ * A second, optional argument can be passed to limit the collections to convert
+ * to the subset that is passed. Additionally, it allows to rename collections
+ * on the fly where the first element of each pair is the (original) LCIO name
+ * and the second one is the one that is used for the EDM4hep collection.
+ *
+ * NOTE: There is an implicit assumption here that collsToConvert only contains
+ * collection names that are present in the passed evt. There is no exception
+ * handling internally to guard against collections that are missing.
  */
-podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert = {});
+podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::string, std::string>>& = {});
 
 /**
  * Convert an LCIOCollection by dispatching to the specific conversion
