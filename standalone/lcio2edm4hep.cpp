@@ -60,9 +60,7 @@ std::vector<NamesType> getNamesAndTypes(const std::string& collTypeFile) {
   std::vector<NamesType> names_types;
 
   if (!input_file.is_open()) {
-    std::cerr << "Failed to open file containing the names and types of the "
-                 "LCIO Collections."
-              << std::endl;
+    std::cerr << "Failed to open file containing the names and types of the LCIO Collections." << std::endl;
   }
   std::string line;
   while (std::getline(input_file, line)) {
@@ -166,9 +164,8 @@ int main(int argc, char* argv[]) {
   if (patching) {
     namesTypes = getNamesAndTypes(args.patchFile);
     if (namesTypes.empty()) {
-      std::cerr << "The provided list of collection names and types does not "
-                   "satisfy the required format: Pair of Name (mapping) "
-                   "and Type per line separated by space"
+      std::cerr << "The provided list of collection names and types does not satisfy the required format: Pair of Name "
+                   "(mapping) and Type per line separated by space"
                 << std::endl;
       return 1;
     }
@@ -179,9 +176,9 @@ int main(int argc, char* argv[]) {
     }
     colPatcher.addPatchCollections(patchNamesTypes);
   }
-  // Construct a vector of collections to convert. If namesTypes is empty,
-  // this will be empty, and convertEvent will fall back to use the
-  // collections in the event
+  // Construct a vector of collections to convert. If namesTypes is empty, this
+  // will be empty, and convertEvent will fall back to use the collections in
+  // the event
   const auto collsToConvert = [&namesTypes]() {
     std::vector<std::pair<std::string, std::string>> names{};
     names.reserve(namesTypes.size());
@@ -216,8 +213,7 @@ int main(int argc, char* argv[]) {
       std::cout << "processing Event: " << i << std::endl;
     }
     auto evt = lcreader->readNextEvent();
-    // Patching the Event to make sure all events contain the same
-    // Collections.
+    // Patching the Event to make sure all events contain the same Collections.
     if (patching == true) {
       colPatcher.patchCollections(evt);
     }
