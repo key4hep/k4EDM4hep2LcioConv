@@ -8,14 +8,13 @@
 
 #include <iostream>
 
-#define ASSERT_SAME_OR_ABORT(type, name)                                     \
-  if (!compare(origEvent.get<type>(name), roundtripEvent.get<type>(name))) { \
-    std::cerr << "Comparison failure in " << name << std::endl;              \
-    return 1;                                                                \
+#define ASSERT_SAME_OR_ABORT(type, name)                                                                               \
+  if (!compare(origEvent.get<type>(name), roundtripEvent.get<type>(name))) {                                           \
+    std::cerr << "Comparison failure in " << name << std::endl;                                                        \
+    return 1;                                                                                                          \
   }
 
-int main()
-{
+int main() {
   const auto& [origEvent, metadata] = createExampleEvent();
   const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(origEvent, metadata);
   const auto roundtripEvent = LCIO2EDM4hepConv::convertEvent(lcioEvent.get());

@@ -17,19 +17,19 @@
 #include "edm4hep/MCRecoTrackerHitPlaneAssociationCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
+#include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/RecoParticleVertexAssociationCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
-#include "edm4hep/RawTimeSeriesCollection.h"
 #include "edm4hep/TrackCollection.h"
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
 #include "edm4hep/TrackerHitCollection.h"
 namespace edm4hep {
-  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
-  using TrackerHit3D = edm4hep::TrackerHit;
+using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+using TrackerHit3D = edm4hep::TrackerHit;
 } // namespace edm4hep
 #endif
 #include "edm4hep/TrackerHitPlaneCollection.h"
@@ -58,94 +58,60 @@ namespace edm4hep {
 #include <UTIL/PIDHandler.h>
 #include <lcio.h>
 
-bool compare(
-  const EVENT::CalorimeterHit* lcio,
-  const edm4hep::CalorimeterHit& edm4hep,
-  const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::CalorimeterHitCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const EVENT::CalorimeterHit* lcio, const edm4hep::CalorimeterHit& edm4hep,
+             const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::CalorimeterHitCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::Cluster* lcio, const edm4hep::Cluster& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::ClusterCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::ClusterCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::MCParticle* lcio, const edm4hep::MCParticle& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::MCParticleCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::MCParticleCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
-bool compare(
-  const EVENT::RawCalorimeterHit* lcio,
-  const edm4hep::RawCalorimeterHit& edm4hep,
-  const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::RawCalorimeterHitCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const EVENT::RawCalorimeterHit* lcio, const edm4hep::RawCalorimeterHit& edm4hep,
+             const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawCalorimeterHitCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
-bool compare(
-  const EVENT::ReconstructedParticle* lcio,
-  const edm4hep::ReconstructedParticle& edm4hep,
-  const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::ReconstructedParticleCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const EVENT::ReconstructedParticle* lcio, const edm4hep::ReconstructedParticle& edm4hep,
+             const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection,
+             const edm4hep::ReconstructedParticleCollection& edm4hepCollection, const ObjectMappings& objectMaps);
 
-bool compare(
-  const EVENT::SimCalorimeterHit* lcio,
-  const edm4hep::SimCalorimeterHit& edm4hep,
-  const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::SimCalorimeterHitCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const EVENT::SimCalorimeterHit* lcio, const edm4hep::SimCalorimeterHit& edm4hep,
+             const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimCalorimeterHitCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::SimTrackerHit* lcio, const edm4hep::SimTrackerHit& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::SimTrackerHitCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::SimTrackerHitCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::TPCHit* lcio, const edm4hep::RawTimeSeries& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::RawTimeSeriesCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::RawTimeSeriesCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::TrackerHit* lcio, const edm4hep::TrackerHit3D& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::TrackerHit3DCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHit3DCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
-bool compare(
-  const EVENT::TrackerHitPlane* lcio,
-  const edm4hep::TrackerHitPlane& edm4hep,
-  const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::TrackerHitPlaneCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const EVENT::TrackerHitPlane* lcio, const edm4hep::TrackerHitPlane& edm4hep,
+             const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHitPlaneCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::TrackState* lcio, const edm4hep::TrackState& edm4hep);
 
 bool compare(const EVENT::Track* lcio, const edm4hep::Track& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::TrackCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::Vertex* lcio, const edm4hep::Vertex& edm4hep, const ObjectMappings& objectMaps);
-bool compare(
-  const lcio::LCCollection* lcioCollection,
-  const edm4hep::VertexCollection& edm4hepCollection,
-  const ObjectMappings& objectMaps);
+bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::VertexCollection& edm4hepCollection,
+             const ObjectMappings& objectMaps);
 
 bool compare(const EVENT::ParticleID* lcio, const edm4hep::ParticleID& edm4hep);
 

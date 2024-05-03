@@ -12,20 +12,19 @@
 #else
 #include "podio/ROOTFrameWriter.h"
 namespace podio {
-  using ROOTWriter = podio::ROOTFrameWriter;
+using ROOTWriter = podio::ROOTFrameWriter;
 }
 #endif
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <string>
-#include <vector>
 #include <utility>
-#include <cstdlib>
+#include <vector>
 
-std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::string& collTypeFile)
-{
+std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::string& collTypeFile) {
   std::ifstream input_file(collTypeFile);
   std::vector<std::pair<std::string, std::string>> names_types;
 
@@ -75,24 +74,21 @@ lcio2edm4hep infile.slcio outfile_edm4hep.root coltype.txt
 )";
 
 struct ParsedArgs {
-  std::string inputFile {};
-  std::string outputFile {};
-  std::string patchFile {};
-  int nEvents {-1};
+  std::string inputFile{};
+  std::string outputFile{};
+  std::string patchFile{};
+  int nEvents{-1};
 };
 
-void printUsageAndExit()
-{
+void printUsageAndExit() {
   std::cerr << usageMsg << std::endl;
   std::exit(1);
 }
 
-ParsedArgs parseArgs(std::vector<std::string> argv)
-{
+ParsedArgs parseArgs(std::vector<std::string> argv) {
   // find help
-  if (std::find_if(argv.begin(), argv.end(), [](const auto& elem) {
-        return elem == "-h" || elem == "--help";
-      }) != argv.end()) {
+  if (std::find_if(argv.begin(), argv.end(), [](const auto& elem) { return elem == "-h" || elem == "--help"; }) !=
+      argv.end()) {
     std::cerr << usageMsg << '\n' << helpMsg << std::endl;
     std::exit(0);
   }
@@ -132,12 +128,11 @@ ParsedArgs parseArgs(std::vector<std::string> argv)
   return args;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   const auto args = parseArgs({argv, argv + argc});
 
-  UTIL::CheckCollections colPatcher {};
-  std::vector<std::pair<std::string, std::string>> namesTypes {};
+  UTIL::CheckCollections colPatcher{};
+  std::vector<std::pair<std::string, std::string>> namesTypes{};
   const bool patching = !args.patchFile.empty();
   if (patching) {
     namesTypes = getNamesAndTypes(args.patchFile);
@@ -168,7 +163,7 @@ int main(int argc, char* argv[])
 
   podio::ROOTWriter writer(args.outputFile);
 
-  podio::Frame metadata {};
+  podio::Frame metadata{};
 
   for (int j = 0; j < lcreader->getNumberOfRuns(); ++j) {
     if (j % 1 == 0) {
@@ -199,8 +194,8 @@ int main(int argc, char* argv[])
         auto coll = evt->getCollection(name);
         if (coll->getTypeName() == "ReconstructedParticle") {
           for (const auto& pidInfo : LCIO2EDM4hepConv::getPIDMetaInfo(coll)) {
-            edm4hep::utils::PIDHandler::setAlgoInfo(
-              metadata, LCIO2EDM4hepConv::getPIDCollName(name, pidInfo.algoName), pidInfo);
+            edm4hep::utils::PIDHandler::setAlgoInfo(metadata, LCIO2EDM4hepConv::getPIDCollName(name, pidInfo.algoName),
+                                                    pidInfo);
           }
         }
       }

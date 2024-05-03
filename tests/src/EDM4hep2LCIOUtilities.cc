@@ -9,25 +9,25 @@
 #else
 #include "edm4hep/TrackerHitCollection.h"
 namespace edm4hep {
-  using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
+using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
 } // namespace edm4hep
 #endif
-#include <edm4hep/TrackerHitPlaneCollection.h>
-#include <edm4hep/EventHeaderCollection.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
-#include "edm4hep/TrackCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/CaloHitContributionCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
+#include "edm4hep/SimCalorimeterHitCollection.h"
+#include "edm4hep/TrackCollection.h"
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
 
 #include <array>
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 
 constexpr std::uint64_t operator""_u64(unsigned long long num) { return static_cast<std::uint64_t>(num); }
 
@@ -37,10 +37,9 @@ constexpr static std::array CELLIDS = {0xcaffee_u64, 0xbeef_u64, 0xfe47_u64, 0x1
 constexpr static uint64_t createCellID(int i) { return CELLIDS[i % CELLIDS.size()]; }
 
 /// Create a covariance matrix for N dimensions in lower triangular form
-template<size_t N, typename T = float>
-constexpr auto createCov()
-{
-  std::array<T, N*(N + 1) / 2> result {};
+template <size_t N, typename T = float>
+constexpr auto createCov() {
+  std::array<T, N*(N + 1) / 2> result{};
 
   // Calculate the flat index from the 2D index
   const auto to_lower_tri = [](int i, int j) {
@@ -60,11 +59,9 @@ constexpr auto createCov()
   return result;
 }
 
-edm4hep::MCParticleCollection createMCParticles(
-  const int num_elements,
-  const std::vector<test_config::IdxPair>& mcp_parents_idx)
-{
-  auto coll = edm4hep::MCParticleCollection {};
+edm4hep::MCParticleCollection createMCParticles(const int num_elements,
+                                                const std::vector<test_config::IdxPair>& mcp_parents_idx) {
+  auto coll = edm4hep::MCParticleCollection{};
 
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
@@ -105,9 +102,8 @@ edm4hep::MCParticleCollection createMCParticles(
   return coll;
 }
 
-edm4hep::CalorimeterHitCollection createCalorimeterHits(const int num_elements)
-{
-  edm4hep::CalorimeterHitCollection coll {};
+edm4hep::CalorimeterHitCollection createCalorimeterHits(const int num_elements) {
+  edm4hep::CalorimeterHitCollection coll{};
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
     elem.setCellID(createCellID(i));
@@ -121,9 +117,8 @@ edm4hep::CalorimeterHitCollection createCalorimeterHits(const int num_elements)
   return coll;
 }
 
-edm4hep::RawCalorimeterHitCollection createRawCalorimeterHits(const int num_elements)
-{
-  edm4hep::RawCalorimeterHitCollection coll {};
+edm4hep::RawCalorimeterHitCollection createRawCalorimeterHits(const int num_elements) {
+  edm4hep::RawCalorimeterHitCollection coll{};
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
     elem.setCellID(createCellID(i));
@@ -134,9 +129,8 @@ edm4hep::RawCalorimeterHitCollection createRawCalorimeterHits(const int num_elem
   return coll;
 }
 
-edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int num_rawwords)
-{
-  edm4hep::RawTimeSeriesCollection coll {};
+edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int num_rawwords) {
+  edm4hep::RawTimeSeriesCollection coll{};
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
 
@@ -152,9 +146,8 @@ edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int
   return coll;
 }
 
-edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements)
-{
-  edm4hep::TrackerHit3DCollection coll {};
+edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements) {
+  edm4hep::TrackerHit3DCollection coll{};
 
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
@@ -171,9 +164,8 @@ edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements)
   return coll;
 }
 
-edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements)
-{
-  edm4hep::TrackerHitPlaneCollection coll {};
+edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements) {
+  edm4hep::TrackerHitPlaneCollection coll{};
   for (int i = 0; i < num_elements; ++i) {
     auto elem = coll.create();
     elem.setCellID(createCellID(i));
@@ -193,15 +185,11 @@ edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements
   return coll;
 }
 
-edm4hep::TrackCollection createTracks(
-  const int num_elements,
-  const int subdetectorhitnumbers,
-  const int num_track_states,
-  const edm4hep::TrackerHit3DCollection& trackerHits,
-  const edm4hep::TrackerHitPlaneCollection& trackerHitPlanes,
-  const std::vector<std::size_t>& link_trackerhit_idcs,
-  const std::vector<test_config::IdxPair>& track_link_tracks_idcs)
-{
+edm4hep::TrackCollection createTracks(const int num_elements, const int subdetectorhitnumbers,
+                                      const int num_track_states, const edm4hep::TrackerHit3DCollection& trackerHits,
+                                      const edm4hep::TrackerHitPlaneCollection& trackerHitPlanes,
+                                      const std::vector<std::size_t>& link_trackerhit_idcs,
+                                      const std::vector<test_config::IdxPair>& track_link_tracks_idcs) {
   // edm4hep::Track
   auto track_coll = edm4hep::TrackCollection();
 
@@ -251,14 +239,12 @@ edm4hep::TrackCollection createTracks(
   return track_coll;
 }
 
-std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection> createSimCalorimeterHits(
-  const int num_elements,
-  const int num_contributions,
-  const edm4hep::MCParticleCollection& mcParticles,
-  const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs)
-{
+std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection>
+createSimCalorimeterHits(const int num_elements, const int num_contributions,
+                         const edm4hep::MCParticleCollection& mcParticles,
+                         const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs) {
   auto simcalohit_coll = edm4hep::SimCalorimeterHitCollection();
-  auto contrib_coll = edm4hep::CaloHitContributionCollection {};
+  auto contrib_coll = edm4hep::CaloHitContributionCollection{};
 
   for (int i = 0; i < num_elements; ++i) {
     // auto* elem = new edm4hep::SimCalorimeterHit();
@@ -289,9 +275,8 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
   return {std::move(simcalohit_coll), std::move(contrib_coll)};
 }
 
-edm4hep::EventHeaderCollection createEventHeader()
-{
-  auto evtHeaderColl = edm4hep::EventHeaderCollection {};
+edm4hep::EventHeaderCollection createEventHeader() {
+  auto evtHeaderColl = edm4hep::EventHeaderCollection{};
   auto evtHeader = evtHeaderColl.create();
 
   evtHeader.setWeight(3.14f);
@@ -302,14 +287,11 @@ edm4hep::EventHeaderCollection createEventHeader()
   return evtHeaderColl;
 }
 
-edm4hep::ClusterCollection createClusters(
-  const int num_elements,
-  const edm4hep::CalorimeterHitCollection& caloHits,
-  const int num_subdet_energies,
-  const std::vector<test_config::IdxPair>& clusterHitIdcs,
-  const std::vector<test_config::IdxPair>& clusterClusterIdcs)
-{
-  auto clusterColl = edm4hep::ClusterCollection {};
+edm4hep::ClusterCollection createClusters(const int num_elements, const edm4hep::CalorimeterHitCollection& caloHits,
+                                          const int num_subdet_energies,
+                                          const std::vector<test_config::IdxPair>& clusterHitIdcs,
+                                          const std::vector<test_config::IdxPair>& clusterClusterIdcs) {
+  auto clusterColl = edm4hep::ClusterCollection{};
   for (int i = 0; i < num_elements; ++i) {
     auto cluster = clusterColl.create();
 
@@ -329,15 +311,12 @@ edm4hep::ClusterCollection createClusters(
   return clusterColl;
 }
 
-edm4hep::ReconstructedParticleCollection createRecoParticles(
-  const int nRecos,
-  const edm4hep::TrackCollection& tracks,
-  const std::vector<test_config::IdxPair>& trackIdcs,
-  const edm4hep::ClusterCollection& clusters,
-  const std::vector<test_config::IdxPair>& clusterIdcs,
-  const std::vector<test_config::IdxPair>& recIdcs)
-{
-  auto recoColl = edm4hep::ReconstructedParticleCollection {};
+edm4hep::ReconstructedParticleCollection createRecoParticles(const int nRecos, const edm4hep::TrackCollection& tracks,
+                                                             const std::vector<test_config::IdxPair>& trackIdcs,
+                                                             const edm4hep::ClusterCollection& clusters,
+                                                             const std::vector<test_config::IdxPair>& clusterIdcs,
+                                                             const std::vector<test_config::IdxPair>& recIdcs) {
+  auto recoColl = edm4hep::ReconstructedParticleCollection{};
   for (int i = 0; i < nRecos; ++i) {
     auto reco = recoColl.create();
     reco.setCharge(1.23f);
@@ -357,10 +336,9 @@ edm4hep::ReconstructedParticleCollection createRecoParticles(
   return recoColl;
 }
 
-std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
-  const std::vector<std::vector<int>>& recoIdcs,
-  const edm4hep::ReconstructedParticleCollection& recoParticles)
-{
+std::vector<edm4hep::ParticleIDCollection>
+createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
+                  const edm4hep::ReconstructedParticleCollection& recoParticles) {
   std::vector<edm4hep::ParticleIDCollection> collections;
   collections.reserve(recoIdcs.size());
 
@@ -378,54 +356,37 @@ std::vector<edm4hep::ParticleIDCollection> createParticleIDs(
   return collections;
 }
 
-std::tuple<podio::Frame, podio::Frame> createExampleEvent()
-{
-  auto retTuple = std::make_tuple(podio::Frame {}, podio::Frame {});
+std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
+  auto retTuple = std::make_tuple(podio::Frame{}, podio::Frame{});
 
   auto& [event, metadata] = retTuple;
 
   event.put(createEventHeader(), "EventHeader");
   const auto& mcParticles =
-    event.put(createMCParticles(test_config::nMCParticles, test_config::mcpParentIdcs), "mcParticles");
+      event.put(createMCParticles(test_config::nMCParticles, test_config::mcpParentIdcs), "mcParticles");
   const auto& caloHits = event.put(createCalorimeterHits(test_config::nCaloHits), "caloHits");
   event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
   event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
   const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
   const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
-  const auto& tracks = event.put(
-    createTracks(
-      test_config::nTracks,
-      test_config::nSubdetectorHitNumbers,
-      test_config::nTrackStates,
-      trackerHits,
-      trackerHitPlanes,
-      test_config::trackTrackerHitIdcs,
-      test_config::trackTrackIdcs),
-    "tracks");
+  const auto& tracks = event.put(createTracks(test_config::nTracks, test_config::nSubdetectorHitNumbers,
+                                              test_config::nTrackStates, trackerHits, trackerHitPlanes,
+                                              test_config::trackTrackerHitIdcs, test_config::trackTrackIdcs),
+                                 "tracks");
 
-  const auto& clusters = event.put(
-    createClusters(
-      test_config::nClusters,
-      caloHits,
-      test_config::nSubdetectorEnergies,
-      test_config::clusterHitIdcs,
-      test_config::clusterClusterIdcs),
-    "clusters");
+  const auto& clusters = event.put(createClusters(test_config::nClusters, caloHits, test_config::nSubdetectorEnergies,
+                                                  test_config::clusterHitIdcs, test_config::clusterClusterIdcs),
+                                   "clusters");
 
   auto [tmpSimCaloHits, tmpCaloHitConts] = createSimCalorimeterHits(
-    test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
+      test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
   event.put(std::move(tmpSimCaloHits), "simCaloHits");
   event.put(std::move(tmpCaloHitConts), "caloHitContributions");
 
-  const auto& recoColl = event.put(
-    createRecoParticles(
-      test_config::nRecoParticles,
-      tracks,
-      test_config::recoTrackIdcs,
-      clusters,
-      test_config::recoClusterIdcs,
-      test_config::recoRecoIdcs),
-    "recos");
+  const auto& recoColl =
+      event.put(createRecoParticles(test_config::nRecoParticles, tracks, test_config::recoTrackIdcs, clusters,
+                                    test_config::recoClusterIdcs, test_config::recoRecoIdcs),
+                "recos");
 
   // Start at 0 here because that is also where the PIDHandler in LCIO starts
   int algoId = 0;
@@ -433,8 +394,8 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent()
     // Make sure to use the same name as is generated for the LCIO to EDM4hep
     // conversion
     const auto pidCollName = "recos_PID_pidAlgo_" + std::to_string(algoId);
-    edm4hep::utils::PIDHandler::setAlgoInfo(
-      metadata, pidColl, pidCollName, {"pidAlgo_" + std::to_string(algoId), algoId, {"param"}});
+    edm4hep::utils::PIDHandler::setAlgoInfo(metadata, pidColl, pidCollName,
+                                            {"pidAlgo_" + std::to_string(algoId), algoId, {"param"}});
 
     event.put(std::move(pidColl), pidCollName);
 
