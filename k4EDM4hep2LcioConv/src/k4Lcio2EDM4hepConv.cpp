@@ -21,27 +21,9 @@ namespace LCIO2EDM4hepConv {
     edmtrackState.referencePoint = Vector3fFrom({refPoint[0], refPoint[1], refPoint[2]});
     const auto& covMatrix = trackState->getCovMatrix();
     edmtrackState.covMatrix = {
-      covMatrix[0],
-      covMatrix[1],
-      covMatrix[2],
-      covMatrix[3],
-      covMatrix[4],
-      covMatrix[5],
-      covMatrix[6],
-      covMatrix[7],
-      covMatrix[8],
-      covMatrix[9],
-      covMatrix[10],
-      covMatrix[11],
-      covMatrix[12],
-      covMatrix[13],
-      covMatrix[14],
-      0,
-      0,
-      0,
-      0,
-      0,
-      0};
+      covMatrix[0],  covMatrix[1], covMatrix[2], covMatrix[3],  covMatrix[4],  covMatrix[5],  covMatrix[6],
+      covMatrix[7],  covMatrix[8], covMatrix[9], covMatrix[10], covMatrix[11], covMatrix[12], covMatrix[13],
+      covMatrix[14], 0.f,          0.f,          0.f,           0.f,           0.f,           0.f};
 
     return edmtrackState;
   }
@@ -76,7 +58,7 @@ namespace LCIO2EDM4hepConv {
   std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollection* recoColl)
   {
     std::vector<edm4hep::utils::ParticleIDMeta> pidInfos {};
-    const auto pidHandler = UTIL::PIDHandler(recoColl);
+    auto pidHandler = UTIL::PIDHandler(recoColl);
     for (const auto id : pidHandler.getAlgorithmIDs()) {
       pidInfos.emplace_back(pidHandler.getAlgorithmName(id), id, pidHandler.getParameterNames(id));
     }
