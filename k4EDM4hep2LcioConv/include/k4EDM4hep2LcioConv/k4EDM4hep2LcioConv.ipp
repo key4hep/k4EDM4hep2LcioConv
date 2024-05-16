@@ -5,14 +5,13 @@
 namespace EDM4hep2LCIOConv {
 
 template <typename TrackMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertTracks(const edm4hep::TrackCollection *const edmCollection,
-              TrackMapT &trackMap) {
+std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollection* const edmCollection,
+                                                     TrackMapT& trackMap) {
   auto tracks = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACK);
   // Loop over EDM4hep tracks converting them to lcio tracks.
-  for (const auto &edm_tr : (*edmCollection)) {
+  for (const auto& edm_tr : (*edmCollection)) {
     if (edm_tr.isAvailable()) {
-      auto *lcio_tr = new lcio::TrackImpl();
+      auto* lcio_tr = new lcio::TrackImpl();
       // The Type of the Tracks need to be set bitwise in LCIO since the
       // setType(int) function is private for the LCIO TrackImpl and only a
       // setTypeBit(bitnumber) function can be used to set the Type bit by bit.
@@ -27,34 +26,28 @@ convertTracks(const edm4hep::TrackCollection *const edmCollection,
       lcio_tr->setRadiusOfInnermostHit(edm_tr.getRadiusOfInnermostHit());
 
       // Loop over the hit Numbers in the track
-      lcio_tr->subdetectorHitNumbers().resize(
-          edm_tr.subdetectorHitNumbers_size());
+      lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
       for (auto i = 0u; i < edm_tr.subdetectorHitNumbers_size(); ++i) {
-        lcio_tr->subdetectorHitNumbers()[i] =
-            edm_tr.getSubdetectorHitNumbers(i);
+        lcio_tr->subdetectorHitNumbers()[i] = edm_tr.getSubdetectorHitNumbers(i);
       }
 
       // Pad until 50 hitnumbers are resized
       const int hit_number_limit = 50;
       if (edm_tr.subdetectorHitNumbers_size() < hit_number_limit) {
         lcio_tr->subdetectorHitNumbers().resize(hit_number_limit);
-        for (auto i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit;
-             ++i) {
+        for (auto i = edm_tr.subdetectorHitNumbers_size(); i < hit_number_limit; ++i) {
           lcio_tr->subdetectorHitNumbers()[i] = 0;
         }
       }
 
       // Loop over the track states in the track
       const auto edm_track_states = edm_tr.getTrackStates();
-      for (const auto &tr_state : edm_track_states) {
-        const auto &cov = tr_state.covMatrix;
-        std::array<float, 3> refP = {tr_state.referencePoint.x,
-                                     tr_state.referencePoint.y,
-                                     tr_state.referencePoint.z};
+      for (const auto& tr_state : edm_track_states) {
+        const auto& cov = tr_state.covMatrix;
+        std::array<float, 3> refP = {tr_state.referencePoint.x, tr_state.referencePoint.y, tr_state.referencePoint.z};
 
-        auto *lcio_tr_state = new lcio::TrackStateImpl(
-            tr_state.location, tr_state.D0, tr_state.phi, tr_state.omega,
-            tr_state.Z0, tr_state.tanLambda, cov.data(), refP.data());
+        auto* lcio_tr_state = new lcio::TrackStateImpl(tr_state.location, tr_state.D0, tr_state.phi, tr_state.omega,
+                                                       tr_state.Z0, tr_state.tanLambda, cov.data(), refP.data());
 
         lcio_tr->addTrackState(lcio_tr_state);
       }
@@ -71,32 +64,25 @@ convertTracks(const edm4hep::TrackCollection *const edmCollection,
 }
 
 template <typename TrackerHitMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertTrackerHits(const edm4hep::TrackerHit3DCollection *const edmColection,
-                   const std::string &cellIDstr,
-                   TrackerHitMapT &trackerHitMap) {
-  auto trackerhits =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHIT);
+std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(const edm4hep::TrackerHit3DCollection* const edmColection,
+                                                          const std::string& cellIDstr, TrackerHitMapT& trackerHitMap) {
+  auto trackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHIT);
 
   if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr,
-                                                           trackerhits.get());
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerhits.get());
   }
 
   // Loop over EDM4hep trackerhits converting them to lcio trackerhits
-  for (const auto &edm_trh : (*edmColection)) {
+  for (const auto& edm_trh : (*edmColection)) {
     if (edm_trh.isAvailable()) {
-      auto *lcio_trh = new lcio::TrackerHitImpl();
+      auto* lcio_trh = new lcio::TrackerHitImpl();
 
       uint64_t combined_value = edm_trh.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_trh->setCellID0(combined_value_ptr[0]);
       lcio_trh->setCellID1(combined_value_ptr[1]);
       lcio_trh->setType(edm_trh.getType());
-      std::array<double, 3> positions{edm_trh.getPosition()[0],
-                                      edm_trh.getPosition()[1],
-                                      edm_trh.getPosition()[2]};
+      std::array<double, 3> positions{edm_trh.getPosition()[0], edm_trh.getPosition()[1], edm_trh.getPosition()[2]};
       lcio_trh->setPosition(positions.data());
       lcio_trh->setCovMatrix(edm_trh.getCovMatrix().data());
       lcio_trh->setEDep(edm_trh.getEDep());
@@ -116,30 +102,25 @@ convertTrackerHits(const edm4hep::TrackerHit3DCollection *const edmColection,
 }
 
 template <typename TrackerHitPlaneMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertTrackerHitPlanes(
-    const edm4hep::TrackerHitPlaneCollection *const edmCollection,
-    const std::string &cellIDstr, TrackerHitPlaneMapT &trackerHitsMap) {
-  auto trackerHitPlanes =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHITPLANE);
+std::unique_ptr<lcio::LCCollectionVec>
+convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmCollection, const std::string& cellIDstr,
+                        TrackerHitPlaneMapT& trackerHitsMap) {
+  auto trackerHitPlanes = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHITPLANE);
 
   if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(
-        cellIDstr, trackerHitPlanes.get());
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerHitPlanes.get());
   }
 
-  for (const auto &edm_trh : (*edmCollection)) {
+  for (const auto& edm_trh : (*edmCollection)) {
     if (edm_trh.isAvailable()) {
-      auto *lcio_trh = new lcio::TrackerHitPlaneImpl();
+      auto* lcio_trh = new lcio::TrackerHitPlaneImpl();
 
       uint64_t combined_value = edm_trh.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_trh->setCellID0(combined_value_ptr[0]);
       lcio_trh->setCellID1(combined_value_ptr[1]);
       lcio_trh->setType(edm_trh.getType());
-      const std::array positions{edm_trh.getPosition()[0],
-                                 edm_trh.getPosition()[1],
-                                 edm_trh.getPosition()[2]};
+      const std::array positions{edm_trh.getPosition()[0], edm_trh.getPosition()[1], edm_trh.getPosition()[2]};
       lcio_trh->setPosition(positions.data());
       // No public setter in LCIO
       // lcio_trh->setCovMatrix(edm_trh.getCovMatrix().data());
@@ -165,36 +146,29 @@ std::unique_ptr<lcio::LCCollectionVec> convertTrackerHitPlanes(
 }
 
 template <typename SimTrHitMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertSimTrackerHits(
-    const edm4hep::SimTrackerHitCollection *const edmCollection,
-    const std::string &cellIDstr, SimTrHitMapT &simTrHitMap) {
-  auto simtrackerhits =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMTRACKERHIT);
+std::unique_ptr<lcio::LCCollectionVec>
+convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollection, const std::string& cellIDstr,
+                      SimTrHitMapT& simTrHitMap) {
+  auto simtrackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMTRACKERHIT);
 
   if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimTrackerHitImpl> idEnc(cellIDstr,
-                                                       simtrackerhits.get());
+    lcio::CellIDEncoder<lcio::SimTrackerHitImpl> idEnc(cellIDstr, simtrackerhits.get());
   }
 
   // Loop over EDM4hep simtrackerhits converting them to LCIO simtrackerhits
-  for (const auto &edm_strh : (*edmCollection)) {
+  for (const auto& edm_strh : (*edmCollection)) {
     if (edm_strh.isAvailable()) {
-      auto *lcio_strh = new lcio::SimTrackerHitImpl();
+      auto* lcio_strh = new lcio::SimTrackerHitImpl();
 
       uint64_t combined_value = edm_strh.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_strh->setCellID0(combined_value_ptr[0]);
       lcio_strh->setCellID1(combined_value_ptr[1]);
-      std::array<double, 3> positions{edm_strh.getPosition()[0],
-                                      edm_strh.getPosition()[1],
-                                      edm_strh.getPosition()[2]};
+      std::array<double, 3> positions{edm_strh.getPosition()[0], edm_strh.getPosition()[1], edm_strh.getPosition()[2]};
       lcio_strh->setPosition(positions.data());
       lcio_strh->setEDep(edm_strh.getEDep());
       lcio_strh->setTime(edm_strh.getTime());
-      lcio_strh->setMomentum(edm_strh.getMomentum()[0],
-                             edm_strh.getMomentum()[1],
-                             edm_strh.getMomentum()[2]);
+      lcio_strh->setMomentum(edm_strh.getMomentum()[0], edm_strh.getMomentum()[1], edm_strh.getMomentum()[2]);
       lcio_strh->setPathLength(edm_strh.getPathLength());
       lcio_strh->setQuality(edm_strh.getQuality());
       // lcio_strh->setQualityBit( int bit , bool val=true ) ;
@@ -216,31 +190,27 @@ std::unique_ptr<lcio::LCCollectionVec> convertSimTrackerHits(
 // Add converted LCIO ptr and original EDM4hep collection to vector of pairs
 // Add converted LCIO Collection Vector to LCIO event
 template <typename CaloHitMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertCalorimeterHits(
-    const edm4hep::CalorimeterHitCollection *const edmCollection,
-    const std::string &cellIDstr, CaloHitMapT &caloHitMap) {
-  auto calohits =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CALORIMETERHIT);
+std::unique_ptr<lcio::LCCollectionVec>
+convertCalorimeterHits(const edm4hep::CalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
+                       CaloHitMapT& caloHitMap) {
+  auto calohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CALORIMETERHIT);
 
   if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr,
-                                                           calohits.get());
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, calohits.get());
   }
 
-  for (const auto &edm_calohit : (*edmCollection)) {
+  for (const auto& edm_calohit : (*edmCollection)) {
     if (edm_calohit.isAvailable()) {
-      auto *lcio_calohit = new lcio::CalorimeterHitImpl();
+      auto* lcio_calohit = new lcio::CalorimeterHitImpl();
 
       uint64_t combined_value = edm_calohit.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_calohit->setCellID0(combined_value_ptr[0]);
       lcio_calohit->setCellID1(combined_value_ptr[1]);
       lcio_calohit->setEnergy(edm_calohit.getEnergy());
       lcio_calohit->setEnergyError(edm_calohit.getEnergyError());
       lcio_calohit->setTime(edm_calohit.getTime());
-      std::array<float, 3> positions{edm_calohit.getPosition()[0],
-                                     edm_calohit.getPosition()[1],
+      std::array<float, 3> positions{edm_calohit.getPosition()[0], edm_calohit.getPosition()[1],
                                      edm_calohit.getPosition()[2]};
       lcio_calohit->setPosition(positions.data());
       lcio_calohit->setType(edm_calohit.getType());
@@ -249,8 +219,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertCalorimeterHits(
       // lcio_calohit->setRawHit(EVENT::LCObject* rawHit );
 
       // Save Calorimeter Hits LCIO and EDM4hep collections
-      k4EDM4hep2LcioConv::detail::mapInsert(lcio_calohit, edm_calohit,
-                                            caloHitMap);
+      k4EDM4hep2LcioConv::detail::mapInsert(lcio_calohit, edm_calohit, caloHitMap);
 
       // Add to lcio tracks collection
       calohits->addElement(lcio_calohit);
@@ -261,27 +230,24 @@ std::unique_ptr<lcio::LCCollectionVec> convertCalorimeterHits(
 }
 
 template <typename RawCaloHitMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertRawCalorimeterHits(
-    const edm4hep::RawCalorimeterHitCollection *const edmCollection,
-    RawCaloHitMapT &rawCaloHitMap) {
-  auto rawcalohits =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::RAWCALORIMETERHIT);
+std::unique_ptr<lcio::LCCollectionVec>
+convertRawCalorimeterHits(const edm4hep::RawCalorimeterHitCollection* const edmCollection,
+                          RawCaloHitMapT& rawCaloHitMap) {
+  auto rawcalohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::RAWCALORIMETERHIT);
 
-  for (const auto &edm_raw_calohit : (*edmCollection)) {
+  for (const auto& edm_raw_calohit : (*edmCollection)) {
     if (edm_raw_calohit.isAvailable()) {
-      auto *lcio_rawcalohit = new lcio::RawCalorimeterHitImpl();
+      auto* lcio_rawcalohit = new lcio::RawCalorimeterHitImpl();
 
       uint64_t combined_value = edm_raw_calohit.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_rawcalohit->setCellID0(combined_value_ptr[0]);
       lcio_rawcalohit->setCellID1(combined_value_ptr[1]);
       lcio_rawcalohit->setAmplitude(edm_raw_calohit.getAmplitude());
       lcio_rawcalohit->setTimeStamp(edm_raw_calohit.getTimeStamp());
 
       // Save Raw Calorimeter Hits LCIO and EDM4hep collections
-      k4EDM4hep2LcioConv::detail::mapInsert(lcio_rawcalohit, edm_raw_calohit,
-                                            rawCaloHitMap);
+      k4EDM4hep2LcioConv::detail::mapInsert(lcio_rawcalohit, edm_raw_calohit, rawCaloHitMap);
 
       // Add to lcio tracks collection
       rawcalohits->addElement(lcio_rawcalohit);
@@ -292,29 +258,25 @@ std::unique_ptr<lcio::LCCollectionVec> convertRawCalorimeterHits(
 }
 
 template <typename SimCaloHitMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertSimCalorimeterHits(
-    const edm4hep::SimCalorimeterHitCollection *const edmCollection,
-    const std::string &cellIDstr, SimCaloHitMapT &simCaloHitMap) {
-  auto simcalohits =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMCALORIMETERHIT);
+std::unique_ptr<lcio::LCCollectionVec>
+convertSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
+                          SimCaloHitMapT& simCaloHitMap) {
+  auto simcalohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMCALORIMETERHIT);
 
   if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr,
-                                                           simcalohits.get());
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, simcalohits.get());
   }
 
-  for (const auto &edm_sim_calohit : (*edmCollection)) {
+  for (const auto& edm_sim_calohit : (*edmCollection)) {
     if (edm_sim_calohit.isAvailable()) {
-      auto *lcio_simcalohit = new lcio::SimCalorimeterHitImpl();
+      auto* lcio_simcalohit = new lcio::SimCalorimeterHitImpl();
 
       uint64_t combined_value = edm_sim_calohit.getCellID();
-      uint32_t *combined_value_ptr =
-          reinterpret_cast<uint32_t *>(&combined_value);
+      uint32_t* combined_value_ptr = reinterpret_cast<uint32_t*>(&combined_value);
       lcio_simcalohit->setCellID0(combined_value_ptr[0]);
       lcio_simcalohit->setCellID1(combined_value_ptr[1]);
       lcio_simcalohit->setEnergy(edm_sim_calohit.getEnergy());
-      std::array<float, 3> positions{edm_sim_calohit.getPosition()[0],
-                                     edm_sim_calohit.getPosition()[1],
+      std::array<float, 3> positions{edm_sim_calohit.getPosition()[0], edm_sim_calohit.getPosition()[1],
                                      edm_sim_calohit.getPosition()[2]};
       lcio_simcalohit->setPosition(positions.data());
 
@@ -322,8 +284,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertSimCalorimeterHits(
       // probability that we have the MCParticles converted
 
       // Save Sim Calorimeter Hits LCIO and EDM4hep collections
-      k4EDM4hep2LcioConv::detail::mapInsert(lcio_simcalohit, edm_sim_calohit,
-                                            simCaloHitMap);
+      k4EDM4hep2LcioConv::detail::mapInsert(lcio_simcalohit, edm_sim_calohit, simCaloHitMap);
 
       // Add to sim calo hits collection
       simcalohits->addElement(lcio_simcalohit);
@@ -334,14 +295,13 @@ std::unique_ptr<lcio::LCCollectionVec> convertSimCalorimeterHits(
 }
 
 template <typename TPCHitMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertTPCHits(const edm4hep::RawTimeSeriesCollection *const edmCollection,
-               TPCHitMapT &tpcHitMap) {
+std::unique_ptr<lcio::LCCollectionVec> convertTPCHits(const edm4hep::RawTimeSeriesCollection* const edmCollection,
+                                                      TPCHitMapT& tpcHitMap) {
   auto tpchits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TPCHIT);
 
-  for (const auto &edm_tpchit : (*edmCollection)) {
+  for (const auto& edm_tpchit : (*edmCollection)) {
     if (edm_tpchit.isAvailable()) {
-      auto *lcio_tpchit = new lcio::TPCHitImpl();
+      auto* lcio_tpchit = new lcio::TPCHitImpl();
 
 #warning "unsigned long long conversion to int"
       lcio_tpchit->setCellID(edm_tpchit.getCellID());
@@ -368,15 +328,14 @@ convertTPCHits(const edm4hep::RawTimeSeriesCollection *const edmCollection,
 }
 
 template <typename ClusterMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertClusters(const edm4hep::ClusterCollection *const edmCollection,
-                ClusterMapT &clusterMap) {
+std::unique_ptr<lcio::LCCollectionVec> convertClusters(const edm4hep::ClusterCollection* const edmCollection,
+                                                       ClusterMapT& clusterMap) {
   auto clusters = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CLUSTER);
 
   // Loop over EDM4hep clusters converting them to lcio clusters
-  for (const auto &edm_cluster : (*edmCollection)) {
+  for (const auto& edm_cluster : (*edmCollection)) {
     if (edm_cluster.isAvailable()) {
-      auto *lcio_cluster = new lcio::ClusterImpl();
+      auto* lcio_cluster = new lcio::ClusterImpl();
 
       std::bitset<sizeof(uint32_t)> type_bits = edm_cluster.getType();
       for (auto j = 0u; j < sizeof(uint32_t); j++) {
@@ -385,33 +344,30 @@ convertClusters(const edm4hep::ClusterCollection *const edmCollection,
       lcio_cluster->setEnergy(edm_cluster.getEnergy());
       lcio_cluster->setEnergyError(edm_cluster.getEnergyError());
 
-      std::array<float, 3> edm_cluster_pos = {edm_cluster.getPosition().x,
-                                              edm_cluster.getPosition().y,
+      std::array<float, 3> edm_cluster_pos = {edm_cluster.getPosition().x, edm_cluster.getPosition().y,
                                               edm_cluster.getPosition().z};
       lcio_cluster->setPosition(edm_cluster_pos.data());
 
       lcio_cluster->setPositionError(edm_cluster.getPositionError().data());
       lcio_cluster->setITheta(edm_cluster.getITheta());
       lcio_cluster->setIPhi(edm_cluster.getPhi());
-      std::array<float, 3> edm_cluster_dir_err = {edm_cluster.getPosition().x,
-                                                  edm_cluster.getPosition().y,
+      std::array<float, 3> edm_cluster_dir_err = {edm_cluster.getPosition().x, edm_cluster.getPosition().y,
                                                   edm_cluster.getPosition().z};
       lcio_cluster->setDirectionError(edm_cluster_dir_err.data());
 
       EVENT::FloatVec shape_vec{};
-      for (auto &param : edm_cluster.getShapeParameters()) {
+      for (auto& param : edm_cluster.getShapeParameters()) {
         shape_vec.push_back(param);
       }
       lcio_cluster->setShape(shape_vec);
 
-      auto &subdetEnergies = lcio_cluster->subdetectorEnergies();
+      auto& subdetEnergies = lcio_cluster->subdetectorEnergies();
       for (const auto edmEnergy : edm_cluster.getSubdetectorEnergies()) {
         subdetEnergies.push_back(edmEnergy);
       }
 
       // Add LCIO and EDM4hep pair collections to vec
-      k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster,
-                                            clusterMap);
+      k4EDM4hep2LcioConv::detail::mapInsert(lcio_cluster, edm_cluster, clusterMap);
 
       // Add to lcio tracks collection
       clusters->addElement(lcio_cluster);
@@ -422,26 +378,22 @@ convertClusters(const edm4hep::ClusterCollection *const edmCollection,
 }
 
 template <typename VertexMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertVertices(const edm4hep::VertexCollection *const edmCollection,
-                VertexMapT &vertexMap) {
+std::unique_ptr<lcio::LCCollectionVec> convertVertices(const edm4hep::VertexCollection* const edmCollection,
+                                                       VertexMapT& vertexMap) {
   auto vertices = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::VERTEX);
 
   // Loop over EDM4hep vertex converting them to lcio vertex
-  for (const auto &edm_vertex : (*edmCollection)) {
+  for (const auto& edm_vertex : (*edmCollection)) {
     if (edm_vertex.isAvailable()) {
-      auto *lcio_vertex = new lcio::VertexImpl();
+      auto* lcio_vertex = new lcio::VertexImpl();
       lcio_vertex->setPrimary(edm_vertex.getPrimary());
-      lcio_vertex->setAlgorithmType(
-          std::to_string(edm_vertex.getAlgorithmType()));
+      lcio_vertex->setAlgorithmType(std::to_string(edm_vertex.getAlgorithmType()));
       lcio_vertex->setChi2(edm_vertex.getChi2());
       lcio_vertex->setProbability(edm_vertex.getProbability());
-      lcio_vertex->setPosition(edm_vertex.getPosition()[0],
-                               edm_vertex.getPosition()[1],
-                               edm_vertex.getPosition()[2]);
+      lcio_vertex->setPosition(edm_vertex.getPosition()[0], edm_vertex.getPosition()[1], edm_vertex.getPosition()[2]);
       lcio_vertex->setCovMatrix(edm_vertex.getCovMatrix().data());
 
-      for (auto &param : edm_vertex.getParameters()) {
+      for (auto& param : edm_vertex.getParameters()) {
         lcio_vertex->addParameter(param);
       }
 
@@ -457,32 +409,26 @@ convertVertices(const edm4hep::VertexCollection *const edmCollection,
 }
 
 template <typename RecoPartMapT>
-std::unique_ptr<lcio::LCCollectionVec> convertReconstructedParticles(
-    const edm4hep::ReconstructedParticleCollection *const recos_coll,
-    RecoPartMapT &recoparticles_vec) {
-  auto recops = std::make_unique<lcio::LCCollectionVec>(
-      lcio::LCIO::RECONSTRUCTEDPARTICLE);
+std::unique_ptr<lcio::LCCollectionVec>
+convertReconstructedParticles(const edm4hep::ReconstructedParticleCollection* const recos_coll,
+                              RecoPartMapT& recoparticles_vec) {
+  auto recops = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::RECONSTRUCTEDPARTICLE);
 
-  for (const auto &edm_rp : (*recos_coll)) {
-    auto *lcio_recp = new lcio::ReconstructedParticleImpl;
+  for (const auto& edm_rp : (*recos_coll)) {
+    auto* lcio_recp = new lcio::ReconstructedParticleImpl;
     if (edm_rp.isAvailable()) {
       lcio_recp->setType(edm_rp.getPDG());
-      float m[3] = {edm_rp.getMomentum()[0], edm_rp.getMomentum()[1],
-                    edm_rp.getMomentum()[2]};
+      float m[3] = {edm_rp.getMomentum()[0], edm_rp.getMomentum()[1], edm_rp.getMomentum()[2]};
       lcio_recp->setMomentum(m);
       lcio_recp->setEnergy(edm_rp.getEnergy());
-      lcio_recp->setCovMatrix(
-          edm_rp.getCovMatrix().data()); // TODO Check lower or upper
+      lcio_recp->setCovMatrix(edm_rp.getCovMatrix().data()); // TODO Check lower or upper
       lcio_recp->setMass(edm_rp.getMass());
       lcio_recp->setCharge(edm_rp.getCharge());
-      float rp[3] = {edm_rp.getReferencePoint()[0],
-                     edm_rp.getReferencePoint()[1],
-                     edm_rp.getReferencePoint()[2]};
+      float rp[3] = {edm_rp.getReferencePoint()[0], edm_rp.getReferencePoint()[1], edm_rp.getReferencePoint()[2]};
       lcio_recp->setReferencePoint(rp);
       lcio_recp->setGoodnessOfPID(edm_rp.getGoodnessOfPID());
       // Add LCIO and EDM4hep pair collections to vec
-      k4EDM4hep2LcioConv::detail::mapInsert(lcio_recp, edm_rp,
-                                            recoparticles_vec);
+      k4EDM4hep2LcioConv::detail::mapInsert(lcio_recp, edm_rp, recoparticles_vec);
 
       // Add to reconstructed particles collection
       recops->addElement(lcio_recp);
@@ -493,14 +439,12 @@ std::unique_ptr<lcio::LCCollectionVec> convertReconstructedParticles(
 }
 
 template <typename MCPartMapT>
-std::unique_ptr<lcio::LCCollectionVec>
-convertMCParticles(const edm4hep::MCParticleCollection *const edmCollection,
-                   MCPartMapT &mcParticleMap) {
-  auto mcparticles =
-      std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::MCPARTICLE);
+std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(const edm4hep::MCParticleCollection* const edmCollection,
+                                                          MCPartMapT& mcParticleMap) {
+  auto mcparticles = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::MCPARTICLE);
 
-  for (const auto &edm_mcp : (*edmCollection)) {
-    auto *lcio_mcp = new lcio::MCParticleImpl;
+  for (const auto& edm_mcp : (*edmCollection)) {
+    auto* lcio_mcp = new lcio::MCParticleImpl;
     if (edm_mcp.isAvailable()) {
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
@@ -509,32 +453,26 @@ convertMCParticles(const edm4hep::MCParticleCollection *const edmCollection,
       int status = edm_mcp.getSimulatorStatus();
       lcio_mcp->setSimulatorStatus(status);
 
-      double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1],
-                          edm_mcp.getVertex()[2]};
+      double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
       lcio_mcp->setVertex(vertex);
       lcio_mcp->setTime(edm_mcp.getTime());
-      double endpoint[3] = {edm_mcp.getEndpoint()[0], edm_mcp.getEndpoint()[1],
-                            edm_mcp.getEndpoint()[2]};
+      double endpoint[3] = {edm_mcp.getEndpoint()[0], edm_mcp.getEndpoint()[1], edm_mcp.getEndpoint()[2]};
       lcio_mcp->setEndpoint(endpoint);
-      double momentum[3] = {edm_mcp.getMomentum()[0], edm_mcp.getMomentum()[1],
-                            edm_mcp.getMomentum()[2]};
+      double momentum[3] = {edm_mcp.getMomentum()[0], edm_mcp.getMomentum()[1], edm_mcp.getMomentum()[2]};
       lcio_mcp->setMomentum(momentum);
-      double momentumEndpoint[3] = {edm_mcp.getMomentumAtEndpoint()[0],
-                                    edm_mcp.getMomentumAtEndpoint()[1],
+      double momentumEndpoint[3] = {edm_mcp.getMomentumAtEndpoint()[0], edm_mcp.getMomentumAtEndpoint()[1],
                                     edm_mcp.getMomentumAtEndpoint()[2]};
       lcio_mcp->setMomentumAtEndpoint(momentumEndpoint);
       lcio_mcp->setMass(edm_mcp.getMass());
       lcio_mcp->setCharge(edm_mcp.getCharge());
-      float spin[3] = {edm_mcp.getSpin()[0], edm_mcp.getSpin()[1],
-                       edm_mcp.getSpin()[2]};
+      float spin[3] = {edm_mcp.getSpin()[0], edm_mcp.getSpin()[1], edm_mcp.getSpin()[2]};
       lcio_mcp->setSpin(spin);
       int colorflow[2] = {edm_mcp.getColorFlow()[0], edm_mcp.getColorFlow()[1]};
       lcio_mcp->setColorFlow(colorflow);
 
       lcio_mcp->setCreatedInSimulation(edm_mcp.isCreatedInSimulation());
       lcio_mcp->setBackscatter(edm_mcp.isBackscatter());
-      lcio_mcp->setVertexIsNotEndpointOfParent(
-          edm_mcp.vertexIsNotEndpointOfParent());
+      lcio_mcp->setVertexIsNotEndpointOfParent(edm_mcp.vertexIsNotEndpointOfParent());
       lcio_mcp->setDecayedInTracker(edm_mcp.isDecayedInTracker());
       lcio_mcp->setDecayedInCalorimeter(edm_mcp.isDecayedInCalorimeter());
       lcio_mcp->setHasLeftDetector(edm_mcp.hasLeftDetector());
@@ -553,35 +491,28 @@ convertMCParticles(const edm4hep::MCParticleCollection *const edmCollection,
 }
 
 template <typename PidMapT>
-void convertParticleIDs(
-    const edm4hep::ParticleIDCollection *const edmCollection, PidMapT &pidMap,
-    const int algoId) {
-  for (const auto &edmPid : (*edmCollection)) {
-    auto [lcioPid, _] = k4EDM4hep2LcioConv::detail::mapInsert(
-                            new lcio::ParticleIDImpl(), edmPid, pidMap)
-                            .first;
+void convertParticleIDs(const edm4hep::ParticleIDCollection* const edmCollection, PidMapT& pidMap, const int algoId) {
+  for (const auto& edmPid : (*edmCollection)) {
+    auto [lcioPid, _] = k4EDM4hep2LcioConv::detail::mapInsert(new lcio::ParticleIDImpl(), edmPid, pidMap).first;
 
     lcioPid->setType(edmPid.getType());
     lcioPid->setPDG(edmPid.getPDG());
     lcioPid->setLikelihood(edmPid.getLikelihood());
     lcioPid->setAlgorithmType(algoId);
-    for (const auto &param : edmPid.getParameters()) {
+    for (const auto& param : edmPid.getParameters()) {
       lcioPid->addParameter(param);
     }
   }
 }
 
 template <typename MCParticleMapT, typename MCParticleLookupMapT>
-void resolveRelationsMCParticles(MCParticleMapT &mcParticlesMap,
-                                 const MCParticleLookupMapT &lookupMap) {
+void resolveRelationsMCParticles(MCParticleMapT& mcParticlesMap, const MCParticleLookupMapT& lookupMap) {
   // Add parent MCParticles after converting all MCparticles
-  for (auto &[lcio_mcp, edm_mcp] : mcParticlesMap) {
-    for (const auto &emd_parent_mcp : edm_mcp.getParents()) {
+  for (auto& [lcio_mcp, edm_mcp] : mcParticlesMap) {
+    for (const auto& emd_parent_mcp : edm_mcp.getParents()) {
       if (emd_parent_mcp.isAvailable()) {
         // Search for the parent mcparticle in the converted vector
-        if (const auto lcio_mcp_linked =
-                k4EDM4hep2LcioConv::detail::mapLookupFrom(emd_parent_mcp,
-                                                          lookupMap)) {
+        if (const auto lcio_mcp_linked = k4EDM4hep2LcioConv::detail::mapLookupFrom(emd_parent_mcp, lookupMap)) {
           lcio_mcp->addParent(lcio_mcp_linked.value());
         }
       }
@@ -589,20 +520,16 @@ void resolveRelationsMCParticles(MCParticleMapT &mcParticlesMap,
   }
 }
 
-template <typename TrackMapT, typename TrackHitMapT, typename THPlaneHitMapT,
-          typename TPCHitMapT>
-void resolveRelationsTracks(TrackMapT &tracksMap,
-                            const TrackHitMapT &trackerHitMap,
-                            const THPlaneHitMapT &trackerHitPlaneMap,
-                            const TPCHitMapT &) {
-  for (auto &[lcio_tr, edm_tr] : tracksMap) {
+template <typename TrackMapT, typename TrackHitMapT, typename THPlaneHitMapT, typename TPCHitMapT>
+void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHitMap,
+                            const THPlaneHitMapT& trackerHitPlaneMap, const TPCHitMapT&) {
+  for (auto& [lcio_tr, edm_tr] : tracksMap) {
     auto tracks = edm_tr.getTracks();
     for (auto t : tracks) {
       if (!t.isAvailable()) {
         continue;
       }
-      if (const auto track =
-              k4EDM4hep2LcioConv::detail::mapLookupFrom(t, tracksMap)) {
+      if (const auto track = k4EDM4hep2LcioConv::detail::mapLookupFrom(t, tracksMap)) {
         lcio_tr->addTrack(track.value());
       }
     }
@@ -612,11 +539,9 @@ void resolveRelationsTracks(TrackMapT &tracksMap,
       if (!th.isAvailable()) {
         continue;
       }
-      if (const auto hit =
-              k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitMap)) {
+      if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitMap)) {
         lcio_tr->addHit(hit.value());
-      } else if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(
-                     th, trackerHitPlaneMap)) {
+      } else if (const auto hit = k4EDM4hep2LcioConv::detail::mapLookupFrom(th, trackerHitPlaneMap)) {
         lcio_tr->addHit(hit.value());
       }
     }
@@ -624,13 +549,11 @@ void resolveRelationsTracks(TrackMapT &tracksMap,
 }
 
 template <typename SimTrHitMapT, typename MCParticleMapT>
-void resolveRelationsSimTrackerHits(SimTrHitMapT &simTrHitMap,
-                                    const MCParticleMapT &mcParticleMap) {
-  for (auto &[lcio_strh, edm_strh] : simTrHitMap) {
+void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap) {
+  for (auto& [lcio_strh, edm_strh] : simTrHitMap) {
     auto edm_strh_mcp = edm_strh.getParticle();
     if (edm_strh_mcp.isAvailable()) {
-      if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(
-              edm_strh_mcp, mcParticleMap)) {
+      if (const auto lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_strh_mcp, mcParticleMap)) {
         lcio_strh->setMCParticle(lcio_mcp.value());
       }
     }
@@ -638,42 +561,36 @@ void resolveRelationsSimTrackerHits(SimTrHitMapT &simTrHitMap,
 }
 
 template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT &vertexMap,
-                              const RecoParticleMapT &recoParticleMap) {
-  for (auto &[lcio_vertex, edm_vertex] : vertexMap) {
+void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
+  for (auto& [lcio_vertex, edm_vertex] : vertexMap) {
     const auto edm_rp = edm_vertex.getAssociatedParticle();
     if (edm_rp.isAvailable()) {
-      if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(
-              edm_rp, recoParticleMap)) {
+      if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, recoParticleMap)) {
         lcio_vertex->setAssociatedParticle(lcio_rp.value());
       }
     }
   }
 }
 
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT,
-          typename VertexMapT, typename ClusterMapT, typename TrackMapT>
-void resolveRelationsRecoParticles(RecoParticleMapT &recoParticleMap,
-                                   const RecoParticleLookupMapT &recoLookupMap,
-                                   const VertexMapT &vertexMap,
-                                   const ClusterMapT &clusterMap,
-                                   const TrackMapT &trackMap) {
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
+          typename TrackMapT>
+void resolveRelationsRecoParticles(RecoParticleMapT& recoParticleMap, const RecoParticleLookupMapT& recoLookupMap,
+                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
+                                   const TrackMapT& trackMap) {
   // Link Vertex
-  for (auto &[lcio_rp, edm_rp] : recoParticleMap) {
+  for (auto& [lcio_rp, edm_rp] : recoParticleMap) {
     const auto edmStartVtx = edm_rp.getStartVertex();
     if (edmStartVtx.isAvailable()) {
-      if (const auto lcio_vertex = k4EDM4hep2LcioConv::detail::mapLookupFrom(
-              edmStartVtx, vertexMap)) {
+      if (const auto lcio_vertex = k4EDM4hep2LcioConv::detail::mapLookupFrom(edmStartVtx, vertexMap)) {
         lcio_rp->setStartVertex(lcio_vertex.value());
       }
     }
 
     // Link Tracks
     const auto edmTracks = edm_rp.getTracks();
-    for (const auto &t : edmTracks) {
+    for (const auto& t : edmTracks) {
       if (t.isAvailable()) {
-        if (const auto lcio_tr =
-                k4EDM4hep2LcioConv::detail::mapLookupFrom(t, trackMap)) {
+        if (const auto lcio_tr = k4EDM4hep2LcioConv::detail::mapLookupFrom(t, trackMap)) {
           lcio_rp->addTrack(lcio_tr.value());
         }
       }
@@ -681,10 +598,9 @@ void resolveRelationsRecoParticles(RecoParticleMapT &recoParticleMap,
 
     // Link Clusters
     const auto edmClusters = edm_rp.getClusters();
-    for (const auto &c : edmClusters) {
+    for (const auto& c : edmClusters) {
       if (c.isAvailable()) {
-        if (const auto lcio_cluster =
-                k4EDM4hep2LcioConv::detail::mapLookupFrom(c, clusterMap)) {
+        if (const auto lcio_cluster = k4EDM4hep2LcioConv::detail::mapLookupFrom(c, clusterMap)) {
           lcio_rp->addCluster(lcio_cluster.value());
         }
       }
@@ -692,10 +608,9 @@ void resolveRelationsRecoParticles(RecoParticleMapT &recoParticleMap,
 
     // Link particles
     const auto edmParticles = edm_rp.getParticles();
-    for (const auto &p : edmParticles) {
+    for (const auto& p : edmParticles) {
       if (p.isAvailable()) {
-        if (const auto lcio_p =
-                k4EDM4hep2LcioConv::detail::mapLookupFrom(p, recoLookupMap)) {
+        if (const auto lcio_p = k4EDM4hep2LcioConv::detail::mapLookupFrom(p, recoLookupMap)) {
           lcio_rp->addParticle(lcio_p.value());
         }
       }
@@ -704,24 +619,21 @@ void resolveRelationsRecoParticles(RecoParticleMapT &recoParticleMap,
 }
 
 template <typename ClusterMapT, typename CaloHitMapT>
-void resolveRelationsClusters(ClusterMapT &clustersMap,
-                              const CaloHitMapT &caloHitMap) {
+void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloHitMap) {
   // Resolve relations for clusters
-  for (auto &[lcio_cluster, edm_cluster] : clustersMap) {
-    for (const auto &edm_linked_cluster : edm_cluster.getClusters()) {
+  for (auto& [lcio_cluster, edm_cluster] : clustersMap) {
+    for (const auto& edm_linked_cluster : edm_cluster.getClusters()) {
       if (edm_linked_cluster.isAvailable()) {
         if (const auto lcio_cluster_linked =
-                k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster,
-                                                          clustersMap)) {
+                k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_linked_cluster, clustersMap)) {
           lcio_cluster->addCluster(lcio_cluster_linked.value());
         }
       }
     }
 
-    for (const auto &edm_calohit : edm_cluster.getHits()) {
+    for (const auto& edm_calohit : edm_cluster.getHits()) {
       if (edm_calohit.isAvailable()) {
-        if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(
-                edm_calohit, caloHitMap)) {
+        if (const auto lcio_calohit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_calohit, caloHitMap)) {
           lcio_cluster->addHit(lcio_calohit.value(), 1.0);
         }
       }
@@ -730,15 +642,14 @@ void resolveRelationsClusters(ClusterMapT &clustersMap,
 }
 
 template <typename SimCaloHitMapT, typename MCParticleMapT>
-void resolveRelationsSimCaloHit(SimCaloHitMapT &simCaloHitMap,
-                                const MCParticleMapT &mcParticleMap) {
+void resolveRelationsSimCaloHit(SimCaloHitMapT& simCaloHitMap, const MCParticleMapT& mcParticleMap) {
   // Fill SimCaloHit collections with contributions
   //
   // We loop over all pairs of lcio and edm4hep simcalo hits and add the
   // contributions, by now MCParticle collection(s) should be converted!
-  for (auto &[lcio_sch, edm_sch] : simCaloHitMap) {
+  for (auto& [lcio_sch, edm_sch] : simCaloHitMap) {
     const auto contribs = edm_sch.getContributions();
-    for (const auto &contrib : contribs) {
+    for (const auto& contrib : contribs) {
       if (not contrib.isAvailable()) {
         // We need a logging library independent of Gaudi for this!
         // std::cout << "WARNING: CaloHit Contribution is not available!" <<
@@ -746,20 +657,16 @@ void resolveRelationsSimCaloHit(SimCaloHitMapT &simCaloHitMap,
         continue;
       }
       auto edm_contrib_mcp = contrib.getParticle();
-      std::array<float, 3> step_position{contrib.getStepPosition()[0],
-                                         contrib.getStepPosition()[1],
+      std::array<float, 3> step_position{contrib.getStepPosition()[0], contrib.getStepPosition()[1],
                                          contrib.getStepPosition()[2]};
-      EVENT::MCParticle *lcio_mcp = nullptr;
+      EVENT::MCParticle* lcio_mcp = nullptr;
       if (edm_contrib_mcp.isAvailable()) {
         // if we have the MCParticle we look for its partner
-        lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp,
-                                                             mcParticleMap)
-                       .value_or(nullptr);
+        lcio_mcp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_contrib_mcp, mcParticleMap).value_or(nullptr);
       }
       // add associated Contributions (MCParticles)
       // we add contribution with whatever lcio mc particle we found
-      lcio_sch->addMCParticleContribution(lcio_mcp, contrib.getEnergy(),
-                                          contrib.getTime(), contrib.getPDG(),
+      lcio_sch->addMCParticleContribution(lcio_mcp, contrib.getEnergy(), contrib.getTime(), contrib.getPDG(),
                                           step_position.data());
     }
     // We need to reset the energy to the original one, because adding
@@ -769,24 +676,20 @@ void resolveRelationsSimCaloHit(SimCaloHitMapT &simCaloHitMap,
 }
 
 template <typename PidMapT, typename RecoParticleMapT>
-void resolveRelationsParticleIDs(PidMapT &pidMap,
-                                 const RecoParticleMapT &recoMap) {
-  for (auto &[lcioPid, edmPid] : pidMap) {
+void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap) {
+  for (auto& [lcioPid, edmPid] : pidMap) {
     const auto edmReco = edmPid.getParticle();
-    const auto lcioReco =
-        k4EDM4hep2LcioConv::detail::mapLookupFrom(edmReco, recoMap);
+    const auto lcioReco = k4EDM4hep2LcioConv::detail::mapLookupFrom(edmReco, recoMap);
     if (lcioReco) {
       lcioReco.value()->addParticleID(lcioPid);
     } else {
-      std::cerr
-          << "Cannot find a reconstructed particle to attach a ParticleID to"
-          << std::endl;
+      std::cerr << "Cannot find a reconstructed particle to attach a ParticleID to" << std::endl;
     }
   }
 }
 
 template <typename ObjectMappingT>
-void resolveRelations(ObjectMappingT &collection_pairs) {
+void resolveRelations(ObjectMappingT& collection_pairs) {
   resolveRelations(collection_pairs, collection_pairs);
 }
 
@@ -794,22 +697,16 @@ void resolveRelations(ObjectMappingT &collection_pairs) {
 // and for the mutual dependencies between some collections,
 // go over the possible missing associated collections and fill them.
 template <typename ObjectMappingT, typename ObjectMappingU>
-void resolveRelations(ObjectMappingT &update_pairs,
-                      const ObjectMappingU &lookup_pairs) {
-  resolveRelationsMCParticles(update_pairs.mcParticles,
-                              lookup_pairs.mcParticles);
-  resolveRelationsTracks(update_pairs.tracks, lookup_pairs.trackerHits,
-                         lookup_pairs.trackerHitPlanes, lookup_pairs.tpcHits);
-  resolveRelationsRecoParticles(
-      update_pairs.recoParticles, lookup_pairs.recoParticles,
-      lookup_pairs.vertices, lookup_pairs.clusters, lookup_pairs.tracks);
-  resolveRelationsParticleIDs(lookup_pairs.particleIDs,
-                              update_pairs.recoParticles);
+void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup_pairs) {
+  resolveRelationsMCParticles(update_pairs.mcParticles, lookup_pairs.mcParticles);
+  resolveRelationsTracks(update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.trackerHitPlanes,
+                         lookup_pairs.tpcHits);
+  resolveRelationsRecoParticles(update_pairs.recoParticles, lookup_pairs.recoParticles, lookup_pairs.vertices,
+                                lookup_pairs.clusters, lookup_pairs.tracks);
+  resolveRelationsParticleIDs(lookup_pairs.particleIDs, update_pairs.recoParticles);
   resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
-  resolveRelationsSimCaloHit(update_pairs.simCaloHits,
-                             lookup_pairs.mcParticles);
-  resolveRelationsSimTrackerHits(update_pairs.simTrackerHits,
-                                 lookup_pairs.mcParticles);
+  resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
+  resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
   resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);
 }
 
