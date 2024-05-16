@@ -1,2 +1,4 @@
 # Sync of .clang-format with upstream Key4hep default
 a844842970e555842f2ab510b17cbaa16957144a
+# Formatting of .ipp file after sync
+d933096246972b86a44965b1efffb49f9557e6fe
