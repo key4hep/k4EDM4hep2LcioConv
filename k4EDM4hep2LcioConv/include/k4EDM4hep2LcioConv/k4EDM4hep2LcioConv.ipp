@@ -65,12 +65,19 @@ std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollect
 
 template <typename TrackerHitMapT>
 std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(const edm4hep::TrackerHit3DCollection* const edmColection,
-                                                          const std::string& cellIDstr, TrackerHitMapT& trackerHitMap) {
+                                                          const CellIDStrType& cellIDstr,
+                                                          TrackerHitMapT& trackerHitMap) {
   auto trackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHIT);
 
-  if (cellIDstr != "") {
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+  if (cellIDstr.has_value()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr.value(), trackerhits.get());
+  }
+#else
+  if (!cellIDstr.empty()) {
     lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerhits.get());
   }
+#endif
 
   // Loop over EDM4hep trackerhits converting them to lcio trackerhits
   for (const auto& edm_trh : (*edmColection)) {
@@ -103,13 +110,19 @@ std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(const edm4hep::Tracker
 
 template <typename TrackerHitPlaneMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmCollection, const std::string& cellIDstr,
+convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmCollection, const CellIDStrType& cellIDstr,
                         TrackerHitPlaneMapT& trackerHitsMap) {
   auto trackerHitPlanes = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::TRACKERHITPLANE);
 
-  if (cellIDstr != "") {
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+  if (cellIDstr.has_value()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr.value(), trackerHitPlanes.get());
+  }
+#else
+  if (!cellIDstr.empty()) {
     lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, trackerHitPlanes.get());
   }
+#endif
 
   for (const auto& edm_trh : (*edmCollection)) {
     if (edm_trh.isAvailable()) {
@@ -147,13 +160,19 @@ convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmColle
 
 template <typename SimTrHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollection, const std::string& cellIDstr,
+convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollection, const CellIDStrType& cellIDstr,
                       SimTrHitMapT& simTrHitMap) {
   auto simtrackerhits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMTRACKERHIT);
 
-  if (cellIDstr != "") {
-    lcio::CellIDEncoder<lcio::SimTrackerHitImpl> idEnc(cellIDstr, simtrackerhits.get());
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+  if (cellIDstr.has_value()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr.value(), simtrackerhits.get());
   }
+#else
+  if (!cellIDstr.empty()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, simtrackerhits.get());
+  }
+#endif
 
   // Loop over EDM4hep simtrackerhits converting them to LCIO simtrackerhits
   for (const auto& edm_strh : (*edmCollection)) {
@@ -191,13 +210,19 @@ convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollectio
 // Add converted LCIO Collection Vector to LCIO event
 template <typename CaloHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertCalorimeterHits(const edm4hep::CalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
+convertCalorimeterHits(const edm4hep::CalorimeterHitCollection* const edmCollection, const CellIDStrType& cellIDstr,
                        CaloHitMapT& caloHitMap) {
   auto calohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::CALORIMETERHIT);
 
-  if (cellIDstr != "") {
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+  if (cellIDstr.has_value()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr.value(), calohits.get());
+  }
+#else
+  if (!cellIDstr.empty()) {
     lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, calohits.get());
   }
+#endif
 
   for (const auto& edm_calohit : (*edmCollection)) {
     if (edm_calohit.isAvailable()) {
@@ -259,13 +284,19 @@ convertRawCalorimeterHits(const edm4hep::RawCalorimeterHitCollection* const edmC
 
 template <typename SimCaloHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
-                          SimCaloHitMapT& simCaloHitMap) {
+convertSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const edmCollection,
+                          const CellIDStrType& cellIDstr, SimCaloHitMapT& simCaloHitMap) {
   auto simcalohits = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::SIMCALORIMETERHIT);
 
-  if (cellIDstr != "") {
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+  if (cellIDstr.has_value()) {
+    lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr.value(), simcalohits.get());
+  }
+#else
+  if (!cellIDstr.empty()) {
     lcio::CellIDEncoder<lcio::SimCalorimeterHitImpl> idEnc(cellIDstr, simcalohits.get());
   }
+#endif
 
   for (const auto& edm_sim_calohit : (*edmCollection)) {
     if (edm_sim_calohit.isAvailable()) {

@@ -36,6 +36,7 @@ using TrackerHit3D = edm4hep::TrackerHit;
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
+#include "podio/podioVersion.h"
 
 // LCIO
 #include <IMPL/CalorimeterHitImpl.h>
@@ -73,6 +74,12 @@ using ObjectMapT = k4EDM4hep2LcioConv::VecMapT<T1, T2>;
 
 template <typename T1, typename T2>
 using vec_pair [[deprecated("Use a more descriptive alias")]] = ObjectMapT<T1, T2>;
+
+#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
+using CellIDStrType = const std::optional<std::string>;
+#else
+using CellIDStrType = const std::string;
+#endif
 
 struct CollectionsPairVectors {
   ObjectMapT<lcio::TrackImpl*, edm4hep::Track> tracks{};
@@ -144,11 +151,12 @@ convTracks(const edm4hep::TrackCollection* const tracks_coll, TrackMapT& tracks_
  */
 template <typename TrackerHitMapT>
 std::unique_ptr<lcio::LCCollectionVec> convertTrackerHits(const edm4hep::TrackerHit3DCollection* const edmCollection,
-                                                          const std::string& cellIDStr, TrackerHitMapT& trackerHitMap);
+                                                          const CellIDStrType& cellIDStr,
+                                                          TrackerHitMapT& trackerHitMap);
 
 template <typename TrackerHitMapT>
 [[deprecated("Use convertTrackerHits instead")]] lcio::LCCollectionVec*
-convTrackerHits(const edm4hep::TrackerHit3DCollection* const trackerhits_coll, const std::string& cellIDstr,
+convTrackerHits(const edm4hep::TrackerHit3DCollection* const trackerhits_coll, const CellIDStrType& cellIDstr,
                 TrackerHitMapT& trackerhits_vec) {
   return convertTrackerHits(trackerhits_coll, cellIDstr, trackerhits_vec).release();
 }
@@ -159,12 +167,12 @@ convTrackerHits(const edm4hep::TrackerHit3DCollection* const trackerhits_coll, c
  */
 template <typename TrackerHitPlaneMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmCollection, const std::string& cellIDstr,
+convertTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const edmCollection, const CellIDStrType& cellIDstr,
                         TrackerHitPlaneMapT& trackerHitsMap);
 
 template <typename TrackerHitPlaneMapT>
 [[deprecated("Use convertTrackerHitPlanes instead")]] lcio::LCCollectionVec*
-convTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll, const std::string& cellIDstr,
+convTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const trackerhits_coll, const CellIDStrType& cellIDstr,
                      TrackerHitPlaneMapT& trackerhits_vec) {
   return convertTrackerHitPlanes(trackerhits_coll, cellIDstr, trackerhits_vec).release();
 }
@@ -175,12 +183,12 @@ convTrackerHitPlanes(const edm4hep::TrackerHitPlaneCollection* const trackerhits
  */
 template <typename SimTrHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollection, const std::string& cellIDstr,
+convertSimTrackerHits(const edm4hep::SimTrackerHitCollection* const edmCollection, const CellIDStrType& cellIDstr,
                       SimTrHitMapT& simTrHitMap);
 
 template <typename SimTrHitMapT, typename MCParticleMapT>
 [[deprecated("Use convertSimTrackerHits instead")]] lcio::LCCollectionVec*
-convSimTrackerHits(const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll, const std::string& cellIDstr,
+convSimTrackerHits(const edm4hep::SimTrackerHitCollection* const simtrackerhits_coll, const CellIDStrType& cellIDstr,
                    SimTrHitMapT& simtrackerhits_vec, const MCParticleMapT&) {
   return convertSimTrackerHits(simtrackerhits_coll, cellIDstr, simtrackerhits_vec).release();
 }
@@ -191,12 +199,12 @@ convSimTrackerHits(const edm4hep::SimTrackerHitCollection* const simtrackerhits_
  */
 template <typename CaloHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertCalorimeterHits(const edm4hep::CalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
+convertCalorimeterHits(const edm4hep::CalorimeterHitCollection* const edmCollection, const CellIDStrType& cellIDstr,
                        CaloHitMapT& caloHitMap);
 
 template <typename CaloHitMapT>
 [[deprecated("Use convertCalorimeterHits instead")]] lcio::LCCollectionVec*
-convCalorimeterHits(const edm4hep::CalorimeterHitCollection* const calohit_coll, const std::string& cellIDstr,
+convCalorimeterHits(const edm4hep::CalorimeterHitCollection* const calohit_coll, const CellIDStrType& cellIDstr,
                     CaloHitMapT& calo_hits_vec) {
   return convertCalorimeterHits(calohit_coll, cellIDstr, calo_hits_vec).release();
 }
@@ -223,19 +231,19 @@ convRawCalorimeterHits(const edm4hep::RawCalorimeterHitCollection* const rawcalo
  */
 template <typename SimCaloHitMapT>
 std::unique_ptr<lcio::LCCollectionVec>
-convertSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const edmCollection, const std::string& cellIDstr,
-                          SimCaloHitMapT& simCaloHitMap);
+convertSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const edmCollection,
+                          const CellIDStrType& cellIDstr, SimCaloHitMapT& simCaloHitMap);
 
 template <typename SimCaloHitMapT>
 lcio::LCCollectionVec* convSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
-                                              const std::string& cellIDstr, SimCaloHitMapT& sim_calo_hits_vec) {
+                                              const CellIDStrType& cellIDstr, SimCaloHitMapT& sim_calo_hits_vec) {
   return convertSimCalorimeterHits(simcalohit_coll, cellIDstr, sim_calo_hits_vec).release();
 }
 
 template <typename SimCaloHitMapT, typename MCParticleMapT>
 [[deprecated("remove MCParticleMap argument since it is unused")]] lcio::LCCollectionVec*
-convSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll, const std::string& cellIDstr,
-                       SimCaloHitMapT& sim_calo_hits_vec, const MCParticleMapT&) {
+convSimCalorimeterHits(const edm4hep::SimCalorimeterHitCollection* const simcalohit_coll,
+                       const CellIDStrType& cellIDstr, SimCaloHitMapT& sim_calo_hits_vec, const MCParticleMapT&) {
   return convSimCalorimeterHits(simcalohit_coll, cellIDstr, sim_calo_hits_vec);
 }
 
