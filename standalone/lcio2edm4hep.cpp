@@ -20,29 +20,56 @@ using ROOTWriter = podio::ROOTFrameWriter;
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
-std::vector<std::pair<std::string, std::string>> getNamesAndTypes(const std::string& collTypeFile) {
+/// Simple helper struct to group information about a collection to be converted
+struct NamesType {
+  std::string lcioName{};    ///< The name in the lcio file
+  std::string edm4hepName{}; ///< The name in the edm4hep file
+  std::string typeName{};    ///< The LCIO type
+};
+
+/// Convert a config file line into a NamesType struct
+std::optional<NamesType> fromConfigLine(std::string line) {
+  NamesType info;
+  std::stringstream sline(std::move(line));
+  std::string name;
+  // This only looks for the first two words in the line and ignores
+  // everything that comes after that.
+  if (!(sline >> name >> info.typeName)) {
+    std::cerr << "need a name (mapping) and a type per line" << std::endl;
+    return std::nullopt;
+  }
+
+  if (const auto colon = name.find(':'); colon != std::string::npos) {
+    info.lcioName = name.substr(0, colon);
+    info.edm4hepName = name.substr(colon + 1);
+  } else {
+    info.lcioName = name;
+    info.edm4hepName = name;
+  }
+
+  return info;
+}
+
+std::vector<NamesType> getNamesAndTypes(const std::string& collTypeFile) {
   std::ifstream input_file(collTypeFile);
-  std::vector<std::pair<std::string, std::string>> names_types;
+  std::vector<NamesType> names_types;
 
   if (!input_file.is_open()) {
-    std::cerr << "Failed to open file countaining the names and types of the LCIO Collections." << std::endl;
+    std::cerr << "Failed to open file containing the names and types of the LCIO Collections." << std::endl;
   }
   std::string line;
   while (std::getline(input_file, line)) {
-    std::stringstream sline(std::move(line));
-    std::string name, type;
-    // This only looks for the first two words in the line and ignores everything that comes after that.
-    if (!(sline >> name >> type)) {
-      std::cerr << "need a name and a type per line" << std::endl;
+    auto lineInfo = fromConfigLine(std::move(line));
+    if (!lineInfo) {
       return {};
     }
-    names_types.emplace_back(std::move(name), std::move(type));
+    names_types.emplace_back(std::move(lineInfo.value()));
   }
-
   input_file.close();
 
   return names_types;
@@ -132,26 +159,31 @@ int main(int argc, char* argv[]) {
   const auto args = parseArgs({argv, argv + argc});
 
   UTIL::CheckCollections colPatcher{};
-  std::vector<std::pair<std::string, std::string>> namesTypes{};
+  std::vector<NamesType> namesTypes{};
   const bool patching = !args.patchFile.empty();
   if (patching) {
     namesTypes = getNamesAndTypes(args.patchFile);
     if (namesTypes.empty()) {
       std::cerr << "The provided list of collection names and types does not satisfy the required format: Pair of Name "
-                   "and Type per line separated by space"
+                   "(mapping) and Type per line separated by space"
                 << std::endl;
       return 1;
     }
-    colPatcher.addPatchCollections(namesTypes);
+    std::vector<std::pair<std::string, std::string>> patchNamesTypes{};
+    patchNamesTypes.reserve(namesTypes.size());
+    for (const auto& [name, _, type] : namesTypes) {
+      patchNamesTypes.emplace_back(name, type);
+    }
+    colPatcher.addPatchCollections(patchNamesTypes);
   }
   // Construct a vector of collections to convert. If namesTypes is empty, this
   // will be empty, and convertEvent will fall back to use the collections in
   // the event
   const auto collsToConvert = [&namesTypes]() {
-    std::vector<std::string> names;
+    std::vector<std::pair<std::string, std::string>> names{};
     names.reserve(namesTypes.size());
-    for (const auto& [name, type] : namesTypes) {
-      names.emplace_back(name);
+    for (const auto& [lcioName, edm4hepName, _] : namesTypes) {
+      names.emplace_back(lcioName, edm4hepName);
     }
     return names;
   }();

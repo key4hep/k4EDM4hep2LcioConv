@@ -18,8 +18,15 @@ that it can patch in potentially missing collections on the fly. This additional
 information comes in the form of a third argument to `lcio2edm4hep` and is
 effectively a list of collection names and their types that comprise the
 superset of all collections appearing in at least one event in the input LCIO
-file. The format looks like this, where each collection is a single line
-containing the name first and than its type, e.g.
+file. The format looks like this
+
+```
+name[:output-name]  type-name
+```
+
+Each collection is a single line containing the name first (including an
+optional output name [see below](#renaming-collections-on-the-fly)) and than its
+type. The simplest form looks like this:
 
 ```
 SETSpacePoints             TrackerHit
@@ -60,6 +67,18 @@ convert a subset of all available collections. `lcio2edm4hep` uses the contents
 of the `colltypefile` to determine the contents of the output. If that contains
 only a subset of all collections, only that subset will be converted. Missing
 collections will still be patched in, in this case.
+
+## Renaming collections on the fly
+The optional `[:output-name]` part of each collection can be used to remap the
+names of the collections in the input LCIO file to a different name in the
+output EDM4hep file, e.g.
+
+```
+MCParticle:MCParticles      MCParticle
+```
+
+will read the `MCParticle` collection from the input file but store it as
+`MCParticles` in the output file.
 
 # Library usage of the conversion functions
 The conversion functions are designed to also be usable as a library. The overall design is to make the conversion a two step process. Step one is converting the data and step two being the resolving of the relations and filling of subset collection.

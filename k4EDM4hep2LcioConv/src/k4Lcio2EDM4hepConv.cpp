@@ -62,20 +62,26 @@ std::vector<edm4hep::utils::ParticleIDMeta> getPIDMetaInfo(const EVENT::LCCollec
   return pidInfos;
 }
 
-podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& collsToConvert) {
+podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::string, std::string>>& collsToConvert) {
   auto typeMapping = LcioEdmTypeMapping{};
   std::vector<CollNamePair> edmevent;
   std::vector<std::pair<std::string, EVENT::LCCollection*>> LCRelations;
 
-  const auto& lcioNames = [&collsToConvert, &evt]() {
+  const auto collNames = [&collsToConvert, &evt]() {
     if (collsToConvert.empty()) {
-      return *evt->getCollectionNames();
+      const auto evtColls = evt->getCollectionNames();
+      std::vector<std::pair<std::string, std::string>> collNames{};
+      collNames.reserve(evtColls->size());
+      for (const auto& name : *evtColls) {
+        collNames.emplace_back(name, name);
+      }
+      return collNames;
     }
-    return collsToConvert;
+    return std::move(collsToConvert);
   }();
 
   // In this loop the data gets converted.
-  for (const auto& lcioname : lcioNames) {
+  for (const auto& [lcioname, edm4hepName] : collNames) {
     const auto& lcioColl = evt->getCollection(lcioname);
     const auto& lciotype = lcioColl->getTypeName();
     if (lciotype == "LCRelation") {
@@ -86,7 +92,7 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& c
     }
 
     if (!lcioColl->isSubset()) {
-      for (auto&& [name, edmColl] : convertCollection(lcioname, lcioColl, typeMapping)) {
+      for (auto&& [name, edmColl] : convertCollection(edm4hepName, lcioColl, typeMapping)) {
         if (edmColl != nullptr) {
           edmevent.emplace_back(std::move(name), std::move(edmColl));
         }
@@ -94,14 +100,14 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::string>& c
     }
   }
   // Filling of the Subset Colections
-  for (const auto& lcioname : lcioNames) {
+  for (const auto& [lcioname, edm4hepName] : collNames) {
 
     auto lcioColl = evt->getCollection(lcioname);
     if (lcioColl->isSubset()) {
       const auto& lciotype = lcioColl->getTypeName();
       auto edmColl = fillSubset(lcioColl, typeMapping, lciotype);
       if (edmColl != nullptr) {
-        edmevent.emplace_back(lcioname, std::move(edmColl));
+        edmevent.emplace_back(edm4hepName, std::move(edmColl));
       }
     }
   }
