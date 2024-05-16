@@ -36,7 +36,7 @@ bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl
 void sortParticleIDs(std::vector<ParticleIDConvData>& pidCollections) {
   std::sort(pidCollections.begin(), pidCollections.end(), [](const auto& pid1, const auto& pid2) {
     static const auto defaultPidMeta = edm4hep::utils::ParticleIDMeta{"", std::numeric_limits<int>::max(), {}};
-    return pid1.metadata.value_or(defaultPidMeta).algoType < pid2.metadata.value_or(defaultPidMeta).algoType;
+    return pid1.metadata.value_or(defaultPidMeta).algoType() < pid2.metadata.value_or(defaultPidMeta).algoType();
   });
 }
 
@@ -54,7 +54,7 @@ std::optional<int32_t> attachParticleIDMetaData(IMPL::LCEventImpl* lcEvent, cons
     return std::nullopt;
   }
   if (pidMetaInfo.has_value() && !recoName.has_value()) {
-    return pidMetaInfo->algoType;
+    return pidMetaInfo->algoType();
   }
 
   UTIL::PIDHandler pidHandler(lcEvent->getCollection(recoName.value()));
