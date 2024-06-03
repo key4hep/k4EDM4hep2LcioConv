@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
   // loop going over every name of the lcio collection and checking if a
   // collection with the same name exists in the edm file.
-  std::cout << "number of Events" << edmreader.getEntries("events") << std::endl;
+  std::cout << "number of Events " << edmreader.getEntries("events") << std::endl;
   for (size_t n = 0; n < edmreader.getEntries("events"); ++n) {
     if (n % 10 == 0) {
       std::cout << "Event number: " << n << std::endl;

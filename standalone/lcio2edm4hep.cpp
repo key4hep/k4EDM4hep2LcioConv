@@ -209,8 +209,9 @@ int main(int argc, char* argv[]) {
 
   const int nEvt = args.nEvents > 0 ? args.nEvents : lcreader->getNumberOfEvents();
   for (int i = 0; i < nEvt; ++i) {
-    if (i % 10 == 0) {
-      std::cout << "processing Event: " << i << std::endl;
+    int percEvt = i * 100 / (nEvt - 1);
+    if (percEvt % 10 == 0) {
+      std::cout << "processed amount of events: " << percEvt << "% (event: " << i << ")" << std::endl;
     }
     auto evt = lcreader->readNextEvent();
     // Patching the Event to make sure all events contain the same Collections.
