@@ -78,7 +78,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     const auto edmCollection = edmEvent.get(name);
 
     const auto& cellIDStr =
-        metadata.getParameter<std::string>(podio::collMetadataParamName(name, edm4hep::CellIDEncoding));
+        metadata.getParameter<std::string>(podio::collMetadataParamName(name, edm4hep::labels::CellIDEncoding));
 
     if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
       auto lcColl = convertTracks(coll, objectMappings.tracks);
