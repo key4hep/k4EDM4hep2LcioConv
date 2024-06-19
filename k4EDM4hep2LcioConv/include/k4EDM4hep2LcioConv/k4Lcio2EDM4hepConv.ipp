@@ -346,8 +346,6 @@ std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name,
     lval.setType(rval->getType());
     lval.setChi2(rval->getChi2());
     lval.setNdf(rval->getNdf());
-    lval.setDEdx(rval->getdEdx());
-    lval.setDEdxError(rval->getdEdxError());
     lval.setRadiusOfInnermostHit(rval->getRadiusOfInnermostHit());
 
     auto subdetectorHitNum = rval->getSubdetectorHitNumbers();
@@ -358,10 +356,6 @@ std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name,
     for (auto& trackState : trackStates) {
       lval.addToTrackStates(convertTrackState(trackState));
     }
-    auto quantities = edm4hep::Quantity{};
-    quantities.value = rval->getdEdx();
-    quantities.error = rval->getdEdxError();
-    lval.addToDxQuantities(quantities);
     const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TrackMap);
     if (!inserted) {
       auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
