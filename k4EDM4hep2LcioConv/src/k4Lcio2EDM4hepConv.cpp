@@ -153,6 +153,9 @@ podio::Frame convertRunHeader(EVENT::LCRunHeader* rheader) {
 }
 
 int find_ndf(double chi2, double prob) {
+  if (chi2 < 0 || prob < 0 || prob > 1) {
+    throw std::invalid_argument("Invalid input for find_ndf. Either chi2 < 0, prob < 0 or prob > 1 in a LCIO Vertex.");
+  }
   int lower = 0;
   // Initial guess for the upper bound. If it's not enough, it will be increased
   int upper = 100;
