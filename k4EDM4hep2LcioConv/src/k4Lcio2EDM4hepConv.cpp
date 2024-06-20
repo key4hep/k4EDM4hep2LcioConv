@@ -175,5 +175,4 @@ int find_ndf(double chi2, double prob) {
   }
 }
 
-
 } // namespace LCIO2EDM4hepConv
