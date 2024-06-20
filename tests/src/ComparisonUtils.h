@@ -69,7 +69,7 @@ template <typename T, typename... Ts>
 constexpr bool isAnyOf = (std::is_same_v<T, Ts> || ...);
 
 // Helper function for comparing values and vectors of values element by
-// element, ignoring cases where both values aer nan
+// element, ignoring cases where both values are nan
 template <typename LCIO, typename EDM4hepT>
 bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg) {
   constexpr auto isVectorLike =
@@ -115,6 +115,12 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
 // false if they are not equal while also emitting a message
 #define ASSERT_COMPARE_VALS(lcioV, edm4hepV, msg)                                                                      \
   if (!compareValuesNanSafe(lcioV, edm4hepV, msg)) {                                                                   \
+    return false;                                                                                                      \
+  }
+
+#define ASSERT_COMPARE_VALS_FLOAT(lcioV, edm4hepV, tol, msg)                                                           \
+  if (std::abs(lcioV - edm4hepV) > tol) {                                                                              \
+    std::cerr << msg << " (LCIO: " << (lcioV) << ", EDM4hep: " << (edm4hepV) << ")" << std::endl;                      \
     return false;                                                                                                      \
   }
 

@@ -3,6 +3,8 @@
 #include <UTIL/PIDHandler.h>
 #include <edm4hep/ParticleIDCollection.h>
 
+#include "TMath.h"
+
 namespace LCIO2EDM4hepConv {
 template <typename LCIOType>
 void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
@@ -174,6 +176,27 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
   return results;
 }
 
+int find_ndf(double chi2, double prob) {
+  int upper = 100;
+  while (TMath::Prob(chi2, upper) < prob) {
+    upper *= 2;
+  }
+  int lower = 0;
+  while (lower < upper - 1) {
+    int mid = (lower + upper) / 2;
+    if (TMath::Prob(chi2, mid) < prob) {
+      lower = mid;
+    } else {
+      upper = mid;
+    }
+  }
+  if (std::abs(TMath::Prob(chi2, lower) - prob) < std::abs(TMath::Prob(chi2, upper) - prob)) {
+    return lower;
+  } else {
+    return upper;
+  }
+}
+
 template <typename VertexMapT>
 std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
                                                            VertexMapT& vertexMap) {
@@ -184,7 +207,7 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
 
     lval.setPrimary(rval->isPrimary() ? 1 : 0); // 1 for primary and 0 for not primary
     lval.setChi2(rval->getChi2());
-    lval.setProbability(rval->getProbability());
+    lval.setNdf(find_ndf(rval->getChi2(), rval->getProbability()));
     lval.setPosition(rval->getPosition());
     auto& m = rval->getCovMatrix(); // 6 parameters
     lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});

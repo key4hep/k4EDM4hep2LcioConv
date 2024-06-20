@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "TMath.h"
+
 namespace EDM4hep2LCIOConv {
 
 template <typename TrackMapT>
@@ -420,7 +422,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertVertices(const edm4hep::VertexColl
       lcio_vertex->setPrimary(edm_vertex.getPrimary());
       lcio_vertex->setAlgorithmType(std::to_string(edm_vertex.getAlgorithmType()));
       lcio_vertex->setChi2(edm_vertex.getChi2());
-      lcio_vertex->setProbability(edm_vertex.getProbability());
+      lcio_vertex->setProbability(TMath::Prob(edm_vertex.getChi2(), edm_vertex.getNdf()));
       lcio_vertex->setPosition(edm_vertex.getPosition()[0], edm_vertex.getPosition()[1], edm_vertex.getPosition()[2]);
       lcio_vertex->setCovMatrix(edm_vertex.getCovMatrix().data());
 

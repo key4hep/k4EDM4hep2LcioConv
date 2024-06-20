@@ -5,6 +5,8 @@
 
 #include <cstdint>
 
+#include "TMath.h"
+
 /**
  * The basic implementation of the functionality has been generated via modified
  * podio templates, employing some handwritten macros to facilitate the task.
@@ -409,7 +411,8 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, 
   // LCIO has isPrimary (bool), EDM4hep has getPrimary (int32_t)
   ASSERT_COMPARE_VALS(lcioElem->isPrimary(), edm4hepElem.getPrimary(), "primary in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Vertex");
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getProbability, "probability in Vertex");
+  ASSERT_COMPARE_VALS_FLOAT(lcioElem->getProbability(), TMath::Prob(edm4hepElem.getChi2(), edm4hepElem.getNdf()), 1e-6,
+                            "probability in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getCovMatrix, "covMatrix in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getParameters, "parameters in Vertex");
