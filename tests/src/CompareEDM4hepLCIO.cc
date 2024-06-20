@@ -3,6 +3,7 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
+#include <cmath>
 #include <cstdint>
 
 #include "TMath.h"
@@ -314,7 +315,17 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE_VALS(lcioElem->getdEdx(), dxQuantities[0].value, "dEdx in DxQuantities in Track");
   ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dxQuantities[0].error, "dEdxError in DxQuantities in Track");
 
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getRadiusOfInnermostHit, "radiusOfInnermostHit in Track");
+  double radius = std::numeric_limits<double>::max();
+  for (const auto& hit : edm4hepElem.getTrackerHits()) {
+    radius = std::min(
+        radius, std::sqrt(hit.getPosition()[0] * hit.getPosition()[0] + hit.getPosition()[1] * hit.getPosition()[1]));
+  }
+  if (radius == std::numeric_limits<double>::max()) {
+    radius = 0;
+  }
+    ASSERT_COMPARE_VALS_FLOAT(lcioElem->getRadiusOfInnermostHit(), radius, lcioElem->getRadiusOfInnermostHit() / 1e6,
+                              "radiusOfInnermostHit in Track");
+  }
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "Tracks in Track");
 
