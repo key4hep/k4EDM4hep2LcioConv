@@ -3,8 +3,6 @@
 #include <UTIL/PIDHandler.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-#include "TMath.h"
-
 namespace LCIO2EDM4hepConv {
 template <typename LCIOType>
 void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
@@ -174,31 +172,6 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
     results.emplace_back(getPIDCollName(name, pidHandler.getAlgorithmName(id)), std::move(coll));
   }
   return results;
-}
-
-// Go from chi^2 and probability (1 - CDF(chi^2, ndf))
-// to ndf by a binary search
-int find_ndf(double chi2, double prob) {
-  int lower = 0;
-  // Initial guess for the upper bound. If it's not enough, it will be increased
-  int upper = 100;
-  while (TMath::Prob(chi2, upper) < prob) {
-    lower = upper;
-    upper *= 2;
-  }
-  while (lower < upper - 1) {
-    int mid = (lower + upper) / 2;
-    if (TMath::Prob(chi2, mid) < prob) {
-      lower = mid;
-    } else {
-      upper = mid;
-    }
-  }
-  if (std::abs(TMath::Prob(chi2, lower) - prob) < std::abs(TMath::Prob(chi2, upper) - prob)) {
-    return lower;
-  } else {
-    return upper;
-  }
 }
 
 template <typename VertexMapT>

@@ -397,6 +397,11 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
 template <typename VertexMapT, typename RecoParticleMapT>
 void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap);
 
+/**
+ * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search
+ */
+int find_ndf(double chi2, double prob);
+
 } // namespace LCIO2EDM4hepConv
 
 #include "k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.ipp"
