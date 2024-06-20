@@ -180,6 +180,7 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
 // to ndf by a binary search
 int find_ndf(double chi2, double prob) {
   int lower = 0;
+  // Initial guess for the upper bound. If it's not enough, it will be increased
   int upper = 100;
   while (TMath::Prob(chi2, upper) < prob) {
     lower = upper;
