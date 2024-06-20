@@ -323,6 +323,17 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   if (radius == std::numeric_limits<double>::max()) {
     radius = 0;
   }
+  std::cout << lcioElem->getRadiusOfInnermostHit() << " " << lcioElem->getTrackerHits().size() << std::endl;
+  std::cout << radius << " " << edm4hepElem.getTrackerHits().size() << std::endl;
+  if (lcioElem->getTrackerHits().size()) {
+    for (const auto* hit : lcioElem->getTrackerHits()) {
+      std::cout << std::sqrt(hit->getPosition()[0] * hit->getPosition()[0] +
+                             hit->getPosition()[1] * hit->getPosition()[1])
+                << std::sqrt(hit->getPosition()[0] * hit->getPosition()[0] +
+                             hit->getPosition()[1] * hit->getPosition()[1] +
+                             hit->getPosition()[2] * hit->getPosition()[2])
+                << hit->getQuality() << " " << hit->getType() << std::endl;
+    }
     ASSERT_COMPARE_VALS_FLOAT(lcioElem->getRadiusOfInnermostHit(), radius, lcioElem->getRadiusOfInnermostHit() / 1e6,
                               "radiusOfInnermostHit in Track");
   }
