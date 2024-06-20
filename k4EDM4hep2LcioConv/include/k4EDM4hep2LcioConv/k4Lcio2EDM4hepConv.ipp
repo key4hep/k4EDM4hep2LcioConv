@@ -179,11 +179,12 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
 // Go from chi^2 and probability (1 - CDF(chi^2, ndf))
 // to ndf by a binary search
 int find_ndf(double chi2, double prob) {
+  int lower = 0;
   int upper = 100;
   while (TMath::Prob(chi2, upper) < prob) {
+    lower = upper;
     upper *= 2;
   }
-  int lower = 0;
   while (lower < upper - 1) {
     int mid = (lower + upper) / 2;
     if (TMath::Prob(chi2, mid) < prob) {
