@@ -174,8 +174,11 @@ int main(int argc, char* argv[]) {
   const auto collsToConvert = [&namesTypes]() {
     std::vector<std::pair<std::string, std::string>> names{};
     names.reserve(namesTypes.size());
-    for (const auto& [lcioName, edm4hepName, _] : namesTypes) {
-      names.emplace_back(lcioName, edm4hepName);
+    for (const auto& [lcioName, edm4hepName, type] : namesTypes) {
+      // filter out the ParticleID patching from collection names to convert
+      if (type.find('|') == std::string::npos) {
+        names.emplace_back(lcioName, edm4hepName);
+      }
     }
     return names;
   }();
