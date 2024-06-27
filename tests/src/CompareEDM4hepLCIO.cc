@@ -3,8 +3,6 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
-#include "edm4hep/EDM4hepVersion.h"
-
 #include <cstdint>
 
 #include "TMath.h"
