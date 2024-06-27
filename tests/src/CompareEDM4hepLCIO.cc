@@ -3,6 +3,8 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
+#include "edm4hep/EDM4hepVersion.h"
+
 #include <cstdint>
 
 #include "TMath.h"
@@ -408,8 +410,7 @@ bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::TrackerHit
 // ================= Vertex ================
 
 bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, const ObjectMappings& objectMaps) {
-  // LCIO has isPrimary (bool), EDM4hep has getPrimary (int32_t)
-  ASSERT_COMPARE_VALS(lcioElem->isPrimary(), edm4hepElem.getPrimary(), "primary in Vertex");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, isPrimary, "primary in Vertex");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Vertex");
   ASSERT_COMPARE_VALS_FLOAT(lcioElem->getProbability(), TMath::Prob(edm4hepElem.getChi2(), edm4hepElem.getNdf()), 1e-6,
                             "probability in Vertex");
