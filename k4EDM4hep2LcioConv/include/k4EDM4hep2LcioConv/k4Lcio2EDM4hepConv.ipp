@@ -874,14 +874,6 @@ createAssociations(const ObjectMappingT& typeMapping,
       auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, false>(
           relations, typeMapping.simTrackerHits, typeMapping.trackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "SimTrackerHit" && toType == "TrackerHitPlane") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerHitPlaneAssociationCollection, false>(
-          relations, typeMapping.simTrackerHits, typeMapping.trackerHitPlanes);
-      assoCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "TrackerHitPlane" && toType == "SimTrackerHit") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerHitPlaneAssociationCollection, true>(
-          relations, typeMapping.trackerHitPlanes, typeMapping.simTrackerHits);
-      assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "ReconstructedParticle" && toType == "Vertex") {
       auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, true>(
           relations, typeMapping.recoParticles, typeMapping.vertices);
