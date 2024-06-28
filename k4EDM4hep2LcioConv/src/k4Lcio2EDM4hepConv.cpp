@@ -2,7 +2,7 @@
 
 #include <UTIL/PIDHandler.h>
 
-#include <iostream>
+#include "TMath.h"
 
 namespace LCIO2EDM4hepConv {
 
@@ -150,6 +150,32 @@ podio::Frame convertRunHeader(EVENT::LCRunHeader* rheader) {
   convertObjectParameters<EVENT::LCRunHeader>(rheader, runHeaderFrame);
 
   return runHeaderFrame;
+}
+
+int find_ndf(double chi2, double prob) {
+  if (chi2 < 0 || prob < 0 || prob > 1) {
+    throw std::invalid_argument("Invalid input for find_ndf. Either chi2 < 0, prob < 0 or prob > 1 in a LCIO Vertex.");
+  }
+  int lower = 0;
+  // Initial guess for the upper bound. If it's not enough, it will be increased
+  int upper = 100;
+  while (TMath::Prob(chi2, upper) < prob) {
+    lower = upper;
+    upper *= 2;
+  }
+  while (lower < upper - 1) {
+    int mid = (lower + upper) / 2;
+    if (TMath::Prob(chi2, mid) < prob) {
+      lower = mid;
+    } else {
+      upper = mid;
+    }
+  }
+  if (std::abs(TMath::Prob(chi2, lower) - prob) < std::abs(TMath::Prob(chi2, upper) - prob)) {
+    return lower;
+  } else {
+    return upper;
+  }
 }
 
 } // namespace LCIO2EDM4hepConv

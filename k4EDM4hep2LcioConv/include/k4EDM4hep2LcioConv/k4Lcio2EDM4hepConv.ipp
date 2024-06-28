@@ -184,7 +184,7 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
 
     lval.setPrimary(rval->isPrimary() ? 1 : 0); // 1 for primary and 0 for not primary
     lval.setChi2(rval->getChi2());
-    lval.setProbability(rval->getProbability());
+    lval.setNdf(find_ndf(rval->getChi2(), rval->getProbability()));
     lval.setPosition(rval->getPosition());
     auto& m = rval->getCovMatrix(); // 6 parameters
     lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});
