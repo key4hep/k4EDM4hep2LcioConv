@@ -866,11 +866,11 @@ createAssociations(const ObjectMappingT& typeMapping,
       auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackParticleAssociationCollection, true>(
           relations, typeMapping.tracks, typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "TrackerHit" && toType == "SimTrackerHit") {
+    } else if ((fromType == "TrackerHit" || fromType == "TrackerHitPlane") && toType == "SimTrackerHit") {
       auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, true>(
           relations, typeMapping.trackerHits, typeMapping.simTrackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "SimTrackerHit" && toType == "TrackerHit") {
+    } else if (fromType == "SimTrackerHit" && (toType == "TrackerHit" || fromType == "TrackerHitPlane")) {
       auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, false>(
           relations, typeMapping.simTrackerHits, typeMapping.trackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
