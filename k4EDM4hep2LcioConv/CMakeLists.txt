@@ -1,5 +1,3 @@
-find_package(ROOT REQUIRED COMPONENTS MathCore)
-
 add_library(k4EDM4hep2LcioConv SHARED
   src/k4EDM4hep2LcioConv.cpp
   src/k4Lcio2EDM4hepConv.cpp
