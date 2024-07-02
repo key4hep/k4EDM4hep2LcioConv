@@ -218,7 +218,10 @@ int main(int argc, char* argv[]) {
     if (patching == true) {
       colPatcher.patchCollections(evt);
     }
-    const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
+    auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
+    if (edmEvent.get("AllCaloHitContributionsCombined") == nullptr) {
+      edmEvent.put(edm4hep::CaloHitContributionCollection(), "AllCaloHitContributionsCombined");
+    }
 
     // For the first event we also convert some meta information for the
     // ParticleID handling
