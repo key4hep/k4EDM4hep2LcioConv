@@ -147,4 +147,14 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   return lcioEvent;
 }
 
+std::optional<double> getRadiusOfStateAtIP(const edm4hep::Track& track) {
+  for (const auto& state : track.getTrackStates()) {
+    if (state.location == edm4hep::TrackState::AtIP) {
+      const auto refP = state.referencePoint;
+      return std::sqrt(refP.x * refP.x + refP.y * refP.y + refP.z * refP.z);
+    }
+  }
+  return std::nullopt;
+}
+
 } // namespace EDM4hep2LCIOConv

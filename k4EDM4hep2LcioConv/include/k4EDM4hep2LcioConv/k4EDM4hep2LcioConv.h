@@ -430,6 +430,12 @@ convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata = podio::Fr
   return convertEvent(edmEvent, metadata);
 }
 
+/**
+ * Get the 3D radius of the TrackState at the IP from the given track. This is
+ * used to set the radiusOfInnermostHit in the LCIO track during the conversion
+ */
+std::optional<double> getRadiusOfStateAtIP(const edm4hep::Track& track);
+
 } // namespace EDM4hep2LCIOConv
 
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.ipp"
