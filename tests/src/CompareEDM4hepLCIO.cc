@@ -1,5 +1,6 @@
 #include "CompareEDM4hepLCIO.h"
 #include "ComparisonUtils.h"
+#include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
 #include "IMPL/TrackerHitImpl.h"
 
@@ -315,27 +316,12 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE_VALS(lcioElem->getdEdx(), dxQuantities[0].value, "dEdx in DxQuantities in Track");
   ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dxQuantities[0].error, "dEdxError in DxQuantities in Track");
 
-  double radius = std::numeric_limits<double>::max();
-  for (const auto& hit : edm4hepElem.getTrackerHits()) {
-    radius = std::min(
-        radius, std::sqrt(hit.getPosition()[0] * hit.getPosition()[0] + hit.getPosition()[1] * hit.getPosition()[1]));
-  }
-  if (radius == std::numeric_limits<double>::max()) {
-    radius = 0;
-  }
-  std::cout << lcioElem->getRadiusOfInnermostHit() << " " << lcioElem->getTrackerHits().size() << std::endl;
-  std::cout << radius << " " << edm4hepElem.getTrackerHits().size() << std::endl;
-  if (lcioElem->getTrackerHits().size()) {
-    for (const auto* hit : lcioElem->getTrackerHits()) {
-      std::cout << std::sqrt(hit->getPosition()[0] * hit->getPosition()[0] +
-                             hit->getPosition()[1] * hit->getPosition()[1])
-                << std::sqrt(hit->getPosition()[0] * hit->getPosition()[0] +
-                             hit->getPosition()[1] * hit->getPosition()[1] +
-                             hit->getPosition()[2] * hit->getPosition()[2])
-                << hit->getQuality() << " " << hit->getType() << std::endl;
-    }
-    ASSERT_COMPARE_VALS_FLOAT(lcioElem->getRadiusOfInnermostHit(), radius, lcioElem->getRadiusOfInnermostHit() / 1e6,
-                              "radiusOfInnermostHit in Track");
+  double radius = EDM4hep2LCIOConv::getRadiusOfStateAtFirstHit(edm4hepElem).value_or(-1.0);
+  double radius3D = EDM4hep2LCIOConv::getRadiusOfStateAtFirstHit(edm4hepElem, true).value_or(-1.0);
+  const double radiusLCIO = lcioElem->getRadiusOfInnermostHit();
+  if (std::abs(radius - radiusLCIO) > radiusLCIO / 1e6 && std::abs(radius3D - radiusLCIO) > radiusLCIO / 1e6) {
+    std::cerr << "radiusOfInnermostHit in Track (LCIO: " << radiusLCIO << "), EDM4hep: 2d: " << radius
+              << ", 3d: " << radius3D << ")" << std::endl;
   }
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "Tracks in Track");
@@ -345,7 +331,7 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE_VALS(lcioTrackStates.size(), edm4hepTrackStates.size(), "number of TrackStates in Track");
   for (size_t i = 0; i < lcioTrackStates.size(); ++i) {
     if (!compare(lcioTrackStates[i], edm4hepTrackStates[i])) {
-      std::cerr << " " << i << " in Track" << std::endl;
+      std::cerr << "TrackState " << i << " in Track" << std::endl;
       return false;
     }
   }

@@ -431,10 +431,10 @@ convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata = podio::Fr
 }
 
 /**
- * Get the 3D radius of the TrackState at the IP from the given track. This is
+ * Get the radius of the TrackState at the first from the given track. This is
  * used to set the radiusOfInnermostHit in the LCIO track during the conversion
  */
-std::optional<double> getRadiusOfStateAtIP(const edm4hep::Track& track);
+std::optional<double> getRadiusOfStateAtFirstHit(const edm4hep::Track& track, bool use3D = false);
 
 } // namespace EDM4hep2LCIOConv
 

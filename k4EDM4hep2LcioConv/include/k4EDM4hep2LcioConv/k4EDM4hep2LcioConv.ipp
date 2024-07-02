@@ -27,7 +27,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollect
       lcio_tr->setNdf(edm_tr.getNdf());
       lcio_tr->setdEdx(edm_tr.getDEdx());
       lcio_tr->setdEdxError(edm_tr.getDEdxError());
-      lcio_tr->setRadiusOfInnermostHit(getRadiusOfStateAtIP(edm_tr).value_or(-1.0));
+      lcio_tr->setRadiusOfInnermostHit(getRadiusOfStateAtFirstHit(edm_tr).value_or(-1.0));
 
       // Loop over the hit Numbers in the track
       lcio_tr->subdetectorHitNumbers().resize(edm_tr.subdetectorHitNumbers_size());
