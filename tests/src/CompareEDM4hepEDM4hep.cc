@@ -146,8 +146,6 @@ bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackColle
 
     REQUIRE_SAME(origTrack.getChi2(), track.getChi2(), "chi2 in track " << i);
     REQUIRE_SAME(origTrack.getNdf(), track.getNdf(), "chi2 in track " << i);
-    REQUIRE_SAME(origTrack.getDEdx(), track.getDEdx(), "dEdx in track " << i);
-    REQUIRE_SAME(origTrack.getDEdxError(), track.getDEdxError(), "dEdxError in track " << i);
 
     const auto origSubDetHitNumbers = origTrack.getSubdetectorHitNumbers();
     const auto subDetHitNumbers = track.getSubdetectorHitNumbers();

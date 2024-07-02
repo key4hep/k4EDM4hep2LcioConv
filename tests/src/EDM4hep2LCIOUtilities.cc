@@ -201,11 +201,6 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
     elem.setNdf(i * 12);
     elem.setRadiusOfInnermostHit(i * 5.f);
 
-    elem.setDEdx(i);
-    elem.setDEdxError(i / std::sqrt(i + 1));
-    // Also add a DxQuantity since the comparison expects that
-    elem.addToDxQuantities({0, i * 1.f, i / std::sqrt(i + 1.f)});
-
     for (int j = 0; j < subdetectorhitnumbers; ++j) {
       elem.addToSubdetectorHitNumbers(i + 10 * j);
     }
