@@ -161,6 +161,7 @@ int main(int argc, char* argv[]) {
   UTIL::CheckCollections colPatcher{};
   std::vector<NamesType> namesTypes{};
   const bool patching = !args.patchFile.empty();
+  // Keep track of whether we have any SimCalorimeterHits
   if (patching) {
     namesTypes = getNamesAndTypes(args.patchFile);
     if (namesTypes.empty()) {
@@ -208,6 +209,7 @@ int main(int argc, char* argv[]) {
   }
 
   const int nEvt = args.nEvents > 0 ? args.nEvents : lcreader->getNumberOfEvents();
+  bool haveSimCaloHits{false};
   for (int i = 0; i < nEvt; ++i) {
     int percEvt = i * 100 / (nEvt - 1);
     if (percEvt % 10 == 0) {
@@ -218,8 +220,17 @@ int main(int argc, char* argv[]) {
     if (patching == true) {
       colPatcher.patchCollections(evt);
     }
+    if (i == 0) {
+      for (const auto& name : *evt->getCollectionNames()) {
+        if (evt->getCollection(name)->getTypeName() == "SimCalorimeterHit") {
+          haveSimCaloHits = true;
+          break;
+        }
+      }
+    }
+
     auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
-    if (edmEvent.get("AllCaloHitContributionsCombined") == nullptr) {
+    if (haveSimCaloHits && edmEvent.get("AllCaloHitContributionsCombined") == nullptr) {
       edmEvent.put(edm4hep::CaloHitContributionCollection(), "AllCaloHitContributionsCombined");
     }
 
