@@ -199,7 +199,6 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
     elem.setType(2); // TODO specific type
     elem.setChi2(i * 10.f);
     elem.setNdf(i * 12);
-    elem.setRadiusOfInnermostHit(i * 5.f);
 
     elem.setDEdx(i);
     elem.setDEdxError(i / std::sqrt(i + 1));

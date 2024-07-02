@@ -430,6 +430,12 @@ convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata = podio::Fr
   return convertEvent(edmEvent, metadata);
 }
 
+/**
+ * Get the radius of the TrackState at the first from the given track. This is
+ * used to set the radiusOfInnermostHit in the LCIO track during the conversion
+ */
+std::optional<double> getRadiusOfStateAtFirstHit(const edm4hep::Track& track, bool use3D = false);
+
 } // namespace EDM4hep2LCIOConv
 
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.ipp"

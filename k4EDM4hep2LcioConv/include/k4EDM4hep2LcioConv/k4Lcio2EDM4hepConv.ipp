@@ -348,7 +348,6 @@ std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name,
     lval.setNdf(rval->getNdf());
     lval.setDEdx(rval->getdEdx());
     lval.setDEdxError(rval->getdEdxError());
-    lval.setRadiusOfInnermostHit(rval->getRadiusOfInnermostHit());
 
     auto subdetectorHitNum = rval->getSubdetectorHitNumbers();
     for (auto hitNum : subdetectorHitNum) {
