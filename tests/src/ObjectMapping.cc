@@ -19,6 +19,7 @@
 #include "UTIL/PIDHandler.h"
 
 #include "edm4hep/TrackCollection.h"
+#include <edm4hep/RecDqdxCollection.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -124,6 +125,9 @@ ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Fra
     // conceptual differences
     if (type == "ReconstructedParticle") {
       fillRecoPIDMaps(mapping.recoParticles, mapping.particleIDs, name, lcEvt, edmEvt);
+    }
+    if (type == "Track") {
+      mapping.trackPidHandler.addColl(edmEvt.get<edm4hep::RecDqdxCollection>(name + "_dQdx"));
     }
   }
 

@@ -179,11 +179,6 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
     elem.setChi2(i * 10.f);
     elem.setNdf(i * 12);
 
-    elem.setDEdx(i);
-    elem.setDEdxError(i / std::sqrt(i + 1));
-    // Also add a DxQuantity since the comparison expects that
-    elem.addToDxQuantities({0, i * 1.f, i / std::sqrt(i + 1.f)});
-
     for (int j = 0; j < subdetectorhitnumbers; ++j) {
       elem.addToSubdetectorHitNumbers(i + 10 * j);
     }
@@ -215,6 +210,21 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
   }
 
   return track_coll;
+}
+
+edm4hep::RecDqdxCollection createDqDxColl(const edm4hep::TrackCollection& tracks) {
+  auto dqdxColl = edm4hep::RecDqdxCollection();
+
+  int i = 0;
+  for (const auto& track : tracks) {
+    auto elem = dqdxColl.create();
+    elem.setTrack(track);
+    auto& dqdx = elem.getDQdx();
+    dqdx.value = i;
+    dqdx.error = i / std::sqrt(i + 1);
+  }
+
+  return dqdxColl;
 }
 
 std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection>
@@ -379,6 +389,7 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
                                               test_config::nTrackStates, trackerHits, trackerHitPlanes,
                                               test_config::trackTrackerHitIdcs, test_config::trackTrackIdcs),
                                  "tracks");
+  event.put(createDqDxColl(tracks), "tracks_dQdx");
 
   const auto& clusters = event.put(createClusters(test_config::nClusters, caloHits, test_config::nSubdetectorEnergies,
                                                   test_config::clusterHitIdcs, test_config::clusterClusterIdcs),

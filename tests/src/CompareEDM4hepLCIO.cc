@@ -303,18 +303,16 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getNdf, "ndf in Track");
-  // LCIO has getdEdx instead of getDEdx
-  ASSERT_COMPARE_VALS(lcioElem->getdEdx(), edm4hepElem.getDEdx(), "dEdx in Track");
-  ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), edm4hepElem.getDEdxError(), "dEdxError in Track");
-  // Also check whether these have been corretly put into the dQQuantities
-  const auto dxQuantities = edm4hepElem.getDxQuantities();
-  if (dxQuantities.size() != 1) {
-    std::cerr << "DxQuantities have not been filled correctly, expected exactly 1, got " << dxQuantities.size()
-              << " in Track" << std::endl;
+
+  // EDM4hep does not have the dEdx information inside the track, but rather
+  // inside a RecDqdx object
+  const auto& dQdxInfos = objectMaps.trackPidHandler.getDqdxValues(edm4hepElem);
+  if (dQdxInfos.size() != 1) {
+    std::cerr << "Could not find a unique RecDqdx object for track" << std::endl;
     return false;
   }
-  ASSERT_COMPARE_VALS(lcioElem->getdEdx(), dxQuantities[0].value, "dEdx in DxQuantities in Track");
-  ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dxQuantities[0].error, "dEdxError in DxQuantities in Track");
+  ASSERT_COMPARE_VALS(lcioElem->getdEdx(), dQdxInfos[0].getDQdx().value, "dEdx in Track");
+  ASSERT_COMPARE_VALS(lcioElem->getdEdxError(), dQdxInfos[0].getDQdx().error, "dEdxError in Track");
 
   double radius = EDM4hep2LCIOConv::getRadiusOfStateAtFirstHit(edm4hepElem).value_or(-1.0);
   double radius3D = EDM4hep2LCIOConv::getRadiusOfStateAtFirstHit(edm4hepElem, true).value_or(-1.0);

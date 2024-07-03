@@ -1,4 +1,28 @@
 #include "CompareEDM4hepEDM4hep.h"
+#include "ComparisonUtils.h"
+
+#include "edm4hep/CalorimeterHitCollection.h"
+#include "edm4hep/ClusterCollection.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/ParticleIDCollection.h"
+#include "edm4hep/RecDqdxCollection.h"
+#include "edm4hep/ReconstructedParticleCollection.h"
+#include "edm4hep/SimCalorimeterHitCollection.h"
+#include "edm4hep/TrackCollection.h"
+#include "edm4hep/TrackerHitPlaneCollection.h"
+
+#include <edm4hep/TrackState.h>
+#include <iostream>
+#include <podio/RelationRange.h>
+
+#define REQUIRE_SAME(expected, actual, msg)                                                                            \
+  {                                                                                                                    \
+    if (!((expected) == (actual))) {                                                                                   \
+      std::cerr << msg << " are not the same (expected: " << (expected) << ", actual: " << (actual) << ")"             \
+                << std::endl;                                                                                          \
+      return false;                                                                                                    \
+    }                                                                                                                  \
+  }
 
 bool compare(const edm4hep::CalorimeterHitCollection& origColl,
              const edm4hep::CalorimeterHitCollection& roundtripColl) {
@@ -123,8 +147,6 @@ bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackColle
 
     REQUIRE_SAME(origTrack.getChi2(), track.getChi2(), "chi2 in track " << i);
     REQUIRE_SAME(origTrack.getNdf(), track.getNdf(), "chi2 in track " << i);
-    REQUIRE_SAME(origTrack.getDEdx(), track.getDEdx(), "dEdx in track " << i);
-    REQUIRE_SAME(origTrack.getDEdxError(), track.getDEdxError(), "dEdxError in track " << i);
 
     const auto origSubDetHitNumbers = origTrack.getSubdetectorHitNumbers();
     const auto subDetHitNumbers = track.getSubdetectorHitNumbers();
@@ -314,5 +336,25 @@ bool compare(const edm4hep::RecoParticleVertexAssociationCollection& origColl,
     REQUIRE_SAME(origAssoc.getVertex().id(), assoc.getVertex().id(), "vertex in association " << i);
     REQUIRE_SAME(origAssoc.getRec().id(), assoc.getRec().id(), "reco particle in association " << i);
   }
+
+  return true;
+}
+
+bool compare(const edm4hep::RecDqdxCollection& origColl, const edm4hep::RecDqdxCollection& roundtripColl) {
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    const auto origDqdx = origColl[i];
+    const auto dQdx = roundtripColl[i];
+
+    const auto origQuant = origDqdx.getDQdx();
+    const auto quant = dQdx.getDQdx();
+
+    REQUIRE_SAME(origQuant.value, quant.value, "value of quantity in dQ/dx " << i);
+    REQUIRE_SAME(origQuant.error, quant.error, "error of quantity in dQ/dx " << i);
+    REQUIRE_SAME(origQuant.type, quant.value, "value of quantity in dQ/dx " << i);
+
+    REQUIRE_SAME(origDqdx.getTrack().id(), dQdx.getTrack().id(), "related track in dQ/dx " << i);
+  }
+
   return true;
 }
