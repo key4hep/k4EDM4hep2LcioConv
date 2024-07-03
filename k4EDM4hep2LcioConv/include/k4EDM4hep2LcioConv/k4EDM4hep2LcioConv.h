@@ -17,6 +17,7 @@
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/RecDqdxCollection.h>
 #include <edm4hep/RecoParticleVertexAssociationCollection.h>
 #include <edm4hep/ReconstructedParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -104,6 +105,11 @@ struct ParticleIDConvData {
   std::string name;
   const edm4hep::ParticleIDCollection* coll;
   std::optional<edm4hep::utils::ParticleIDMeta> metadata;
+};
+
+struct TrackDqdxConvData {
+  std::string name;
+  const edm4hep::RecDqdxCollection* coll;
 };
 
 /// Sort the ParticleIDs according to their algorithmType.
@@ -398,6 +404,20 @@ void resolveRelationsClusters(ClusterMapT& clustersMap, const CaloHitMapT& caloH
 
 template <typename PidMapT, typename RecoParticleMapT>
 void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMap);
+
+/// Attach the dE/dx information that is stored in the RecDqdxCollections to the
+/// corresponding tracks
+///
+/// @note: This assumes that all tracks have been converted already
+template <typename TrackMapT>
+void attachDedxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections);
+
+/// Attach the dE/dx information that is stored in the RecDqdxCollection to the
+/// corresponding tracks
+///
+/// @note: This assumes that all tracks have been converted already
+template <typename TrackMapT>
+void attachDedxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection);
 
 /**
  * Resolve all relations in all converted objects that are held in the map.

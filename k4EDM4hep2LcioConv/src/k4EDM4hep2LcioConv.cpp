@@ -76,6 +76,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   // We convert these at the very end, once all the necessary information is
   // available
   std::vector<std::tuple<std::string, const podio::CollectionBase*>> associations{};
+  std::vector<TrackDqdxConvData> dQdxCollections{};
 
   const auto& collections = edmEvent.getAvailableCollections();
   for (const auto& name : collections) {
@@ -124,6 +125,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
       convertEventHeader(coll, lcioEvent.get());
     } else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
       pidCollections.emplace_back(name, coll, edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name));
+    } else if (auto coll = dynamic_cast<const edm4hep::RecDqdxCollection*>(edmCollection)) {
+      dQdxCollections.emplace_back(name, coll);
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
@@ -147,6 +150,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     const auto algoId = attachParticleIDMetaData(lcioEvent.get(), edmEvent, pidCollMeta).value_or(-1);
     convertParticleIDs(pidCollMeta.coll, objectMappings.particleIDs, algoId);
   }
+
+  attachDedxInfo(objectMappings.tracks, dQdxCollections);
 
   resolveRelations(objectMappings);
 
