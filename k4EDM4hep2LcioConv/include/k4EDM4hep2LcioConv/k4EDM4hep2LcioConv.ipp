@@ -728,14 +728,14 @@ void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMa
 }
 
 template <typename TrackMapT>
-void attachDedxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections) {
+void attachDqdxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections) {
   for (const auto& coll : dQdxCollections) {
-    attachDedxInfo(trackMap, coll);
+    attachDqdxInfo(trackMap, coll);
   }
 }
 
 template <typename TrackMapT>
-void attachDedxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection) {
+void attachDqdxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection) {
   const auto& [name, coll] = dQdxCollection;
 
   for (const auto& elem : *coll) {

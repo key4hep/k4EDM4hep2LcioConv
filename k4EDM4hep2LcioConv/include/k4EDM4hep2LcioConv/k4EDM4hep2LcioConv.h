@@ -410,14 +410,14 @@ void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMa
 ///
 /// @note: This assumes that all tracks have been converted already
 template <typename TrackMapT>
-void attachDedxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections);
+void attachDqdxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections);
 
 /// Attach the dE/dx information that is stored in the RecDqdxCollection to the
 /// corresponding tracks
 ///
 /// @note: This assumes that all tracks have been converted already
 template <typename TrackMapT>
-void attachDedxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection);
+void attachDqdxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection);
 
 /**
  * Resolve all relations in all converted objects that are held in the map.

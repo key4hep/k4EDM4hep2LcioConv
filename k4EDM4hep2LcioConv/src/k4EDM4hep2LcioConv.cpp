@@ -151,7 +151,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     convertParticleIDs(pidCollMeta.coll, objectMappings.particleIDs, algoId);
   }
 
-  attachDedxInfo(objectMappings.tracks, dQdxCollections);
+  attachDqdxInfo(objectMappings.tracks, dQdxCollections);
 
   resolveRelations(objectMappings);
 
