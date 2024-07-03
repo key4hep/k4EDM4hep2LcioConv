@@ -89,14 +89,6 @@ void fillRecoPIDMaps(ObjectMappings::Map<const EVENT::ReconstructedParticle*>& r
   }
 }
 
-std::string getRecoName(const std::string& pidName) {
-  const auto pos = pidName.find("_PID_");
-  if (pos != std::string::npos) {
-    return pidName.substr(0, pos);
-  }
-  return "";
-}
-
 ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Frame& edmEvt) {
   ObjectMappings mapping{};
   for (const auto& name : *(lcEvt->getCollectionNames())) {
