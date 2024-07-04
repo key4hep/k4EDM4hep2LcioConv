@@ -161,7 +161,6 @@ int main(int argc, char* argv[]) {
   UTIL::CheckCollections colPatcher{};
   std::vector<NamesType> namesTypes{};
   const bool patching = !args.patchFile.empty();
-  // Keep track of whether we have any SimCalorimeterHits
   if (patching) {
     namesTypes = getNamesAndTypes(args.patchFile);
     if (namesTypes.empty()) {
