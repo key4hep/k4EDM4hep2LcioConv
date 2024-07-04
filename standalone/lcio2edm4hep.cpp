@@ -208,6 +208,7 @@ int main(int argc, char* argv[]) {
   }
 
   const int nEvt = args.nEvents > 0 ? args.nEvents : lcreader->getNumberOfEvents();
+  bool haveSimCaloHits{false};
   for (int i = 0; i < nEvt; ++i) {
     int percEvt = i * 100 / (nEvt - 1);
     if (percEvt % 10 == 0) {
@@ -218,7 +219,19 @@ int main(int argc, char* argv[]) {
     if (patching == true) {
       colPatcher.patchCollections(evt);
     }
-    const auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
+    if (i == 0) {
+      for (const auto& name : *evt->getCollectionNames()) {
+        if (evt->getCollection(name)->getTypeName() == "SimCalorimeterHit") {
+          haveSimCaloHits = true;
+          break;
+        }
+      }
+    }
+
+    auto edmEvent = LCIO2EDM4hepConv::convertEvent(evt, collsToConvert);
+    if (haveSimCaloHits && edmEvent.get("AllCaloHitContributionsCombined") == nullptr) {
+      edmEvent.put(edm4hep::CaloHitContributionCollection(), "AllCaloHitContributionsCombined");
+    }
 
     // For the first event we also convert some meta information for the
     // ParticleID handling
