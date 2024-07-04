@@ -29,6 +29,7 @@ namespace edm4hep {
 using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
 } // namespace edm4hep
 #endif
+#include <edm4hep/VertexCollection.h>
 
 #include <cstddef>
 #include <tuple>
@@ -105,6 +106,16 @@ const static std::vector<IdxPair> recoRecoIdcs = {{0, 3}, {2, 2}, {5, 1}, {5, 0}
 
 /// The number of entries for the generated ParticleID collections
 const static std::vector<std::vector<int>> pidRecoIdcs = {{1, 3, 4}, {2, 3}, {0, 1, 2, 3, 4, 5}};
+
+/// The number of vertices to create
+constexpr static int nVertices = 3;
+/// The particles that should be associated to each vertex. First index is the
+/// vertex, second index is the reconstructed particle.
+const static std::vector<IdxPair> vtxParticleIdcs = {{0, 1}, {0, 2}, {1, 1}, {1, 3}, {1, 4}, {2, 1}, {2, 3}, {2, 5}};
+/// The (high level) reconstructed particles that will have a vertex assigned as
+/// their decay vertex. First index is the reconstruced particle, second one is
+/// the assigned vertex
+const static std::vector<IdxPair> recoVtxIdcs = {{1, 0}, {0, 1}, {2, 2}};
 } // namespace test_config
 
 /**
@@ -177,6 +188,15 @@ createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
 
 edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
                                                             const edm4hep::CalorimeterHitCollection& caloHits);
+
+/**
+ * Create a Vertex collection and an accompanyin ReconstructedParticle
+ * collection that uses them as decay vertices.
+ */
+std::tuple<edm4hep::VertexCollection, edm4hep::ReconstructedParticleCollection,
+           edm4hep::RecoParticleVertexAssociationCollection>
+createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollection& particles,
+               const std::vector<test_config::IdxPair>& recoIdcs, const std::vector<test_config::IdxPair>& vtxRecoIdcs);
 
 /**
  * Create an example event that can be used to test the converter. Also populate

@@ -372,6 +372,37 @@ edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCa
   return createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection>(simHits, caloHits);
 }
 
+std::tuple<edm4hep::VertexCollection, edm4hep::ReconstructedParticleCollection,
+           edm4hep::RecoParticleVertexAssociationCollection>
+createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollection& particles,
+               const std::vector<test_config::IdxPair>& recoIdcs,
+               const std::vector<test_config::IdxPair>& vtxRecoIdcs) {
+  auto vtxColl = edm4hep::VertexCollection{};
+  auto recoColl = edm4hep::ReconstructedParticleCollection{};
+
+  for (int i = 0; i < nVertices; ++i) {
+    auto vtx = vtxColl.create();
+    vtx.setNdf(i);
+    vtx.setChi2(i * 0.75f);
+    auto reco = recoColl.create();
+  }
+
+  auto assocColl = edm4hep::RecoParticleVertexAssociationCollection{};
+
+  for (const auto& [iV, iP] : recoIdcs) {
+    vtxColl[iV].addToParticles(particles[iP]);
+    auto assoc = assocColl.create();
+    assoc.setRec(particles[iP]);
+    assoc.setVertex(vtxColl[iV]);
+  }
+
+  for (const auto& [iP, iV] : vtxRecoIdcs) {
+    recoColl[iP].setDecayVertex(vtxColl[iV]);
+  }
+
+  return {std::move(vtxColl), std::move(recoColl), std::move(assocColl)};
+}
+
 std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
   auto retTuple = std::make_tuple(podio::Frame{}, podio::Frame{});
 
@@ -421,6 +452,12 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
 
   event.put(createMCRecoParticleAssocs(mcParticles, recoColl), "mcRecoAssocs");
   event.put(createMCCaloAssocs(simCaloHits, caloHits), "mcCaloHitsAssocs");
+
+  auto [vtxColl, vtxRecos, startVtxAssocs] =
+      createVertices(test_config::nVertices, recoColl, test_config::vtxParticleIdcs, test_config::recoVtxIdcs);
+  event.put(std::move(vtxColl), "vertices");
+  event.put(std::move(vtxRecos), "vtx_recos");
+  event.put(std::move(startVtxAssocs), "startVtxAssocs");
 
   return retTuple;
 }
