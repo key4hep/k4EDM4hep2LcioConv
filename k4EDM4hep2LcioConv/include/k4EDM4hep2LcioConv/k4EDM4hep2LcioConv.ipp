@@ -420,7 +420,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertVertices(const edm4hep::VertexColl
   for (const auto& edm_vertex : (*edmCollection)) {
     if (edm_vertex.isAvailable()) {
       auto* lcio_vertex = new lcio::VertexImpl();
-      lcio_vertex->setPrimary(edm_vertex.getPrimary());
+      lcio_vertex->setPrimary(edm_vertex.isPrimary());
       lcio_vertex->setAlgorithmType(std::to_string(edm_vertex.getAlgorithmType()));
       lcio_vertex->setChi2(edm_vertex.getChi2());
       lcio_vertex->setProbability(TMath::Prob(edm_vertex.getChi2(), edm_vertex.getNdf()));
