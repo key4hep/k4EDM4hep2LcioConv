@@ -134,6 +134,10 @@ std::optional<int32_t> attachParticleIDMetaData(IMPL::LCEventImpl* lcEvent, cons
 /**
  * Convert EDM4hep Tracks to LCIO. Simultaneously populate the mapping from
  * EDM4hep to LCIO objects for relation resolving in a second step.
+ *
+ * NOTE: Since the edm4hep::Track does not have a radiusOfInnermostHit field,
+ * this quantity is calculated on the fly from the attached TrackState using the
+ * getRadiusOfStateAtFirstHit function with the default 2D version.
  */
 template <typename TrackMapT>
 std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollection* const edmCollection,
@@ -429,6 +433,12 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent,
 convEvent(const podio::Frame& edmEvent, const podio::Frame& metadata = podio::Frame{}) {
   return convertEvent(edmEvent, metadata);
 }
+
+/**
+ * Get the radius of the TrackState at the first from the given track. This is
+ * used to set the radiusOfInnermostHit in the LCIO track during the conversion
+ */
+std::optional<double> getRadiusOfStateAtFirstHit(const edm4hep::Track& track, bool use3D = false);
 
 } // namespace EDM4hep2LCIOConv
 

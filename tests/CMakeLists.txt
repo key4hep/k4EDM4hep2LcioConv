@@ -1,5 +1,5 @@
 add_library(edmCompare SHARED src/CompareEDM4hepLCIO.cc src/ObjectMapping.cc src/CompareEDM4hepEDM4hep.cc)
-target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep LCIO::lcio)
+target_link_libraries(edmCompare PUBLIC EDM4HEP::edm4hep LCIO::lcio ROOT::MathCore)
 target_include_directories(edmCompare
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/k4EDM4hep2LcioConv/include>
@@ -10,7 +10,7 @@ target_link_libraries(TestUtils PUBLIC EDM4HEP::edm4hep LCIO::lcio)
 target_include_directories(TestUtils PUBLIC ${LCIO_INCLUDE_DIRS})
 
 add_executable(compare-contents compare_contents.cpp)
-target_link_libraries(compare-contents PRIVATE edmCompare podio::podioRootIO)
+target_link_libraries(compare-contents PRIVATE edmCompare podio::podioRootIO k4EDM4hep2LcioConv)
 target_include_directories(compare-contents PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>)
 
