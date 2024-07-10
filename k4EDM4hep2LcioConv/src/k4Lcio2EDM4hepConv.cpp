@@ -101,7 +101,6 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   }
   // Filling of the Subset Colections
   for (const auto& [lcioname, edm4hepName] : collNames) {
-
     auto lcioColl = evt->getCollection(lcioname);
     if (lcioColl->isSubset()) {
       const auto& lciotype = lcioColl->getTypeName();
@@ -111,6 +110,7 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
       }
     }
   }
+
   // Filling all the OneToMany and OneToOne Relations and creating the
   // AssociationCollections.
   resolveRelations(typeMapping);

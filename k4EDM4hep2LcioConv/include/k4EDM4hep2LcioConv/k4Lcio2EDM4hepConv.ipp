@@ -119,6 +119,7 @@ template <typename RecoMapT>
 std::vector<CollNamePair> convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection,
                                                         RecoMapT& recoparticlesMap) {
   auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
+  auto startVertexAssocs = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
 
   // Set up a PIDHandler to split off the ParticlID objects stored in the
   // reconstructed particles into separate collections. Each algorithm id /
@@ -165,21 +166,28 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
                   << pid.getAlgorithmType() << ")" << std::endl;
       }
     }
+
+    // Keep track of the startVertex associations
+    auto assoc = startVertexAssocs->create();
+    assoc.setRec(lval);
   }
 
   std::vector<CollNamePair> results;
-  results.reserve(particleIDs.size() + 1);
+  results.reserve(particleIDs.size() + 2);
   results.emplace_back(name, std::move(dest));
   for (auto& [id, coll] : particleIDs) {
     results.emplace_back(getPIDCollName(name, pidHandler.getAlgorithmName(id)), std::move(coll));
   }
+  results.emplace_back(name + "_startVertices", std::move(startVertexAssocs));
   return results;
 }
 
 template <typename VertexMapT>
-std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                           VertexMapT& vertexMap) {
+std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
+                                          VertexMapT& vertexMap) {
   auto dest = std::make_unique<edm4hep::VertexCollection>();
+  auto assocParticles = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
+
   for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
     auto* rval = static_cast<EVENT::Vertex*>(LCCollection->getElementAt(i));
     auto lval = dest->create();
@@ -199,6 +207,9 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
       lval.addToParameters(v);
     }
 
+    auto assoc = assocParticles->create();
+    assoc.setVertex(lval);
+
     const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, vertexMap);
     if (!inserted) {
       auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
@@ -207,7 +218,12 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
                 << " collection" << std::endl;
     }
   }
-  return dest;
+
+  std::vector<CollNamePair> results;
+  results.reserve(2);
+  results.emplace_back(name, std::move(dest));
+  results.emplace_back(name + "_associatedParticles", std::move(assocParticles));
+  return results;
 }
 
 template <typename SimTrHitMapT>
@@ -502,7 +518,7 @@ std::vector<CollNamePair> convertCollection(const std::string& name, EVENT::LCCo
   } else if (type == "ReconstructedParticle") {
     return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles);
   } else if (type == "Vertex") {
-    retColls.emplace_back(name, convertVertices(name, LCCollection, typeMapping.vertices));
+    return convertVertices(name, LCCollection, typeMapping.vertices);
   } else if (type == "Track") {
     return convertTracks(name, LCCollection, typeMapping.tracks);
   } else if (type == "Cluster") {

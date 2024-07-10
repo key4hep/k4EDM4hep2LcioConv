@@ -222,9 +222,12 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
  * collection. Simultaneously populates the mapping from LCIO to EDM4hep
  * objects.
  *
- * NOTE: Also populates ParticleID collections, as those are persisted as
+ * @note: Also populates ParticleID collections, as those are persisted as
  * part of the ReconstructedParticles in LCIO. The name of this collection is
  * <name>_PID_<pid_algo_name> (see getPIDCollName)
+ *
+ * @note: Also populates one (partially filled) RecoParticleVertexAssociation
+ * collection for keeping the startVertex information
  */
 template <typename RecoMapT>
 std::vector<CollNamePair> convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection,
@@ -233,10 +236,13 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
 /**
  * Convert a Vertex collection and return the resulting collection.
  * Simultaneously populates the mapping from LCIO to EDM4hep objects.
+ *
+ * @note: Also creates a (partially filled) RecoParticleVertexAssociation
+ * collection for keeping the associatedParticle information
  */
 template <typename VertexMapT>
-std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                           VertexMapT& vertexMap);
+std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
+                                          VertexMapT& vertexMap);
 
 /**
  * Convert a SimTrackerHit collection and return the resulting collection.
