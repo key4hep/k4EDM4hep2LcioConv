@@ -167,8 +167,9 @@ bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::Recons
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "tracks in ReonstructedParticle");
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParticles, objectMaps.recoParticles,
                           "particles in ReonstructedParticle");
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices,
-                          "startVertex in ReconstructedParticle");
+  // Vertices need special treatment because they work conceptually different in
+  // EDM4hep and LCIO. We cannot do any meaningful comparison here with the
+  // available information, so we skip it.
 
   // ParticleIDs need special treatment because they live in different
   // collections in EDM4hep. Here we make sure that all ParticleIDs have been
@@ -425,8 +426,17 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, 
   // ASSERT_COMPARE(lcioElem, edm4hepElem, getAlgorithmType,
   //                "algorithmType in Vertex");
 
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getAssociatedParticle, objectMaps.recoParticles,
-                          "associatedParticle in Vertex");
+  // Vertices work conceptually different in EDM4hep and LCIO. Here we compare
+  // the decay particles only, since that is straight forward
+  const auto lcioParticles = lcioElem->getAssociatedParticle()->getParticles();
+  const auto edmParticles = edm4hepElem.getParticles();
+  ASSERT_COMPARE_VALS(lcioParticles.size(), edmParticles.size(), "number of associated / decay particles in Vertex");
+  for (size_t iV = 0; iV < lcioParticles.size(); ++iV) {
+    if (!compareRelation(lcioParticles[iV], edmParticles[iV], objectMaps.recoParticles,
+                         "particle " + std::to_string(iV) + " in Vertex")) {
+      return false;
+    }
+  }
 
   return true;
 }
