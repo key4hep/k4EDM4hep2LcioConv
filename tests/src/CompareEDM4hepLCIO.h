@@ -233,4 +233,13 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
   return true;
 }
 
+#define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \
+  if (type == #collType) {                                                                                             \
+    auto& edmcoll = edmEvent.get<collType>(name);                                                                      \
+    if (!compare(lcioColl, edmcoll, objectMapping)) {                                                                  \
+      std::cerr << "in collection: " << name << std::endl;                                                             \
+      return 1;                                                                                                        \
+    }                                                                                                                  \
+  }
+
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H

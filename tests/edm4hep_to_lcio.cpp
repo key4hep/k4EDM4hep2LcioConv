@@ -1,13 +1,10 @@
 #include "CompareEDM4hepLCIO.h"
-#include "ComparisonUtils.h"
 #include "EDM4hep2LCIOUtilities.h"
 #include "ObjectMapping.h"
 
 #include "k4EDM4hep2LcioConv/k4EDM4hep2LcioConv.h"
 
 #include "Exceptions.h"
-
-#include "podio/Frame.h"
 
 int main() {
   const auto& [edmEvent, metadata] = createExampleEvent();

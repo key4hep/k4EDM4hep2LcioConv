@@ -1,5 +1,4 @@
 #include "CompareEDM4hepLCIO.h"
-#include "ComparisonUtils.h"
 #include "ObjectMapping.h"
 
 #include "podio/podioVersion.h"
