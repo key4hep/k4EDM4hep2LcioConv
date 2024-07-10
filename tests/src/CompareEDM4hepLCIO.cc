@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <edm4hep/RecoParticleVertexAssociationCollection.h>
 
 #include "TMath.h"
 
@@ -456,4 +457,31 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
   ASSERT_COMPARE(lcevt, edmEventHeader, getWeight, "Weight in EventHeader is not the same");
 
   return true;
+}
+
+// bool compareStartVertexRelations(const edm4hep::RecoParticleVertexAssociationCollection& startVtxAssociations, const
+// ObjectMappings& objectMaps, const podio::Frame& event) {
+//   for (const auto& assoc : startVtxAssociations) {
+//     const auto edmVtx = assoc.getVertex();
+//     const auto edmReco = assoc.getRec();
+
+//   }
+// }
+
+bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
+                                 const edm4hep::RecoParticleVertexAssociation& association,
+                                 const ObjectMappings& objectMaps) {
+  const auto lcioVertex = lcioReco->getStartVertex();
+  const auto edm4hepVertex = association.getVertex();
+  if (!compareRelation(lcioVertex, edm4hepVertex, objectMaps.vertices, "")) {
+    return false;
+  }
+
+  return true;
+}
+
+bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx,
+                                  const edm4hep::RecoParticleVertexAssociation& association,
+                                  const ObjectMappings& objectMaps) {
+  return false;
 }

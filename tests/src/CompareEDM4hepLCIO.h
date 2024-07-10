@@ -23,6 +23,7 @@
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include <edm4hep/RecoParticleVertexAssociation.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -232,6 +233,17 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
 
   return true;
 }
+
+/// Compare the information stored in startVertex in LCIO
+
+bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
+                                 const edm4hep::RecoParticleVertexAssociation& association,
+                                 const ObjectMappings& objectMaps);
+
+/// Compare the information stored in associatedParticle in LCIO
+bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx,
+                                  const edm4hep::RecoParticleVertexAssociation& association,
+                                  const ObjectMappings& objectMaps);
 
 #define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \
   if (type == #collType) {                                                                                             \
