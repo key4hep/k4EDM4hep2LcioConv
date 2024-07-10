@@ -403,6 +403,10 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
 template <typename VertexMapT, typename RecoParticleMapT>
 void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap);
 
+template <typename VertexMapT, typename RecoParticleMapT>
+void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
+                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
+
 /**
  * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search
  */

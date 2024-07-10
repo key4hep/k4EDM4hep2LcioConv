@@ -168,8 +168,10 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
     }
 
     // Keep track of the startVertex associations
-    auto assoc = startVertexAssocs->create();
-    assoc.setRec(lval);
+    if (rval->getStartVertex() != nullptr) {
+      auto assoc = startVertexAssocs->create();
+      assoc.setRec(lval);
+    }
   }
 
   std::vector<CollNamePair> results;
@@ -784,6 +786,46 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
         edmVtx.addToParticles(edm_p.value());
       } else {
         std::cerr << "Could not find a (decay) particle to add to a Vertex" << std::endl;
+      }
+    }
+  }
+}
+
+template <typename VertexMapT, typename RecoParticleMapT>
+void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
+                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
+  for (auto assoc : associations) {
+    auto assocRec = assoc.getRec();
+    auto assocVtx = assoc.getVertex();
+
+    if (assocRec.isAvailable()) {
+      // This is the association that points from the particles to their start vertex
+      if (const auto lcioRec = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocRec, recoParticleMap)) {
+        const auto lcioStartVtx = lcioRec.value()->getStartVertex();
+        if (const auto startVtx = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioStartVtx, vertexMap)) {
+          assoc.setVertex(startVtx.value());
+        } else {
+          std::cerr << "Could not find start vertex while finalizing the RecoParticle - Vertex associations"
+                    << std::endl;
+        }
+      } else {
+        std::cerr
+            << "Could not find a corresponding LCIO reco particle for finalizing the RecoParticle - Vertex associations"
+            << std::endl;
+      }
+    } else {
+      // This is the association that points from the vertex to the associated particle
+      if (const auto lcioVtx = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocVtx, vertexMap)) {
+        const auto lcioAssocParticle = lcioVtx.value()->getAssociatedParticle();
+        if (const auto assocParticle = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioAssocParticle, recoParticleMap)) {
+          assoc.setRec(assocParticle.value());
+        } else {
+          std::cerr << "Could not find an associated particle while finalizing the RecoParticle - Vertex associations"
+                    << std::endl;
+        }
+      } else {
+        std::cerr << "Could not find a corresponding LCIO vertex for finalizing the RecoParticle - Vertex associations"
+                  << std::endl;
       }
     }
   }

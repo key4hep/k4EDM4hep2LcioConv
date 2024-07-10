@@ -117,6 +117,13 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   auto assoCollVec = createAssociations(typeMapping, LCRelations);
   auto headerColl = createEventHeader(evt);
 
+  for (const auto& [name, coll] : edmevent) {
+    if (coll->getTypeName() == "edm4hep::RecoParticleVertexAssociationCollection") {
+      finalizeRecoParticleVertexAssociations(static_cast<edm4hep::RecoParticleVertexAssociationCollection&>(*coll),
+                                             typeMapping.vertices, typeMapping.recoParticles);
+    }
+  }
+
   // Now everything is done and we simply populate a Frame
   podio::Frame event;
   // convert put the event parameters into the frame
