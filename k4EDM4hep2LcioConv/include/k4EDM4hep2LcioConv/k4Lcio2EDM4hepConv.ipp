@@ -623,7 +623,7 @@ void resolveRelationsRecoParticles(RecoParticleMapT& recoparticlesMap, const Rec
     const auto& vertex = lcio->getStartVertex();
     if (vertex != nullptr) {
       if (const auto edmV = k4EDM4hep2LcioConv::detail::mapLookupTo(vertex, vertexMap)) {
-        edm.setStartVertex(edmV.value());
+        // edm.setStartVertex(edmV.value());
       } else {
         std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
                      "while trying to resolve the ReconstructedParticle Relations "
@@ -758,16 +758,17 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
 
 template <typename VertexMapT, typename RecoParticleMapT>
 void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap) {
-  for (auto& [lcio, edm] : vertexMap) {
-    auto recoparticle = lcio->getAssociatedParticle();
+  for (auto& [lcioVtx, edmVtx] : vertexMap) {
+    const auto recoparticle = lcioVtx->getAssociatedParticle();
     if (recoparticle == nullptr) {
       continue;
     }
-    if (const auto recoP = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, recoparticleMap)) {
-      edm.setAssociatedParticle(recoP.value());
-    } else {
-      std::cerr << "Couldn't find associated Particle to add to Vertex "
-                << "Relations in edm" << std::endl;
+    for (const auto& p : recoparticle->getParticles()) {
+      if (const auto& edm_p = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoparticleMap)) {
+        edmVtx.addToParticles(edm_p.value());
+      } else {
+        std::cerr << "Could not find a (decay) particle to add to a Vertex" << std::endl;
+      }
     }
   }
 }

@@ -375,7 +375,9 @@ template <typename SimTrHitMapT, typename MCParticleMapT>
 void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleMapT& mcParticleMap);
 
 /**
- * Resolve the relations for Vertex
+ * Resolve the relations for Vertex. Taking care of "inverting" the relations
+ * that is required by the different concepts of Vertex and
+ * ReconstructedParticle relations in LCIO and EDM4hep
  */
 template <typename VertexMapT, typename RecoParticleMapT>
 void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
@@ -390,11 +392,9 @@ void resolveRelationsSimCaloHit(SimCaloHitMapT& simCaloHitMap, const MCParticleM
 /**
  * Resolve the relations for ReconstructedParticles
  */
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoParticleMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& trackMap);
+                                   const ClusterMapT& clusterMap, const TrackMapT& trackMap);
 
 /**
  * Resolve the relations for Clusters
