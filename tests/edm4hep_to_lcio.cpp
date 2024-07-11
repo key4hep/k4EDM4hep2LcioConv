@@ -59,6 +59,8 @@ int main() {
     ASSERT_COMPARE_OR_EXIT(edm4hep::RawTimeSeriesCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::ClusterCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::VertexCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::MCRecoParticleAssociationCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::MCRecoCaloAssociationCollection)
   }
 
   return 0;
