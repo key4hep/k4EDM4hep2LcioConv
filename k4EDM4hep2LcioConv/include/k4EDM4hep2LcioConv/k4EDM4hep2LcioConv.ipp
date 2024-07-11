@@ -8,9 +8,9 @@
 #include <edm4hep/MCRecoTrackerAssociationCollection.h>
 #include <edm4hep/RecoParticleVertexAssociationCollection.h>
 
-#include "TMath.h"
-
 #include <UTIL/LCRelationNavigator.h>
+
+#include "TMath.h"
 
 namespace EDM4hep2LCIOConv {
 

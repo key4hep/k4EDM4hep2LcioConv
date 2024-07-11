@@ -2,12 +2,11 @@
 
 #include "edm4hep/Constants.h"
 #include "edm4hep/utils/ParticleIDUtils.h"
-
-#include "UTIL/PIDHandler.h"
 #include <edm4hep/ParticleIDCollection.h>
 
+#include "UTIL/PIDHandler.h"
+
 #include <algorithm>
-#include <edm4hep/RecoParticleVertexAssociationCollection.h>
 #include <limits>
 
 namespace EDM4hep2LCIOConv {
