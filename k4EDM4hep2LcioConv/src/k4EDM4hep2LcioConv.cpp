@@ -7,6 +7,7 @@
 #include <edm4hep/ParticleIDCollection.h>
 
 #include <algorithm>
+#include <edm4hep/RecoParticleVertexAssociationCollection.h>
 #include <limits>
 
 namespace EDM4hep2LCIOConv {
@@ -73,6 +74,10 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   // collection
   std::vector<ParticleIDConvData> pidCollections{};
 
+  // We convert these at the very end, once all the necessary information is
+  // available
+  std::vector<const podio::CollectionBase*> associations{};
+
   const auto& collections = edmEvent.getAvailableCollections();
   for (const auto& name : collections) {
     const auto edmCollection = edmEvent.get(name);
@@ -123,6 +128,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
+    } else if (coll->getTypeName().find("Association") != std::string_view::npos) {
+      associations.emplace_back(coll);
     } else {
       std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
                 << "\n"
@@ -143,6 +150,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   }
 
   resolveRelations(objectMappings);
+
+  createLCRelationCollections(associations, objectMappings);
 
   return lcioEvent;
 }
