@@ -604,8 +604,16 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
   // "Invert" the relation to accomodate the different conventions
   for (const auto& [lcio_reco, edm_reco] : recoParticleMap) {
     const auto decayVtx = edm_reco.getDecayVertex();
+    if (!decayVtx.isAvailable()) {
+      continue;
+    }
     if (const auto lcio_vtx = k4EDM4hep2LcioConv::detail::mapLookupFrom(decayVtx, vertexMap)) {
       lcio_vtx.value()->setAssociatedParticle(lcio_reco);
+    }
+    for (const auto& edm_p : decayVtx.getParticles()) {
+      if (const auto lcio_p = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_p, recoParticleMap)) {
+        lcio_reco->addParticle(lcio_p.value());
+      }
     }
   }
 
