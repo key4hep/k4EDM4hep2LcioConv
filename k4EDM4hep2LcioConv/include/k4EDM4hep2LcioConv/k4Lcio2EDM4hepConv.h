@@ -378,11 +378,9 @@ void resolveRelationsSimTrackerHits(HitMapT& SimTrHitMap, const MCParticleMapT& 
 /**
  * Resolve the relations for ReconstructedParticles
  */
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoparticlesMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& tracksMap);
+                                   const ClusterMapT& clusterMap, const TrackMapT& tracksMap);
 
 /**
  * Resolve the relations for Clusters

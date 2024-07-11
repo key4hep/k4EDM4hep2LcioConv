@@ -631,24 +631,10 @@ void resolveRelationsSimTrackerHits(HitMapT& SimTrHitMap, const MCParticleMapT& 
   }
 }
 
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoparticlesMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& tracksMap) {
+                                   const ClusterMapT& clusterMap, const TrackMapT& tracksMap) {
   for (auto& [lcio, edm] : recoparticlesMap) {
-
-    const auto& vertex = lcio->getStartVertex();
-    if (vertex != nullptr) {
-      if (const auto edmV = k4EDM4hep2LcioConv::detail::mapLookupTo(vertex, vertexMap)) {
-        // edm.setStartVertex(edmV.value());
-      } else {
-        std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
-                     "while trying to resolve the ReconstructedParticle Relations "
-                  << std::endl;
-      }
-    }
-
     auto clusters = lcio->getClusters();
     for (auto c : clusters) {
       if (c == nullptr) {
@@ -839,8 +825,8 @@ void resolveRelations(ObjectMappingT& typeMapping) {
 template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps) {
   resolveRelationsMCParticles(updateMaps.mcParticles, lookupMaps.mcParticles);
-  resolveRelationsRecoParticles(updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.vertices,
-                                lookupMaps.clusters, lookupMaps.tracks);
+  resolveRelationsRecoParticles(updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.clusters,
+                                lookupMaps.tracks);
   resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
   resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
   resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.trackerHitPlanes, lookupMaps.tpcHits);
