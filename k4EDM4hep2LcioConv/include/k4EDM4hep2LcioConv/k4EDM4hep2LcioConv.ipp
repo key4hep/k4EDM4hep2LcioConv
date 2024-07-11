@@ -780,7 +780,7 @@ std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> create
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
     } else {
-      std::cerr << "Trying to create an association collection of type " << coll->getTypeName()
+      std::cerr << "Trying to create an LCRelation collection from a " << coll->getTypeName()
                 << " which is not supported" << std::endl;
     }
   }

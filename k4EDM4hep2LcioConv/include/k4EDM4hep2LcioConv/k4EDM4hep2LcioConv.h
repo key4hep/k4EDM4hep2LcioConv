@@ -410,6 +410,9 @@ void resolveRelations(ObjectMappingT& typeMapping);
 template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
 
+/**
+ * Convert the passed associatoin collections to LCRelation collections
+ */
 template <typename ObjectMappingT>
 std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> createLCRelationCollections(
     const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& associationCollections,
