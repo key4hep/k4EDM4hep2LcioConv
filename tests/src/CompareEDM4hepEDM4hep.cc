@@ -289,9 +289,18 @@ bool compare(const edm4hep::ReconstructedParticleCollection& origColl,
                    "related track " << iT << " in reco particle " << i);
     }
 
-    const auto origRelParticles = origReco.getParticles();
+    const auto origRelParticles = [&origReco]() {
+      if (origReco.getDecayVertex().isAvailable()) {
+        return origReco.getDecayVertex().getParticles();
+      }
+      return origReco.getParticles();
+    }();
     const auto relParticles = reco.getParticles();
-    REQUIRE_SAME(origRelParticles.size(), relParticles.size(), "number of related particles in reco particle " << i);
+    if (origRelParticles.size() != relParticles.size()) {
+      REQUIRE_SAME(origReco.getDecayVertex().getParticles().size(), relParticles.size(),
+                   "number of related particles in reco particle " << i);
+    }
+
     for (size_t iP = 0; iP < relParticles.size(); ++iP) {
       REQUIRE_SAME(origRelParticles[iP].getObjectID(), relParticles[iP].getObjectID(),
                    "related particle " << iP << " in reco particle " << i);

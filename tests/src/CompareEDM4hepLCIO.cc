@@ -166,11 +166,20 @@ bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::Recons
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getClusters, objectMaps.clusters, "clusters in ReonstructedParticle");
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "tracks in ReonstructedParticle");
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParticles, objectMaps.recoParticles,
-                          "particles in ReonstructedParticle");
-  // Vertices need special treatment because they work conceptually different in
-  // EDM4hep and LCIO. We cannot do any meaningful comparison here with the
-  // available information, so we skip it.
+
+  // The attached particles need special treatment because there is a difference
+  // in EDM4hep and LCIO regarding where the decay particles of a Vertex go
+  const auto edm4hepDecayVtx = edm4hepElem.getDecayVertex();
+  if (edm4hepDecayVtx.isAvailable()) {
+    if (lcioElem->getParticles().size() == edm4hepDecayVtx.getParticles().size()) {
+      ASSERT_COMPARE_RELATION(lcioElem, edm4hepDecayVtx, getParticles, objectMaps.recoParticles,
+                              "decay particles in ReconstructedParticle (decayVertex)");
+    } else {
+      // This doesn't seem to happen, in case it ever does at least make the test fail
+      std::cerr << "Potentially inconsistent setting of (decay) particles in ReconstructedParticle" << std::endl;
+      return false;
+    }
+  }
 
   // ParticleIDs need special treatment because they live in different
   // collections in EDM4hep. Here we make sure that all ParticleIDs have been
