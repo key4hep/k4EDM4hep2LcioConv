@@ -752,28 +752,33 @@ void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup
 }
 
 template <typename ObjectMappingT>
-std::vector<std::unique_ptr<lcio::LCCollection>>
-createLCRelationCollections(const std::vector<const podio::CollectionBase*>& associationCollections,
-                            const ObjectMappingT& objectMaps) {
-  std::vector<std::unique_ptr<lcio::LCCollection>> relationColls{};
+std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> createLCRelationCollections(
+    const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& associationCollections,
+    const ObjectMappingT& objectMaps) {
+  std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> relationColls{};
   relationColls.reserve(associationCollections.size());
 
-  for (const auto* coll : associationCollections) {
+  for (const auto& [name, coll] : associationCollections) {
     if (const auto assocs = dynamic_cast<const edm4hep::MCRecoParticleAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.recoParticles));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.recoParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.simCaloHits, objectMaps.caloHits));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.simCaloHits, objectMaps.caloHits));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackerAssociationCollection*>(coll)) {
       relationColls.emplace_back(
-          createLCRelationCollection(*assocs, objectMaps.simTrackerHits, objectMaps.trackerHits));
+          name, createLCRelationCollection(*assocs, objectMaps.simTrackerHits, objectMaps.trackerHits));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloParticleAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.caloHits));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.caloHits));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoClusterParticleAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.clusters));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.clusters));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackParticleAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.tracks));
+      relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.tracks));
     } else if (const auto assocs = dynamic_cast<const edm4hep::RecoParticleVertexAssociationCollection*>(coll)) {
-      relationColls.emplace_back(createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
     } else {
       std::cerr << "Trying to create an association collection of type " << coll->getTypeName()
                 << " which is not supported" << std::endl;
@@ -823,7 +828,8 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
       if (lcioTo && lcioFrom) {
         relNav.addRelation(lcioFrom.value(), lcioTo.value(), assoc.getWeight());
       } else {
-        std::cerr << "Cannot find all objects for building an LCRelation" << std::endl;
+        std::cerr << "Cannot find all objects for building an LCRelation between " << detail::getTypeName<FromLCIOT>()
+                  << " and " << detail::getTypeName<ToLCIOT>() << std::endl;
       }
     } else {
       const auto edm4hepTo = assoc.getRec();
@@ -833,7 +839,9 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
       if (lcioTo && lcioFrom) {
         relNav.addRelation(lcioFrom.value(), lcioTo.value(), assoc.getWeight());
       } else {
-        std::cerr << "Cannot find all objects for building an LCRelation" << std::endl;
+
+        std::cerr << "Cannot find all objects for building an LCRelation between " << detail::getTypeName<FromLCIOT>()
+                  << " and " << detail::getTypeName<ToLCIOT>() << std::endl;
       }
     }
   }

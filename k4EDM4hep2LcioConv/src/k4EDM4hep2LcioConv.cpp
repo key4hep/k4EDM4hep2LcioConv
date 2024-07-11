@@ -75,7 +75,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
 
   // We convert these at the very end, once all the necessary information is
   // available
-  std::vector<const podio::CollectionBase*> associations{};
+  std::vector<std::tuple<std::string, const podio::CollectionBase*>> associations{};
 
   const auto& collections = edmEvent.getAvailableCollections();
   for (const auto& name : collections) {
@@ -127,8 +127,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
-    } else if (coll->getTypeName().find("Association") != std::string_view::npos) {
-      associations.emplace_back(coll);
+    } else if (edmCollection->getTypeName().find("Association") != std::string_view::npos) {
+      associations.emplace_back(name, edmCollection);
     } else {
       std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
                 << "\n"
@@ -150,7 +150,9 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
 
   resolveRelations(objectMappings);
 
-  createLCRelationCollections(associations, objectMappings);
+  for (auto& [name, coll] : createLCRelationCollections(associations, objectMappings)) {
+    lcioEvent->addCollection(coll.release(), name);
+  }
 
   return lcioEvent;
 }

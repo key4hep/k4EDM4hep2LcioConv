@@ -411,9 +411,9 @@ template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
 
 template <typename ObjectMappingT>
-std::vector<std::unique_ptr<lcio::LCCollection>>
-createLCRelationCollections(const std::vector<const podio::CollectionBase*>& associationCollections,
-                            const ObjectMappingT& objectMaps);
+std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> createLCRelationCollections(
+    const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& associationCollections,
+    const ObjectMappingT& objectMaps);
 
 /**
  * Create an LCRelation collection from the passed Association Collection

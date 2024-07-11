@@ -1,26 +1,7 @@
 #include "EDM4hep2LCIOUtilities.h"
 
-#include "edm4hep/CalorimeterHitCollection.h"
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/RawCalorimeterHitCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
-#if __has_include("edm4hep/TrackerHit3DCollection.h")
-#include "edm4hep/TrackerHit3DCollection.h"
-#else
-#include "edm4hep/TrackerHitCollection.h"
-namespace edm4hep {
-using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
-} // namespace edm4hep
-#endif
-#include "edm4hep/CaloHitContributionCollection.h"
-#include "edm4hep/ClusterCollection.h"
-#include "edm4hep/ReconstructedParticleCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
-#include "edm4hep/TrackCollection.h"
-#include <edm4hep/EventHeaderCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
-#include <edm4hep/TrackerHitPlaneCollection.h>
+#include <edm4hep/MCRecoCaloAssociationCollection.h>
+#include <edm4hep/MCRecoParticleAssociationCollection.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
@@ -355,6 +336,34 @@ createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
   return collections;
 }
 
+template <typename AssocCollT, typename CollT, typename CollU>
+AssocCollT createAssociationCollection(const CollT& collA, const CollU& collB) {
+  const auto maxSize = std::min(collA.size(), collB.size());
+
+  auto assocs = AssocCollT{};
+
+  for (size_t i = 0; i < maxSize; ++i) {
+    auto assoc = assocs.create();
+    assoc.setWeight(i * 10.f / maxSize);
+    assoc.setSim(collA[i]);
+    assoc.setRec(collB[maxSize - 1 - i]);
+  }
+
+  return assocs;
+}
+
+edm4hep::MCRecoParticleAssociationCollection
+createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
+                           const edm4hep::ReconstructedParticleCollection& recoParticles) {
+  return createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection>(mcParticles, recoParticles);
+}
+
+edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
+                                                            const edm4hep::CalorimeterHitCollection& caloHits) {
+
+  return createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection>(simHits, caloHits);
+}
+
 std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
   auto retTuple = std::make_tuple(podio::Frame{}, podio::Frame{});
 
@@ -379,7 +388,7 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
 
   auto [tmpSimCaloHits, tmpCaloHitConts] = createSimCalorimeterHits(
       test_config::nSimCaloHits, test_config::nCaloHitContributions, mcParticles, test_config::simCaloHitMCIdcs);
-  event.put(std::move(tmpSimCaloHits), "simCaloHits");
+  const auto& simCaloHits = event.put(std::move(tmpSimCaloHits), "simCaloHits");
   event.put(std::move(tmpCaloHitConts), "caloHitContributions");
 
   const auto& recoColl =
@@ -400,6 +409,9 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
 
     algoId++;
   }
+
+  event.put(createMCRecoParticleAssocs(mcParticles, recoColl), "mcRecoAssocs");
+  event.put(createMCCaloAssocs(simCaloHits, caloHits), "mcCaloHitsAssocs");
 
   return retTuple;
 }

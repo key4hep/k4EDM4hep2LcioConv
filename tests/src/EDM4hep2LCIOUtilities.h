@@ -1,11 +1,25 @@
 #ifndef K4EDM4HEP2LCIOCONV_TEST_EDM4HEP2LCIOUTILITIES_H
 #define K4EDM4HEP2LCIOCONV_TEST_EDM4HEP2LCIOUTILITIES_H
 
-#include <cstddef>
-#include <tuple>
-#include <utility>
-#include <vector>
-
+#include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/CalorimeterHitCollection.h"
+#include "edm4hep/ClusterCollection.h"
+#include "edm4hep/MCParticleCollection.h"
+#include "edm4hep/RawCalorimeterHitCollection.h"
+#include "edm4hep/ReconstructedParticleCollection.h"
+#include "edm4hep/SimCalorimeterHitCollection.h"
+#include "edm4hep/TrackCollection.h"
+#include <edm4hep/EventHeaderCollection.h>
+#include <edm4hep/MCRecoCaloAssociationCollection.h>
+#include <edm4hep/MCRecoCaloParticleAssociationCollection.h>
+#include <edm4hep/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4hep/MCRecoParticleAssociationCollection.h>
+#include <edm4hep/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4hep/MCRecoTrackerAssociationCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/RecoParticleVertexAssociationCollection.h>
+#include <edm4hep/TrackerHitPlaneCollection.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -15,20 +29,10 @@ using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
 } // namespace edm4hep
 #endif
 
-namespace edm4hep {
-class CalorimeterHitCollection;
-class MCParticleCollection;
-class RawCalorimeterHitCollection;
-class RawTimeSeriesCollection;
-class TrackerHitPlaneCollection;
-class TrackCollection;
-class SimCalorimeterHitCollection;
-class CaloHitContributionCollection;
-class EventHeaderCollection;
-class ClusterCollection;
-class ReconstructedParticleCollection;
-class ParticleIDCollection;
-} // namespace edm4hep
+#include <cstddef>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace podio {
 class Frame;
@@ -165,6 +169,13 @@ edm4hep::ReconstructedParticleCollection createRecoParticles(const int nRecos, c
 std::vector<edm4hep::ParticleIDCollection>
 createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
                   const edm4hep::ReconstructedParticleCollection& recoParticles);
+
+edm4hep::MCRecoParticleAssociationCollection
+createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
+                           const edm4hep::ReconstructedParticleCollection& recoParticles);
+
+edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
+                                                            const edm4hep::CalorimeterHitCollection& caloHits);
 
 /**
  * Create an example event that can be used to test the converter. Also populate

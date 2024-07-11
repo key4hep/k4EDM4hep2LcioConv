@@ -30,6 +30,8 @@ int main() {
   ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_1");
   ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_2");
   ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_3");
+  ASSERT_SAME_OR_ABORT(edm4hep::MCRecoParticleAssociationCollection, "mcRecoAssocs");
+  ASSERT_SAME_OR_ABORT(edm4hep::MCRecoCaloAssociationCollection, "mcCaloHitsAssocs");
 
   return 0;
 }

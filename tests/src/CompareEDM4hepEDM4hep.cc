@@ -1,27 +1,4 @@
 #include "CompareEDM4hepEDM4hep.h"
-#include "ComparisonUtils.h"
-
-#include "edm4hep/CalorimeterHitCollection.h"
-#include "edm4hep/ClusterCollection.h"
-#include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/ParticleIDCollection.h"
-#include "edm4hep/ReconstructedParticleCollection.h"
-#include "edm4hep/SimCalorimeterHitCollection.h"
-#include "edm4hep/TrackCollection.h"
-#include "edm4hep/TrackerHitPlaneCollection.h"
-
-#include <edm4hep/TrackState.h>
-#include <iostream>
-#include <podio/RelationRange.h>
-
-#define REQUIRE_SAME(expected, actual, msg)                                                                            \
-  {                                                                                                                    \
-    if (!((expected) == (actual))) {                                                                                   \
-      std::cerr << msg << " are not the same (expected: " << (expected) << ", actual: " << (actual) << ")"             \
-                << std::endl;                                                                                          \
-      return false;                                                                                                    \
-    }                                                                                                                  \
-  }
 
 bool compare(const edm4hep::CalorimeterHitCollection& origColl,
              const edm4hep::CalorimeterHitCollection& roundtripColl) {
@@ -322,6 +299,20 @@ bool compare(const edm4hep::ParticleIDCollection& origColl, const edm4hep::Parti
 
     REQUIRE_SAME(origPid.getParticle().getObjectID(), pid.getParticle().getObjectID(),
                  "related particle in ParticleID " << i);
+  }
+  return true;
+}
+
+bool compare(const edm4hep::RecoParticleVertexAssociationCollection& origColl,
+             const edm4hep::RecoParticleVertexAssociationCollection& roundtripColl) {
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    const auto origAssoc = origColl[i];
+    const auto assoc = roundtripColl[i];
+
+    REQUIRE_SAME(origAssoc.getWeight(), assoc.getWeight(), "weight in association " << i);
+    REQUIRE_SAME(origAssoc.getVertex().id(), assoc.getVertex().id(), "vertex in association " << i);
+    REQUIRE_SAME(origAssoc.getRec().id(), assoc.getRec().id(), "reco particle in association " << i);
   }
   return true;
 }
