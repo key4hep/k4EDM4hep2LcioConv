@@ -1,7 +1,5 @@
 #include "EDM4hep2LCIOUtilities.h"
 
-#include <edm4hep/MCRecoCaloAssociationCollection.h>
-#include <edm4hep/MCRecoParticleAssociationCollection.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
