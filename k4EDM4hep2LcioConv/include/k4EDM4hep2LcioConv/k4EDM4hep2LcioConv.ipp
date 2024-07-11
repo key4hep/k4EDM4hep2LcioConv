@@ -761,21 +761,21 @@ std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> create
   for (const auto& [name, coll] : associationCollections) {
     if (const auto assocs = dynamic_cast<const edm4hep::MCRecoParticleAssociationCollection*>(coll)) {
       relationColls.emplace_back(name,
-                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.recoParticles));
+                                 createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.mcParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloAssociationCollection*>(coll)) {
       relationColls.emplace_back(name,
-                                 createLCRelationCollection(*assocs, objectMaps.simCaloHits, objectMaps.caloHits));
+                                 createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.simCaloHits));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackerAssociationCollection*>(coll)) {
       relationColls.emplace_back(
-          name, createLCRelationCollection(*assocs, objectMaps.simTrackerHits, objectMaps.trackerHits));
+          name, createLCRelationCollection(*assocs, objectMaps.trackerHits, objectMaps.simTrackerHits));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloParticleAssociationCollection*>(coll)) {
       relationColls.emplace_back(name,
-                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.caloHits));
+                                 createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.mcParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoClusterParticleAssociationCollection*>(coll)) {
       relationColls.emplace_back(name,
-                                 createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.clusters));
+                                 createLCRelationCollection(*assocs, objectMaps.clusters, objectMaps.mcParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackParticleAssociationCollection*>(coll)) {
-      relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.mcParticles, objectMaps.tracks));
+      relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.tracks, objectMaps.mcParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::RecoParticleVertexAssociationCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
@@ -832,8 +832,8 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
                   << " and " << detail::getTypeName<ToLCIOT>() << std::endl;
       }
     } else {
-      const auto edm4hepTo = assoc.getRec();
-      const auto edm4hepFrom = assoc.getSim();
+      const auto edm4hepTo = assoc.getSim();
+      const auto edm4hepFrom = assoc.getRec();
       const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
       const auto lcioFrom = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepFrom, fromMap);
       if (lcioTo && lcioFrom) {
