@@ -181,7 +181,9 @@ inline bool compareRelation(const std::vector<LcioT*>& lcioRange, const podio::R
     const auto nonNullLcio =
         std::count_if(lcioRange.begin(), lcioRange.end(), [](const auto e) { return e != nullptr; });
     if ((unsigned)nonNullLcio != edm4hepRange.size()) {
-      std::cerr << msg << " different sizes (even after taking null values into account)" << std::endl;
+      std::cerr << msg
+                << " different sizes (even after taking null values into account): (expected: " << edm4hepRange.size()
+                << " actual: " << lcioRange.size() << " | " << nonNullLcio << " cleaned)" << std::endl;
       return false;
     }
   }
