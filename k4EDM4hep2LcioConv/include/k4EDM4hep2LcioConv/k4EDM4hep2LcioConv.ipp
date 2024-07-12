@@ -1,7 +1,14 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
-#include <cassert>
-#include <cmath>
+#include <edm4hep/MCRecoCaloAssociationCollection.h>
+#include <edm4hep/MCRecoCaloParticleAssociationCollection.h>
+#include <edm4hep/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4hep/MCRecoParticleAssociationCollection.h>
+#include <edm4hep/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4hep/MCRecoTrackerAssociationCollection.h>
+#include <edm4hep/RecoParticleVertexAssociationCollection.h>
+
+#include <UTIL/LCRelationNavigator.h>
 
 #include "TMath.h"
 
@@ -742,6 +749,115 @@ void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup
   resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
   resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
   resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);
+}
+
+template <typename ObjectMappingT>
+std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> createLCRelationCollections(
+    const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& associationCollections,
+    const ObjectMappingT& objectMaps) {
+  std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> relationColls{};
+  relationColls.reserve(associationCollections.size());
+
+  for (const auto& [name, coll] : associationCollections) {
+    if (const auto assocs = dynamic_cast<const edm4hep::MCRecoParticleAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.mcParticles));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.simCaloHits));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackerAssociationCollection*>(coll)) {
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*assocs, objectMaps.trackerHits, objectMaps.simTrackerHits));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloParticleAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.mcParticles));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoClusterParticleAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.clusters, objectMaps.mcParticles));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackParticleAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.tracks, objectMaps.mcParticles));
+    } else if (const auto assocs = dynamic_cast<const edm4hep::RecoParticleVertexAssociationCollection*>(coll)) {
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
+    } else {
+      std::cerr << "Trying to create an LCRelation collection from a " << coll->getTypeName()
+                << " which is not supported" << std::endl;
+    }
+  }
+
+  return relationColls;
+}
+
+namespace detail {
+  template <typename T>
+  constexpr const char* getTypeName();
+
+#define DEFINE_TYPE_NAME(type)                                                                                         \
+  template <>                                                                                                          \
+  constexpr const char* getTypeName<IMPL::type##Impl>() {                                                              \
+    return #type;                                                                                                      \
+  }
+
+  DEFINE_TYPE_NAME(MCParticle);
+  DEFINE_TYPE_NAME(SimTrackerHit);
+  DEFINE_TYPE_NAME(SimCalorimeterHit);
+  DEFINE_TYPE_NAME(Track);
+  DEFINE_TYPE_NAME(TrackerHit);
+  DEFINE_TYPE_NAME(Vertex);
+  DEFINE_TYPE_NAME(ReconstructedParticle);
+  DEFINE_TYPE_NAME(Cluster);
+  DEFINE_TYPE_NAME(CalorimeterHit);
+
+#undef DEFINE_TYPE_NAME
+} // namespace detail
+
+template <typename AssocCollT, typename FromMapT, typename ToMapT>
+std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT& associations, const FromMapT& fromMap,
+                                                               const ToMapT& toMap) {
+  using FromLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<FromMapT>>;
+  using ToLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ToMapT>>;
+
+  auto lcioColl = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::LCRELATION);
+  lcioColl->parameters().setValue("FromType", detail::getTypeName<FromLCIOT>());
+  lcioColl->parameters().setValue("ToType", detail::getTypeName<ToLCIOT>());
+
+  for (const auto assoc : associations) {
+    auto lcioRel = new lcio::LCRelationImpl{};
+    lcioRel->setWeight(assoc.getWeight());
+
+    const auto edm4hepFrom = assoc.getRec();
+    const auto lcioFrom = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepFrom, fromMap);
+    if (lcioFrom) {
+      lcioRel->setFrom(lcioFrom.value());
+    } else {
+      std::cerr << "Cannot find an object for building an LCRelation of type " << detail::getTypeName<FromLCIOT>()
+                << std::endl;
+    }
+
+    if constexpr (std::is_same_v<AssocCollT, edm4hep::RecoParticleVertexAssociationCollection>) {
+      const auto edm4hepTo = assoc.getVertex();
+      const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
+      if (lcioTo) {
+        lcioRel->setTo(lcioTo.value());
+      } else {
+        std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
+                  << std::endl;
+      }
+    } else {
+      const auto edm4hepTo = assoc.getSim();
+      const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
+      if (lcioTo) {
+        lcioRel->setTo(lcioTo.value());
+      } else {
+        std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
+                  << std::endl;
+      }
+    }
+
+    lcioColl->addElement(lcioRel);
+  }
+
+  return lcioColl;
 }
 
 } // namespace EDM4hep2LCIOConv

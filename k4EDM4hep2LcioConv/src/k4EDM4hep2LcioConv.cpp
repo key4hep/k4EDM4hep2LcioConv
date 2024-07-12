@@ -2,9 +2,9 @@
 
 #include "edm4hep/Constants.h"
 #include "edm4hep/utils/ParticleIDUtils.h"
+#include <edm4hep/ParticleIDCollection.h>
 
 #include "UTIL/PIDHandler.h"
-#include <edm4hep/ParticleIDCollection.h>
 
 #include <algorithm>
 #include <limits>
@@ -73,6 +73,10 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   // collection
   std::vector<ParticleIDConvData> pidCollections{};
 
+  // We convert these at the very end, once all the necessary information is
+  // available
+  std::vector<std::tuple<std::string, const podio::CollectionBase*>> associations{};
+
   const auto& collections = edmEvent.getAvailableCollections();
   for (const auto& name : collections) {
     const auto edmCollection = edmEvent.get(name);
@@ -123,6 +127,8 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
+    } else if (edmCollection->getTypeName().find("Association") != std::string_view::npos) {
+      associations.emplace_back(name, edmCollection);
     } else {
       std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
                 << "\n"
@@ -143,6 +149,10 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
   }
 
   resolveRelations(objectMappings);
+
+  for (auto& [name, coll] : createLCRelationCollections(associations, objectMappings)) {
+    lcioEvent->addCollection(coll.release(), name);
+  }
 
   return lcioEvent;
 }
