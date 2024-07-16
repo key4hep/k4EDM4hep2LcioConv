@@ -1,7 +1,9 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
 #include <UTIL/PIDHandler.h>
+
 #include <edm4hep/ParticleIDCollection.h>
+#include <edm4hep/RecDqdxCollection.h>
 
 namespace LCIO2EDM4hepConv {
 template <typename LCIOType>
@@ -335,19 +337,24 @@ convertTrackerHitPlanes(const std::string& name, EVENT::LCCollection* LCCollecti
 }
 
 template <typename TrackMapT>
-std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                        TrackMapT& TrackMap) {
+std::vector<CollNamePair> convertTracks(const std::string& name, EVENT::LCCollection* LCCollection,
+                                        TrackMapT& TrackMap) {
   auto dest = std::make_unique<edm4hep::TrackCollection>();
+  auto dQdxColl = std::make_unique<edm4hep::RecDqdxCollection>();
 
   for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
     auto* rval = static_cast<EVENT::Track*>(LCCollection->getElementAt(i));
     auto lval = dest->create();
+    auto trackDqdx = dQdxColl->create();
+    trackDqdx.setTrack(lval);
 
     lval.setType(rval->getType());
     lval.setChi2(rval->getChi2());
     lval.setNdf(rval->getNdf());
-    lval.setDEdx(rval->getdEdx());
-    lval.setDEdxError(rval->getdEdxError());
+
+    auto& dqdx = trackDqdx.getDQdx();
+    dqdx.value = rval->getdEdx();
+    dqdx.error = rval->getdEdxError();
 
     auto subdetectorHitNum = rval->getSubdetectorHitNumbers();
     for (auto hitNum : subdetectorHitNum) {
@@ -357,10 +364,7 @@ std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name,
     for (auto& trackState : trackStates) {
       lval.addToTrackStates(convertTrackState(trackState));
     }
-    auto quantities = edm4hep::Quantity{};
-    quantities.value = rval->getdEdx();
-    quantities.error = rval->getdEdxError();
-    lval.addToDxQuantities(quantities);
+
     const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, TrackMap);
     if (!inserted) {
       auto existing = k4EDM4hep2LcioConv::detail::getMapped(iterator);
@@ -370,7 +374,10 @@ std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name,
     }
   }
 
-  return dest;
+  std::vector<CollNamePair> results{};
+  results.emplace_back(name, std::move(dest));
+  results.emplace_back(name + "_dQdx", std::move(dQdxColl));
+  return results;
 }
 
 template <typename HitMapT>
@@ -497,7 +504,7 @@ std::vector<CollNamePair> convertCollection(const std::string& name, EVENT::LCCo
   } else if (type == "Vertex") {
     retColls.emplace_back(name, convertVertices(name, LCCollection, typeMapping.vertices));
   } else if (type == "Track") {
-    retColls.emplace_back(name, convertTracks(name, LCCollection, typeMapping.tracks));
+    return convertTracks(name, LCCollection, typeMapping.tracks);
   } else if (type == "Cluster") {
     retColls.emplace_back(name, convertClusters(name, LCCollection, typeMapping.clusters));
   } else if (type == "SimCalorimeterHit") {

@@ -32,6 +32,7 @@ int main() {
   ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_3");
   ASSERT_SAME_OR_ABORT(edm4hep::MCRecoParticleAssociationCollection, "mcRecoAssocs");
   ASSERT_SAME_OR_ABORT(edm4hep::MCRecoCaloAssociationCollection, "mcCaloHitsAssocs");
+  ASSERT_SAME_OR_ABORT(edm4hep::RecDqdxCollection, "tracks_dQdx")
 
   return 0;
 }

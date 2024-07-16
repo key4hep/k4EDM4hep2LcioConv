@@ -53,4 +53,6 @@ bool compare(const AssociationCollT& origColl, const AssociationCollT& roundtrip
   return true;
 }
 
+bool compare(const edm4hep::RecDqdxCollection& origColl, const edm4hep::RecDqdxCollection& roundtripColl);
+
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPEDM4HEP_H

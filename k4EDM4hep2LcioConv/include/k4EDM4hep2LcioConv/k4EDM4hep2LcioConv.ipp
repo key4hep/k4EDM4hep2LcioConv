@@ -31,8 +31,6 @@ std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollect
       }
       lcio_tr->setChi2(edm_tr.getChi2());
       lcio_tr->setNdf(edm_tr.getNdf());
-      lcio_tr->setdEdx(edm_tr.getDEdx());
-      lcio_tr->setdEdxError(edm_tr.getDEdxError());
       lcio_tr->setRadiusOfInnermostHit(getRadiusOfStateAtFirstHit(edm_tr).value_or(-1.0));
 
       // Loop over the hit Numbers in the track
@@ -725,6 +723,29 @@ void resolveRelationsParticleIDs(PidMapT& pidMap, const RecoParticleMapT& recoMa
       lcioReco.value()->addParticleID(lcioPid);
     } else {
       std::cerr << "Cannot find a reconstructed particle to attach a ParticleID to" << std::endl;
+    }
+  }
+}
+
+template <typename TrackMapT>
+void attachDqdxInfo(TrackMapT& trackMap, const std::vector<TrackDqdxConvData>& dQdxCollections) {
+  for (const auto& coll : dQdxCollections) {
+    attachDqdxInfo(trackMap, coll);
+  }
+}
+
+template <typename TrackMapT>
+void attachDqdxInfo(TrackMapT& trackMap, const TrackDqdxConvData& dQdxCollection) {
+  const auto& [name, coll] = dQdxCollection;
+
+  for (const auto& elem : *coll) {
+    const auto dQdxTrack = elem.getTrack();
+    const auto lcioTrack = k4EDM4hep2LcioConv::detail::mapLookupFrom(dQdxTrack, trackMap);
+    if (lcioTrack) {
+      lcioTrack.value()->setdEdx(elem.getDQdx().value);
+      lcioTrack.value()->setdEdxError(elem.getDQdx().error);
+    } else {
+      std::cerr << "Cannot find a track to attach dQ/dx information to for collection: " << name << std::endl;
     }
   }
 }

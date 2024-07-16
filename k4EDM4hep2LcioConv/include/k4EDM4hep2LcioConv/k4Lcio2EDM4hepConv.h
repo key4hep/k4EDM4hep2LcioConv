@@ -275,8 +275,8 @@ convertTrackerHitPlanes(const std::string& name, EVENT::LCCollection* LCCollecti
  * Simultaneously populates the mapping from LCIO to EDM4hep objects.
  */
 template <typename TrackMapT>
-std::unique_ptr<edm4hep::TrackCollection> convertTracks(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                        TrackMapT& TrackMap);
+std::vector<CollNamePair> convertTracks(const std::string& name, EVENT::LCCollection* LCCollection,
+                                        TrackMapT& TrackMap);
 
 /**
  * Convert a SimCalorimeterHit collection and return the resulting collection.

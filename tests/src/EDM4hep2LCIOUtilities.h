@@ -18,6 +18,7 @@
 #include <edm4hep/MCRecoTrackerAssociationCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/RecDqdxCollection.h>
 #include <edm4hep/RecoParticleVertexAssociationCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")

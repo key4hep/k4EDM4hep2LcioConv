@@ -21,7 +21,7 @@ int main() {
     const auto edmColl = edmEvent.get(name);
     const auto typeName = edmColl->getValueTypeName();
     if (typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID" ||
-        typeName == "edm4hep::EventHeader") {
+        typeName == "edm4hep::EventHeader" || typeName == "edm4hep::RecDqdx") {
       continue;
     }
     try {
@@ -42,7 +42,7 @@ int main() {
   for (const auto& name : edmEvent.getAvailableCollections()) {
     const auto type = edmEvent.get(name)->getTypeName();
     if (type == "edm4hep::CaloHitContributionCollection" || type == "edm4hep::ParticleIDCollection" ||
-        type == "edm4hep::EventHeaderCollection") {
+        type == "edm4hep::EventHeaderCollection" || type == "edm4hep::RecDqdxCollection") {
       continue;
     }
     const auto* lcioColl = lcioEvent->getCollection(name);

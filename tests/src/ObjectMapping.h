@@ -2,6 +2,7 @@
 #define K4EDM4HEP2LCIOCONV_TEST_OBJECTMAPPINGS_H
 
 #include <edm4hep/ParticleID.h>
+#include <edm4hep/utils/TrackUtils.h>
 
 #include "podio/ObjectID.h"
 
@@ -46,6 +47,8 @@ struct ObjectMappings {
   Map<const EVENT::Vertex*> vertices{};
 
   std::unordered_map<const EVENT::ParticleID*, edm4hep::ParticleID> particleIDs{};
+
+  edm4hep::utils::TrackPIDHandler trackPidHandler{};
 
   static ObjectMappings fromEvent(EVENT::LCEvent* lcEvt, const podio::Frame& edmEvt);
 };
