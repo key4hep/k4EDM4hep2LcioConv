@@ -181,6 +181,8 @@ bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::Recons
     }
   }
 
+  // TODO: check for start vertex. Might not be possible here but needs to be done externally
+
   // ParticleIDs need special treatment because they live in different
   // collections in EDM4hep. Here we make sure that all ParticleIDs have been
   // converted and mapped correctly by checking the ParticleID content and
@@ -489,8 +491,9 @@ bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
   return true;
 }
 
-bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx,
-                                  const edm4hep::RecoParticleVertexAssociation& association,
-                                  const ObjectMappings& objectMaps) {
+bool compareVertexRecoAssociation(const EVENT::Vertex*, const edm4hep::RecoParticleVertexAssociation&,
+                                  const ObjectMappings&) {
+  // TODO: Actually implement the checks
+  // TODO: Figure out if this is even the right interface here
   return false;
 }
