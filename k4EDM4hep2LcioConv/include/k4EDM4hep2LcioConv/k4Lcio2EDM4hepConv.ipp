@@ -200,11 +200,9 @@ std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCColl
     lval.setPosition(rval->getPosition());
     auto& m = rval->getCovMatrix(); // 6 parameters
     lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});
-    // FIXME: the algorithm type in LCIO is a string, but an integer is expected
+    // NOTE: the algorithm type in LCIO is a string, but an integer is expected
     // lval.setAlgorithmType(rval->getAlgorithmType());
-    // lval.setAssociatedParticle();  //set it when convert
-    // ReconstructedParticle
-    //
+
     for (auto v : rval->getParameters()) {
       lval.addToParameters(v);
     }
