@@ -765,6 +765,13 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
     if (recoparticle == nullptr) {
       continue;
     }
+    if (auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, recoparticleMap)) {
+      edmReco->setDecayVertex(edmVtx);
+    } else {
+      std::cerr << "Could not find a reco particle to attach a Vertex to" << std::endl;
+    }
+
+    // Attach the decay particles
     for (const auto& p : recoparticle->getParticles()) {
       if (const auto& edm_p = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoparticleMap)) {
         edmVtx.addToParticles(edm_p.value());
