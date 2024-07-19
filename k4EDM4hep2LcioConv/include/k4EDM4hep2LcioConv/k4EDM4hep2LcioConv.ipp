@@ -599,10 +599,11 @@ void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleM
   }
 }
 
-template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap) {
   // "Invert" the relation to accomodate the different conventions
-  for (const auto& [lcio_reco, edm_reco] : recoParticleMap) {
+  for (const auto& [lcio_reco, edm_reco] : updateRPMap) {
     const auto decayVtx = edm_reco.getDecayVertex();
     if (!decayVtx.isAvailable()) {
       continue;
@@ -611,7 +612,7 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
       lcio_vtx.value()->setAssociatedParticle(lcio_reco);
     }
     for (const auto& edm_p : decayVtx.getParticles()) {
-      if (const auto lcio_p = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_p, recoParticleMap)) {
+      if (const auto lcio_p = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_p, lookupRPMap)) {
         lcio_reco->addParticle(lcio_p.value());
       }
     }
@@ -619,7 +620,7 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
 
   for (const auto& [lcio_vertex, edm_vertex] : vertexMap) {
     for (const auto& particle : edm_vertex.getParticles()) {
-      if (const auto lcio_part = k4EDM4hep2LcioConv::detail::mapLookupFrom(particle, recoParticleMap)) {
+      if (const auto lcio_part = k4EDM4hep2LcioConv::detail::mapLookupFrom(particle, updateRPMap)) {
         lcio_part.value()->setStartVertex(lcio_vertex);
       }
     }
@@ -771,7 +772,7 @@ void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup
   resolveRelationsRecoParticles(update_pairs.recoParticles, lookup_pairs.recoParticles, lookup_pairs.clusters,
                                 lookup_pairs.tracks);
   resolveRelationsParticleIDs(lookup_pairs.particleIDs, update_pairs.recoParticles);
-  resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
+  resolveRelationsVertices(update_pairs.vertices, update_pairs.recoParticles, lookup_pairs.recoParticles);
   resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
   resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
   resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);

@@ -758,14 +758,15 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
   }
 }
 
-template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap) {
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap) {
   for (auto& [lcioVtx, edmVtx] : vertexMap) {
     const auto recoparticle = lcioVtx->getAssociatedParticle();
     if (recoparticle == nullptr) {
       continue;
     }
-    if (auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, recoparticleMap)) {
+    if (auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, updateRPMap)) {
       edmReco->setDecayVertex(edmVtx);
     } else {
       std::cerr << "Could not find a reco particle to attach a Vertex to" << std::endl;
@@ -773,7 +774,7 @@ void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& rec
 
     // Attach the decay particles
     for (const auto& p : recoparticle->getParticles()) {
-      if (const auto& edm_p = k4EDM4hep2LcioConv::detail::mapLookupTo(p, recoparticleMap)) {
+      if (const auto& edm_p = k4EDM4hep2LcioConv::detail::mapLookupTo(p, lookupRPMap)) {
         edmVtx.addToParticles(edm_p.value());
       } else {
         std::cerr << "Could not find a (decay) particle to add to a Vertex" << std::endl;
@@ -835,7 +836,7 @@ void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMa
   resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
   resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
   resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.trackerHitPlanes, lookupMaps.tpcHits);
-  resolveRelationsVertices(updateMaps.vertices, lookupMaps.recoParticles);
+  resolveRelationsVertices(updateMaps.vertices, updateMaps.recoParticles, lookupMaps.recoParticles);
 }
 
 template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT, typename FromLCIOT, typename ToLCIOT,

@@ -396,10 +396,12 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
                             const TPCHitMapT&);
 
 /**
- * Resolve the relations for Vertices
+ * Resolve the relations for Vertices. Vertex related information in
+ * reconstructed particles will only be mutated in the updateRPMap.
  */
-template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap);
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap);
 
 template <typename VertexMapT, typename RecoParticleMapT>
 void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
