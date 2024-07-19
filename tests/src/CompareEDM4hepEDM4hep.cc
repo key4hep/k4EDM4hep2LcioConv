@@ -289,13 +289,26 @@ bool compare(const edm4hep::ReconstructedParticleCollection& origColl,
                    "related track " << iT << " in reco particle " << i);
     }
 
-    const auto origRelParticles = origReco.getParticles();
+    const auto origRelParticles = [&origReco]() {
+      if (origReco.getDecayVertex().isAvailable()) {
+        return origReco.getDecayVertex().getParticles();
+      }
+      return origReco.getParticles();
+    }();
     const auto relParticles = reco.getParticles();
-    REQUIRE_SAME(origRelParticles.size(), relParticles.size(), "number of related particles in reco particle " << i);
+    if (origRelParticles.size() != relParticles.size()) {
+      REQUIRE_SAME(origReco.getDecayVertex().getParticles().size(), relParticles.size(),
+                   "number of related particles in reco particle " << i);
+    }
+
     for (size_t iP = 0; iP < relParticles.size(); ++iP) {
       REQUIRE_SAME(origRelParticles[iP].getObjectID(), relParticles[iP].getObjectID(),
                    "related particle " << iP << " in reco particle " << i);
     }
+
+    const auto origVtx = origReco.getDecayVertex();
+    const auto vtx = reco.getDecayVertex();
+    REQUIRE_SAME(origVtx.id(), vtx.id(), "decay vertex in reco particle " << i);
   }
 
   return true;
@@ -322,6 +335,26 @@ bool compare(const edm4hep::ParticleIDCollection& origColl, const edm4hep::Parti
     REQUIRE_SAME(origPid.getParticle().getObjectID(), pid.getParticle().getObjectID(),
                  "related particle in ParticleID " << i);
   }
+  return true;
+}
+
+bool compare(const edm4hep::VertexCollection& origColl, const edm4hep::VertexCollection& roundtripColl) {
+  REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection size");
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    const auto origVtx = origColl[i];
+    const auto vtx = roundtripColl[i];
+
+    REQUIRE_SAME(origVtx.getNdf(), vtx.getNdf(), "ndf in vertex " << i);
+    REQUIRE_SAME(origVtx.getChi2(), vtx.getChi2(), "chi2 in vertex" << i);
+
+    const auto origParticles = origVtx.getParticles();
+    const auto particles = vtx.getParticles();
+    REQUIRE_SAME(origParticles.size(), particles.size(), "number of particles in vertex " << i);
+    for (size_t iP = 0; iP < origParticles.size(); ++iP) {
+      REQUIRE_SAME(origParticles[iP].id(), particles[iP].id(), "particle " << iP << " in vertex " << i);
+    }
+  }
+
   return true;
 }
 

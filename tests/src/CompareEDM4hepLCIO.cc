@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <edm4hep/RecoParticleVertexAssociationCollection.h>
 
 #include "TMath.h"
 
@@ -165,10 +166,22 @@ bool compare(const EVENT::ReconstructedParticle* lcioElem, const edm4hep::Recons
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getClusters, objectMaps.clusters, "clusters in ReonstructedParticle");
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getTracks, objectMaps.tracks, "tracks in ReonstructedParticle");
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParticles, objectMaps.recoParticles,
-                          "particles in ReonstructedParticle");
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getStartVertex, objectMaps.vertices,
-                          "startVertex in ReconstructedParticle");
+
+  // The attached particles need special treatment because there is a difference
+  // in EDM4hep and LCIO regarding where the decay particles of a Vertex go
+  const auto edm4hepDecayVtx = edm4hepElem.getDecayVertex();
+  if (edm4hepDecayVtx.isAvailable()) {
+    if (lcioElem->getParticles().size() == edm4hepDecayVtx.getParticles().size()) {
+      ASSERT_COMPARE_RELATION(lcioElem, edm4hepDecayVtx, getParticles, objectMaps.recoParticles,
+                              "decay particles in ReconstructedParticle (decayVertex)");
+    } else {
+      // This doesn't seem to happen, in case it ever does at least make the test fail
+      std::cerr << "Potentially inconsistent setting of (decay) particles in ReconstructedParticle" << std::endl;
+      return false;
+    }
+  }
+
+  // TODO: check for start vertex. Might not be possible here but needs to be done externally
 
   // ParticleIDs need special treatment because they live in different
   // collections in EDM4hep. Here we make sure that all ParticleIDs have been
@@ -425,8 +438,17 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, 
   // ASSERT_COMPARE(lcioElem, edm4hepElem, getAlgorithmType,
   //                "algorithmType in Vertex");
 
-  ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getAssociatedParticle, objectMaps.recoParticles,
-                          "associatedParticle in Vertex");
+  // Vertices work conceptually different in EDM4hep and LCIO. Here we compare
+  // the decay particles only, since that is straight forward
+  const auto lcioParticles = lcioElem->getAssociatedParticle()->getParticles();
+  const auto edmParticles = edm4hepElem.getParticles();
+  ASSERT_COMPARE_VALS(lcioParticles.size(), edmParticles.size(), "number of associated / decay particles in Vertex");
+  for (size_t iV = 0; iV < lcioParticles.size(); ++iV) {
+    if (!compareRelation(lcioParticles[iV], edmParticles[iV], objectMaps.recoParticles,
+                         "particle " + std::to_string(iV) + " in Vertex")) {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -446,4 +468,32 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
   ASSERT_COMPARE(lcevt, edmEventHeader, getWeight, "Weight in EventHeader is not the same");
 
   return true;
+}
+
+// bool compareStartVertexRelations(const edm4hep::RecoParticleVertexAssociationCollection& startVtxAssociations, const
+// ObjectMappings& objectMaps, const podio::Frame& event) {
+//   for (const auto& assoc : startVtxAssociations) {
+//     const auto edmVtx = assoc.getVertex();
+//     const auto edmReco = assoc.getRec();
+
+//   }
+// }
+
+bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
+                                 const edm4hep::RecoParticleVertexAssociation& association,
+                                 const ObjectMappings& objectMaps) {
+  const auto lcioVertex = lcioReco->getStartVertex();
+  const auto edm4hepVertex = association.getVertex();
+  if (!compareRelation(lcioVertex, edm4hepVertex, objectMaps.vertices, "")) {
+    return false;
+  }
+
+  return true;
+}
+
+bool compareVertexRecoAssociation(const EVENT::Vertex*, const edm4hep::RecoParticleVertexAssociation&,
+                                  const ObjectMappings&) {
+  // TODO: Actually implement the checks
+  // TODO: Figure out if this is even the right interface here
+  return false;
 }

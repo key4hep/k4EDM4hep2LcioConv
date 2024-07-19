@@ -181,7 +181,9 @@ inline bool compareRelation(const std::vector<LcioT*>& lcioRange, const podio::R
     const auto nonNullLcio =
         std::count_if(lcioRange.begin(), lcioRange.end(), [](const auto e) { return e != nullptr; });
     if ((unsigned)nonNullLcio != edm4hepRange.size()) {
-      std::cerr << msg << " different sizes (even after taking null values into account)" << std::endl;
+      std::cerr << msg
+                << " different sizes (even after taking null values into account): (expected: " << edm4hepRange.size()
+                << " actual: " << lcioRange.size() << " | " << nonNullLcio << " cleaned)" << std::endl;
       return false;
     }
   }
@@ -223,14 +225,5 @@ inline bool compareCollection(const lcio::LCCollection* lcioCollection, const ED
 
   return true;
 }
-
-#define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \
-  if (type == #collType) {                                                                                             \
-    auto& edmcoll = edmEvent.get<collType>(name);                                                                      \
-    if (!compare(lcioColl, edmcoll, objectMapping)) {                                                                  \
-      std::cerr << "in collection: " << name << std::endl;                                                             \
-      return 1;                                                                                                        \
-    }                                                                                                                  \
-  }
 
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPARISONUTILS_H

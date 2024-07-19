@@ -599,32 +599,38 @@ void resolveRelationsSimTrackerHits(SimTrHitMapT& simTrHitMap, const MCParticleM
   }
 }
 
-template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
-  for (auto& [lcio_vertex, edm_vertex] : vertexMap) {
-    const auto edm_rp = edm_vertex.getAssociatedParticle();
-    if (edm_rp.isAvailable()) {
-      if (const auto lcio_rp = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_rp, recoParticleMap)) {
-        lcio_vertex->setAssociatedParticle(lcio_rp.value());
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap) {
+  // "Invert" the relation to accomodate the different conventions
+  for (const auto& [lcio_reco, edm_reco] : updateRPMap) {
+    const auto decayVtx = edm_reco.getDecayVertex();
+    if (!decayVtx.isAvailable()) {
+      continue;
+    }
+    if (const auto lcio_vtx = k4EDM4hep2LcioConv::detail::mapLookupFrom(decayVtx, vertexMap)) {
+      lcio_vtx.value()->setAssociatedParticle(lcio_reco);
+    }
+    for (const auto& edm_p : decayVtx.getParticles()) {
+      if (const auto lcio_p = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm_p, lookupRPMap)) {
+        lcio_reco->addParticle(lcio_p.value());
+      }
+    }
+  }
+
+  for (const auto& [lcio_vertex, edm_vertex] : vertexMap) {
+    for (const auto& particle : edm_vertex.getParticles()) {
+      if (const auto lcio_part = k4EDM4hep2LcioConv::detail::mapLookupFrom(particle, updateRPMap)) {
+        lcio_part.value()->setStartVertex(lcio_vertex);
       }
     }
   }
 }
 
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoParticleMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& trackMap) {
-  // Link Vertex
+                                   const ClusterMapT& clusterMap, const TrackMapT& trackMap) {
   for (auto& [lcio_rp, edm_rp] : recoParticleMap) {
-    const auto edmStartVtx = edm_rp.getStartVertex();
-    if (edmStartVtx.isAvailable()) {
-      if (const auto lcio_vertex = k4EDM4hep2LcioConv::detail::mapLookupFrom(edmStartVtx, vertexMap)) {
-        lcio_rp->setStartVertex(lcio_vertex.value());
-      }
-    }
-
     // Link Tracks
     const auto edmTracks = edm_rp.getTracks();
     for (const auto& t : edmTracks) {
@@ -763,10 +769,10 @@ void resolveRelations(ObjectMappingT& update_pairs, const ObjectMappingU& lookup
   resolveRelationsMCParticles(update_pairs.mcParticles, lookup_pairs.mcParticles);
   resolveRelationsTracks(update_pairs.tracks, lookup_pairs.trackerHits, lookup_pairs.trackerHitPlanes,
                          lookup_pairs.tpcHits);
-  resolveRelationsRecoParticles(update_pairs.recoParticles, lookup_pairs.recoParticles, lookup_pairs.vertices,
-                                lookup_pairs.clusters, lookup_pairs.tracks);
+  resolveRelationsRecoParticles(update_pairs.recoParticles, lookup_pairs.recoParticles, lookup_pairs.clusters,
+                                lookup_pairs.tracks);
   resolveRelationsParticleIDs(lookup_pairs.particleIDs, update_pairs.recoParticles);
-  resolveRelationsVertices(update_pairs.vertices, lookup_pairs.recoParticles);
+  resolveRelationsVertices(update_pairs.vertices, update_pairs.recoParticles, lookup_pairs.recoParticles);
   resolveRelationsSimCaloHit(update_pairs.simCaloHits, lookup_pairs.mcParticles);
   resolveRelationsSimTrackerHits(update_pairs.simTrackerHits, lookup_pairs.mcParticles);
   resolveRelationsClusters(update_pairs.clusters, lookup_pairs.caloHits);

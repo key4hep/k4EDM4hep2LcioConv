@@ -119,6 +119,7 @@ template <typename RecoMapT>
 std::vector<CollNamePair> convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection,
                                                         RecoMapT& recoparticlesMap) {
   auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
+  auto startVertexAssocs = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
 
   // Set up a PIDHandler to split off the ParticlID objects stored in the
   // reconstructed particles into separate collections. Each algorithm id /
@@ -165,21 +166,30 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
                   << pid.getAlgorithmType() << ")" << std::endl;
       }
     }
+
+    // Keep track of the startVertex associations
+    if (rval->getStartVertex() != nullptr) {
+      auto assoc = startVertexAssocs->create();
+      assoc.setRec(lval);
+    }
   }
 
   std::vector<CollNamePair> results;
-  results.reserve(particleIDs.size() + 1);
+  results.reserve(particleIDs.size() + 2);
   results.emplace_back(name, std::move(dest));
   for (auto& [id, coll] : particleIDs) {
     results.emplace_back(getPIDCollName(name, pidHandler.getAlgorithmName(id)), std::move(coll));
   }
+  results.emplace_back(name + "_startVertices", std::move(startVertexAssocs));
   return results;
 }
 
 template <typename VertexMapT>
-std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                           VertexMapT& vertexMap) {
+std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
+                                          VertexMapT& vertexMap) {
   auto dest = std::make_unique<edm4hep::VertexCollection>();
+  auto assocParticles = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
+
   for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
     auto* rval = static_cast<EVENT::Vertex*>(LCCollection->getElementAt(i));
     auto lval = dest->create();
@@ -190,14 +200,15 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
     lval.setPosition(rval->getPosition());
     auto& m = rval->getCovMatrix(); // 6 parameters
     lval.setCovMatrix({m[0], m[1], m[2], m[3], m[4], m[5]});
-    // FIXME: the algorithm type in LCIO is a string, but an integer is expected
+    // NOTE: the algorithm type in LCIO is a string, but an integer is expected
     // lval.setAlgorithmType(rval->getAlgorithmType());
-    // lval.setAssociatedParticle();  //set it when convert
-    // ReconstructedParticle
-    //
+
     for (auto v : rval->getParameters()) {
       lval.addToParameters(v);
     }
+
+    auto assoc = assocParticles->create();
+    assoc.setVertex(lval);
 
     const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, vertexMap);
     if (!inserted) {
@@ -207,7 +218,12 @@ std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& na
                 << " collection" << std::endl;
     }
   }
-  return dest;
+
+  std::vector<CollNamePair> results;
+  results.reserve(2);
+  results.emplace_back(name, std::move(dest));
+  results.emplace_back(name + "_associatedParticles", std::move(assocParticles));
+  return results;
 }
 
 template <typename SimTrHitMapT>
@@ -502,7 +518,7 @@ std::vector<CollNamePair> convertCollection(const std::string& name, EVENT::LCCo
   } else if (type == "ReconstructedParticle") {
     return convertReconstructedParticles(name, LCCollection, typeMapping.recoParticles);
   } else if (type == "Vertex") {
-    retColls.emplace_back(name, convertVertices(name, LCCollection, typeMapping.vertices));
+    return convertVertices(name, LCCollection, typeMapping.vertices);
   } else if (type == "Track") {
     return convertTracks(name, LCCollection, typeMapping.tracks);
   } else if (type == "Cluster") {
@@ -613,24 +629,10 @@ void resolveRelationsSimTrackerHits(HitMapT& SimTrHitMap, const MCParticleMapT& 
   }
 }
 
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoparticlesMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& tracksMap) {
+                                   const ClusterMapT& clusterMap, const TrackMapT& tracksMap) {
   for (auto& [lcio, edm] : recoparticlesMap) {
-
-    const auto& vertex = lcio->getStartVertex();
-    if (vertex != nullptr) {
-      if (const auto edmV = k4EDM4hep2LcioConv::detail::mapLookupTo(vertex, vertexMap)) {
-        edm.setStartVertex(edmV.value());
-      } else {
-        std::cerr << "Cannot find corresponding EDM4hep Vertex for a LCIO Vertex, "
-                     "while trying to resolve the ReconstructedParticle Relations "
-                  << std::endl;
-      }
-    }
-
     auto clusters = lcio->getClusters();
     for (auto c : clusters) {
       if (c == nullptr) {
@@ -756,18 +758,67 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
   }
 }
 
-template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap) {
-  for (auto& [lcio, edm] : vertexMap) {
-    auto recoparticle = lcio->getAssociatedParticle();
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap) {
+  for (auto& [lcioVtx, edmVtx] : vertexMap) {
+    const auto recoparticle = lcioVtx->getAssociatedParticle();
     if (recoparticle == nullptr) {
       continue;
     }
-    if (const auto recoP = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, recoparticleMap)) {
-      edm.setAssociatedParticle(recoP.value());
+    if (auto edmReco = k4EDM4hep2LcioConv::detail::mapLookupTo(recoparticle, updateRPMap)) {
+      edmReco->setDecayVertex(edmVtx);
     } else {
-      std::cerr << "Couldn't find associated Particle to add to Vertex "
-                << "Relations in edm" << std::endl;
+      std::cerr << "Could not find a reco particle to attach a Vertex to" << std::endl;
+    }
+
+    // Attach the decay particles
+    for (const auto& p : recoparticle->getParticles()) {
+      if (const auto& edm_p = k4EDM4hep2LcioConv::detail::mapLookupTo(p, lookupRPMap)) {
+        edmVtx.addToParticles(edm_p.value());
+      } else {
+        std::cerr << "Could not find a (decay) particle to add to a Vertex" << std::endl;
+      }
+    }
+  }
+}
+
+template <typename VertexMapT, typename RecoParticleMapT>
+void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
+                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
+  for (auto assoc : associations) {
+    auto assocRec = assoc.getRec();
+    auto assocVtx = assoc.getVertex();
+
+    if (assocRec.isAvailable()) {
+      // This is the association that points from the particles to their start vertex
+      if (const auto lcioRec = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocRec, recoParticleMap)) {
+        const auto lcioStartVtx = lcioRec.value()->getStartVertex();
+        if (const auto startVtx = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioStartVtx, vertexMap)) {
+          assoc.setVertex(startVtx.value());
+        } else {
+          std::cerr << "Could not find start vertex while finalizing the RecoParticle - Vertex associations"
+                    << std::endl;
+        }
+      } else {
+        std::cerr
+            << "Could not find a corresponding LCIO reco particle for finalizing the RecoParticle - Vertex associations"
+            << std::endl;
+      }
+    } else {
+      // This is the association that points from the vertex to the associated particle
+      if (const auto lcioVtx = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocVtx, vertexMap)) {
+        const auto lcioAssocParticle = lcioVtx.value()->getAssociatedParticle();
+        if (const auto assocParticle = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioAssocParticle, recoParticleMap)) {
+          assoc.setRec(assocParticle.value());
+        } else {
+          std::cerr << "Could not find an associated particle while finalizing the RecoParticle - Vertex associations"
+                    << std::endl;
+        }
+      } else {
+        std::cerr << "Could not find a corresponding LCIO vertex for finalizing the RecoParticle - Vertex associations"
+                  << std::endl;
+      }
     }
   }
 }
@@ -780,12 +831,12 @@ void resolveRelations(ObjectMappingT& typeMapping) {
 template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps) {
   resolveRelationsMCParticles(updateMaps.mcParticles, lookupMaps.mcParticles);
-  resolveRelationsRecoParticles(updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.vertices,
-                                lookupMaps.clusters, lookupMaps.tracks);
+  resolveRelationsRecoParticles(updateMaps.recoParticles, lookupMaps.recoParticles, lookupMaps.clusters,
+                                lookupMaps.tracks);
   resolveRelationsSimTrackerHits(updateMaps.simTrackerHits, lookupMaps.mcParticles);
   resolveRelationsClusters(updateMaps.clusters, lookupMaps.caloHits);
   resolveRelationsTracks(updateMaps.tracks, lookupMaps.trackerHits, lookupMaps.trackerHitPlanes, lookupMaps.tpcHits);
-  resolveRelationsVertices(updateMaps.vertices, lookupMaps.recoParticles);
+  resolveRelationsVertices(updateMaps.vertices, updateMaps.recoParticles, lookupMaps.recoParticles);
 }
 
 template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT, typename FromLCIOT, typename ToLCIOT,

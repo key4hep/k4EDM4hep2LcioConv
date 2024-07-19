@@ -33,6 +33,9 @@ int main() {
   ASSERT_SAME_OR_ABORT(edm4hep::MCRecoParticleAssociationCollection, "mcRecoAssocs");
   ASSERT_SAME_OR_ABORT(edm4hep::MCRecoCaloAssociationCollection, "mcCaloHitsAssocs");
   ASSERT_SAME_OR_ABORT(edm4hep::RecDqdxCollection, "tracks_dQdx")
+  ASSERT_SAME_OR_ABORT(edm4hep::VertexCollection, "vertices");
+  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "vtx_recos");
+  ASSERT_SAME_OR_ABORT(edm4hep::RecoParticleVertexAssociationCollection, "startVtxAssocs");
 
   return 0;
 }

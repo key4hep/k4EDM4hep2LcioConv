@@ -222,9 +222,12 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
  * collection. Simultaneously populates the mapping from LCIO to EDM4hep
  * objects.
  *
- * NOTE: Also populates ParticleID collections, as those are persisted as
+ * @note: Also populates ParticleID collections, as those are persisted as
  * part of the ReconstructedParticles in LCIO. The name of this collection is
  * <name>_PID_<pid_algo_name> (see getPIDCollName)
+ *
+ * @note: Also populates one (partially filled) RecoParticleVertexAssociation
+ * collection for keeping the startVertex information
  */
 template <typename RecoMapT>
 std::vector<CollNamePair> convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection,
@@ -233,10 +236,13 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
 /**
  * Convert a Vertex collection and return the resulting collection.
  * Simultaneously populates the mapping from LCIO to EDM4hep objects.
+ *
+ * @note: Also creates a (partially filled) RecoParticleVertexAssociation
+ * collection for keeping the associatedParticle information
  */
 template <typename VertexMapT>
-std::unique_ptr<edm4hep::VertexCollection> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
-                                                           VertexMapT& vertexMap);
+std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
+                                          VertexMapT& vertexMap);
 
 /**
  * Convert a SimTrackerHit collection and return the resulting collection.
@@ -372,11 +378,9 @@ void resolveRelationsSimTrackerHits(HitMapT& SimTrHitMap, const MCParticleMapT& 
 /**
  * Resolve the relations for ReconstructedParticles
  */
-template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename VertexMapT, typename ClusterMapT,
-          typename TrackMapT>
+template <typename RecoParticleMapT, typename RecoParticleLookupMapT, typename ClusterMapT, typename TrackMapT>
 void resolveRelationsRecoParticles(RecoParticleMapT& recoparticlesMap, const RecoParticleLookupMapT& recoLookupMap,
-                                   const VertexMapT& vertexMap, const ClusterMapT& clusterMap,
-                                   const TrackMapT& tracksMap);
+                                   const ClusterMapT& clusterMap, const TrackMapT& tracksMap);
 
 /**
  * Resolve the relations for Clusters
@@ -392,10 +396,16 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
                             const TPCHitMapT&);
 
 /**
- * Resolve the relations for Vertices
+ * Resolve the relations for Vertices. Vertex related information in
+ * reconstructed particles will only be mutated in the updateRPMap.
  */
+template <typename VertexMapT, typename URecoParticleMapT, typename LURecoParticleMapT>
+void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRPMap,
+                              const LURecoParticleMapT& lookupRPMap);
+
 template <typename VertexMapT, typename RecoParticleMapT>
-void resolveRelationsVertices(VertexMapT& vertexMap, const RecoParticleMapT& recoparticleMap);
+void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
+                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
 
 /**
  * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search
