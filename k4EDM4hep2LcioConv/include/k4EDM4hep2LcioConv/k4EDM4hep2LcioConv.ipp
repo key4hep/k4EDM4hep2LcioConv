@@ -823,6 +823,10 @@ namespace detail {
   template <>                                                                                                          \
   consteval const char* getTypeName<IMPL::type##Impl>() {                                                              \
     return #type;                                                                                                      \
+  }                                                                                                                    \
+  template <>                                                                                                          \
+  consteval const char* getTypeName<EVENT::type>() {                                                                   \
+    return #type;                                                                                                      \
   }
 
   DEFINE_TYPE_NAME(MCParticle);
