@@ -817,11 +817,11 @@ std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> create
 
 namespace detail {
   template <typename T>
-  constexpr const char* getTypeName();
+  consteval const char* getTypeName();
 
 #define DEFINE_TYPE_NAME(type)                                                                                         \
   template <>                                                                                                          \
-  constexpr const char* getTypeName<IMPL::type##Impl>() {                                                              \
+  consteval const char* getTypeName<IMPL::type##Impl>() {                                                              \
     return #type;                                                                                                      \
   }
 
