@@ -37,7 +37,6 @@ using TrackerHit3D = edm4hep::TrackerHit;
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
-#include "podio/podioVersion.h"
 
 // LCIO
 #include <IMPL/CalorimeterHitImpl.h>
@@ -76,11 +75,7 @@ using ObjectMapT = k4EDM4hep2LcioConv::VecMapT<T1, T2>;
 template <typename T1, typename T2>
 using vec_pair [[deprecated("Use a more descriptive alias")]] = ObjectMapT<T1, T2>;
 
-#if PODIO_BUILD_VERSION > PODIO_VERSION(0, 99, 0)
 using CellIDStrType = const std::optional<std::string>;
-#else
-using CellIDStrType = const std::string;
-#endif
 
 struct CollectionsPairVectors {
   ObjectMapT<lcio::TrackImpl*, edm4hep::Track> tracks{};
