@@ -118,9 +118,9 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   auto headerColl = createEventHeader(evt);
 
   for (const auto& [name, coll] : edmevent) {
-    if (coll->getTypeName() == "edm4hep::RecoParticleVertexAssociationCollection") {
-      finalizeRecoParticleVertexAssociations(static_cast<edm4hep::RecoParticleVertexAssociationCollection&>(*coll),
-                                             typeMapping.vertices, typeMapping.recoParticles);
+    if (coll->getTypeName() == "edm4hep::VertexRecoParticleLinkCollection") {
+      finalizeVertexRecoParticleLinks(static_cast<edm4hep::VertexRecoParticleLinkCollection&>(*coll),
+                                      typeMapping.vertices, typeMapping.recoParticles);
     }
   }
 

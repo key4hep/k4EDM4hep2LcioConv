@@ -360,20 +360,20 @@ AssocCollT createAssociationCollection(const CollT& collA, const CollU& collB) {
   return assocs;
 }
 
-edm4hep::MCRecoParticleAssociationCollection
+edm4hep::RecoMCParticleLinkCollection
 createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
                            const edm4hep::ReconstructedParticleCollection& recoParticles) {
-  return createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection>(mcParticles, recoParticles);
+  return createAssociationCollection<edm4hep::RecoMCParticleLinkCollection>(mcParticles, recoParticles);
 }
 
-edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
+edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
                                                             const edm4hep::CalorimeterHitCollection& caloHits) {
 
-  return createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection>(simHits, caloHits);
+  return createAssociationCollection<edm4hep::CaloHitSimCaloHitLinkCollection>(simHits, caloHits);
 }
 
 std::tuple<edm4hep::VertexCollection, edm4hep::ReconstructedParticleCollection,
-           edm4hep::RecoParticleVertexAssociationCollection>
+           edm4hep::VertexRecoParticleLinkCollection>
 createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollection& particles,
                const std::vector<test_config::IdxPair>& recoIdcs,
                const std::vector<test_config::IdxPair>& vtxRecoIdcs) {
@@ -387,7 +387,7 @@ createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollecti
     auto reco = recoColl.create();
   }
 
-  auto assocColl = edm4hep::RecoParticleVertexAssociationCollection{};
+  auto assocColl = edm4hep::VertexRecoParticleLinkCollection{};
 
   for (const auto& [iV, iP] : recoIdcs) {
     vtxColl[iV].addToParticles(particles[iP]);

@@ -38,8 +38,8 @@ bool compare(const edm4hep::ParticleIDCollection& origColl, const edm4hep::Parti
 
 bool compare(const edm4hep::VertexCollection& origColl, const edm4hep::VertexCollection& roundtripColl);
 
-bool compare(const edm4hep::RecoParticleVertexAssociationCollection& origColl,
-             const edm4hep::RecoParticleVertexAssociationCollection& roundtripColl);
+bool compare(const edm4hep::VertexRecoParticleLinkCollection& origColl,
+             const edm4hep::VertexRecoParticleLinkCollection& roundtripColl);
 
 template <typename AssociationCollT>
 bool compare(const AssociationCollT& origColl, const AssociationCollT& roundtripColl) {

@@ -1,12 +1,12 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
-#include <edm4hep/MCRecoCaloAssociationCollection.h>
-#include <edm4hep/MCRecoCaloParticleAssociationCollection.h>
-#include <edm4hep/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCRecoParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackerAssociationCollection.h>
-#include <edm4hep/RecoParticleVertexAssociationCollection.h>
+#include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
+#include <edm4hep/CaloHitMCParticleLinkCollection.h>
+#include <edm4hep/ClusterMCParticleLinkCollection.h>
+#include <edm4hep/RecoMCParticleLinkCollection.h>
+#include <edm4hep/TrackMCParticleLinkCollection.h>
+#include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
 
 #include <UTIL/LCRelationNavigator.h>
 
@@ -786,24 +786,24 @@ std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> create
   relationColls.reserve(associationCollections.size());
 
   for (const auto& [name, coll] : associationCollections) {
-    if (const auto assocs = dynamic_cast<const edm4hep::MCRecoParticleAssociationCollection*>(coll)) {
+    if (const auto assocs = dynamic_cast<const edm4hep::RecoMCParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.mcParticles));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::CaloHitSimCaloHitLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.simCaloHits));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackerAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::TrackerHitSimTrackerHitLinkCollection*>(coll)) {
       relationColls.emplace_back(
           name, createLCRelationCollection(*assocs, objectMaps.trackerHits, objectMaps.simTrackerHits));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoCaloParticleAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::CaloHitMCParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.caloHits, objectMaps.mcParticles));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoClusterParticleAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::ClusterMCParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.clusters, objectMaps.mcParticles));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::MCRecoTrackParticleAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::TrackMCParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.tracks, objectMaps.mcParticles));
-    } else if (const auto assocs = dynamic_cast<const edm4hep::RecoParticleVertexAssociationCollection*>(coll)) {
+    } else if (const auto assocs = dynamic_cast<const edm4hep::VertexRecoParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
                                  createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
     } else {
@@ -865,7 +865,7 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
                 << std::endl;
     }
 
-    if constexpr (std::is_same_v<AssocCollT, edm4hep::RecoParticleVertexAssociationCollection>) {
+    if constexpr (std::is_same_v<AssocCollT, edm4hep::VertexRecoParticleLinkCollection>) {
       const auto edm4hepTo = assoc.getVertex();
       const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
       if (lcioTo) {

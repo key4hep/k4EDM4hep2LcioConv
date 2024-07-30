@@ -9,18 +9,18 @@
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include <edm4hep/CaloHitMCParticleLinkCollection.h>
+#include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
+#include <edm4hep/ClusterMCParticleLinkCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
-#include <edm4hep/MCRecoCaloAssociationCollection.h>
-#include <edm4hep/MCRecoCaloParticleAssociationCollection.h>
-#include <edm4hep/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCRecoParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4hep/MCRecoTrackerAssociationCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
-#include <edm4hep/RecoParticleVertexAssociationCollection.h>
+#include <edm4hep/RecoMCParticleLinkCollection.h>
+#include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
+#include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -182,11 +182,11 @@ std::vector<edm4hep::ParticleIDCollection>
 createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
                   const edm4hep::ReconstructedParticleCollection& recoParticles);
 
-edm4hep::MCRecoParticleAssociationCollection
+edm4hep::RecoMCParticleLinkCollection
 createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
                            const edm4hep::ReconstructedParticleCollection& recoParticles);
 
-edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
+edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
                                                             const edm4hep::CalorimeterHitCollection& caloHits);
 
 /**
@@ -194,7 +194,7 @@ edm4hep::MCRecoCaloAssociationCollection createMCCaloAssocs(const edm4hep::SimCa
  * collection that uses them as decay vertices.
  */
 std::tuple<edm4hep::VertexCollection, edm4hep::ReconstructedParticleCollection,
-           edm4hep::RecoParticleVertexAssociationCollection>
+           edm4hep::VertexRecoParticleLinkCollection>
 createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollection& particles,
                const std::vector<test_config::IdxPair>& recoIdcs, const std::vector<test_config::IdxPair>& vtxRecoIdcs);
 

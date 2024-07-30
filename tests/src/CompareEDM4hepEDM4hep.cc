@@ -358,8 +358,8 @@ bool compare(const edm4hep::VertexCollection& origColl, const edm4hep::VertexCol
   return true;
 }
 
-bool compare(const edm4hep::RecoParticleVertexAssociationCollection& origColl,
-             const edm4hep::RecoParticleVertexAssociationCollection& roundtripColl) {
+bool compare(const edm4hep::VertexRecoParticleLinkCollection& origColl,
+             const edm4hep::VertexRecoParticleLinkCollection& roundtripColl) {
   REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
   for (size_t i = 0; i < origColl.size(); ++i) {
     const auto origAssoc = origColl[i];

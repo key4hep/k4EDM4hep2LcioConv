@@ -5,24 +5,24 @@
 
 // EDM4hep
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/CaloHitMCParticleLinkCollection.h"
+#include "edm4hep/CaloHitSimCaloHitLinkCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/ClusterMCParticleLinkCollection.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/MCRecoCaloAssociationCollection.h"
-#include "edm4hep/MCRecoCaloParticleAssociationCollection.h"
-#include "edm4hep/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4hep/MCRecoParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackerAssociationCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
-#include "edm4hep/RecoParticleVertexAssociationCollection.h"
+#include "edm4hep/RecoMCParticleLinkCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include "edm4hep/TrackMCParticleLinkCollection.h"
+#include "edm4hep/TrackerHitSimTrackerHitLinkCollection.h"
+#include "edm4hep/VertexRecoParticleLinkCollection.h"
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -226,7 +226,7 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
  * part of the ReconstructedParticles in LCIO. The name of this collection is
  * <name>_PID_<pid_algo_name> (see getPIDCollName)
  *
- * @note: Also populates one (partially filled) RecoParticleVertexAssociation
+ * @note: Also populates one (partially filled) VertexRecoParticleLink
  * collection for keeping the startVertex information
  */
 template <typename RecoMapT>
@@ -237,7 +237,7 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
  * Convert a Vertex collection and return the resulting collection.
  * Simultaneously populates the mapping from LCIO to EDM4hep objects.
  *
- * @note: Also creates a (partially filled) RecoParticleVertexAssociation
+ * @note: Also creates a (partially filled) VertexRecoParticleLink
  * collection for keeping the associatedParticle information
  */
 template <typename VertexMapT>
@@ -404,8 +404,8 @@ void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRP
                               const LURecoParticleMapT& lookupRPMap);
 
 template <typename VertexMapT, typename RecoParticleMapT>
-void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
-                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
+void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& associations,
+                                     const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
 
 /**
  * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search

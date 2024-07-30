@@ -5,25 +5,25 @@
 #include "ObjectMapping.h"
 
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/CaloHitMCParticleLinkCollection.h"
+#include "edm4hep/CaloHitSimCaloHitLinkCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/ClusterMCParticleLinkCollection.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/MCRecoCaloAssociationCollection.h"
-#include "edm4hep/MCRecoCaloParticleAssociationCollection.h"
-#include "edm4hep/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4hep/MCRecoParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackerAssociationCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
-#include "edm4hep/RecoParticleVertexAssociationCollection.h"
+#include "edm4hep/RecoMCParticleLinkCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
-#include <edm4hep/RecoParticleVertexAssociation.h>
+#include "edm4hep/TrackMCParticleLinkCollection.h"
+#include "edm4hep/TrackerHitSimTrackerHitLinkCollection.h"
+#include "edm4hep/VertexRecoParticleLinkCollection.h"
+#include <edm4hep/VertexRecoParticleLink.h>
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -129,43 +129,43 @@ template <typename AssocT>
 struct LcioFromToTypeHelper;
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoParticleAssociation> {
+struct LcioFromToTypeHelper<edm4hep::RecoMCParticleLink> {
   using from_type = EVENT::ReconstructedParticle;
   using to_type = EVENT::MCParticle;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoCaloAssociation> {
+struct LcioFromToTypeHelper<edm4hep::CaloHitSimCaloHitLink> {
   using from_type = EVENT::CalorimeterHit;
   using to_type = EVENT::SimCalorimeterHit;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoTrackerAssociation> {
+struct LcioFromToTypeHelper<edm4hep::TrackerHitSimTrackerHitLink> {
   using from_type = EVENT::TrackerHit;
   using to_type = EVENT::SimTrackerHit;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoCaloParticleAssociation> {
+struct LcioFromToTypeHelper<edm4hep::CaloHitMCParticleLink> {
   using from_type = EVENT::CalorimeterHit;
   using to_type = EVENT::MCParticle;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoClusterParticleAssociation> {
+struct LcioFromToTypeHelper<edm4hep::ClusterMCParticleLink> {
   using from_type = EVENT::Cluster;
   using to_type = EVENT::MCParticle;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::MCRecoTrackParticleAssociation> {
+struct LcioFromToTypeHelper<edm4hep::TrackMCParticleLink> {
   using from_type = EVENT::Track;
   using to_type = EVENT::MCParticle;
 };
 
 template <>
-struct LcioFromToTypeHelper<edm4hep::RecoParticleVertexAssociation> {
+struct LcioFromToTypeHelper<edm4hep::VertexRecoParticleLink> {
   using from_type = EVENT::ReconstructedParticle;
   using to_type = EVENT::Vertex;
 };
@@ -217,7 +217,7 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
   }
 
   const auto lcioTo = static_cast<LcioToT*>(lcio->getTo());
-  if constexpr (std::is_same_v<AssocT, edm4hep::RecoParticleVertexAssociation>) {
+  if constexpr (std::is_same_v<AssocT, edm4hep::VertexRecoParticleLink>) {
     const auto edm4hepTo = edm4hep.getVertex();
     if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps),
                          "vertex object in relation / association")) {
@@ -237,12 +237,10 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
 /// Compare the information stored in startVertex in LCIO
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
-                                 const edm4hep::RecoParticleVertexAssociation& association,
-                                 const ObjectMappings& objectMaps);
+                                 const edm4hep::VertexRecoParticleLink& association, const ObjectMappings& objectMaps);
 
 /// Compare the information stored in associatedParticle in LCIO
-bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx,
-                                  const edm4hep::RecoParticleVertexAssociation& association,
+bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRecoParticleLink& association,
                                   const ObjectMappings& objectMaps);
 
 #define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \

@@ -6,7 +6,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <edm4hep/RecoParticleVertexAssociationCollection.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
 
 #include "TMath.h"
 
@@ -470,7 +470,7 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
   return true;
 }
 
-// bool compareStartVertexRelations(const edm4hep::RecoParticleVertexAssociationCollection& startVtxAssociations, const
+// bool compareStartVertexRelations(const edm4hep::VertexRecoParticleLinkCollection& startVtxAssociations, const
 // ObjectMappings& objectMaps, const podio::Frame& event) {
 //   for (const auto& assoc : startVtxAssociations) {
 //     const auto edmVtx = assoc.getVertex();
@@ -480,8 +480,7 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
 // }
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
-                                 const edm4hep::RecoParticleVertexAssociation& association,
-                                 const ObjectMappings& objectMaps) {
+                                 const edm4hep::VertexRecoParticleLink& association, const ObjectMappings& objectMaps) {
   const auto lcioVertex = lcioReco->getStartVertex();
   const auto edm4hepVertex = association.getVertex();
   if (!compareRelation(lcioVertex, edm4hepVertex, objectMaps.vertices, "")) {
@@ -491,8 +490,7 @@ bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
   return true;
 }
 
-bool compareVertexRecoAssociation(const EVENT::Vertex*, const edm4hep::RecoParticleVertexAssociation&,
-                                  const ObjectMappings&) {
+bool compareVertexRecoAssociation(const EVENT::Vertex*, const edm4hep::VertexRecoParticleLink&, const ObjectMappings&) {
   // TODO: Actually implement the checks
   // TODO: Figure out if this is even the right interface here
   return false;

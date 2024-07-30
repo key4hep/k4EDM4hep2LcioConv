@@ -119,7 +119,7 @@ template <typename RecoMapT>
 std::vector<CollNamePair> convertReconstructedParticles(const std::string& name, EVENT::LCCollection* LCCollection,
                                                         RecoMapT& recoparticlesMap) {
   auto dest = std::make_unique<edm4hep::ReconstructedParticleCollection>();
-  auto startVertexAssocs = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
+  auto startVertexAssocs = std::make_unique<edm4hep::VertexRecoParticleLinkCollection>();
 
   // Set up a PIDHandler to split off the ParticlID objects stored in the
   // reconstructed particles into separate collections. Each algorithm id /
@@ -188,7 +188,7 @@ template <typename VertexMapT>
 std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCCollection* LCCollection,
                                           VertexMapT& vertexMap) {
   auto dest = std::make_unique<edm4hep::VertexCollection>();
-  auto assocParticles = std::make_unique<edm4hep::RecoParticleVertexAssociationCollection>();
+  auto assocParticles = std::make_unique<edm4hep::VertexRecoParticleLinkCollection>();
 
   for (unsigned i = 0, N = LCCollection->getNumberOfElements(); i < N; ++i) {
     auto* rval = static_cast<EVENT::Vertex*>(LCCollection->getElementAt(i));
@@ -784,7 +784,7 @@ void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRP
 }
 
 template <typename VertexMapT, typename RecoParticleMapT>
-void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
+void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& associations,
                                             const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
   for (auto assoc : associations) {
     auto assocRec = assoc.getRec();
@@ -892,59 +892,59 @@ createAssociations(const ObjectMappingT& typeMapping,
     }
 
     if (fromType == "MCParticle" && toType == "ReconstructedParticle") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::RecoMCParticleLinkCollection, false>(
           relations, typeMapping.mcParticles, typeMapping.recoParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "ReconstructedParticle" && toType == "MCParticle") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoParticleAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::RecoMCParticleLinkCollection, true>(
           relations, typeMapping.recoParticles, typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "CalorimeterHit" && toType == "SimCalorimeterHit") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::CaloHitSimCaloHitLinkCollection, true>(
           relations, typeMapping.caloHits, typeMapping.simCaloHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "SimCalorimeterHit" && toType == "CalorimeterHit") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoCaloAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::CaloHitSimCaloHitLinkCollection, false>(
           relations, typeMapping.simCaloHits, typeMapping.caloHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "Cluster" && toType == "MCParticle") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoClusterParticleAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::ClusterMCParticleLinkCollection, true>(
           relations, typeMapping.clusters, typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "MCParticle" && toType == "Cluster") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoClusterParticleAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::ClusterMCParticleLinkCollection, false>(
           relations, typeMapping.mcParticles, typeMapping.clusters);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "MCParticle" && toType == "Track") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackParticleAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::TrackMCParticleLinkCollection, false>(
           relations, typeMapping.mcParticles, typeMapping.tracks);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "Track" && toType == "MCParticle") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackParticleAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::TrackMCParticleLinkCollection, true>(
           relations, typeMapping.tracks, typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if ((fromType == "TrackerHit" || fromType == "TrackerHitPlane") && toType == "SimTrackerHit") {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, true>(
           relations, typeMapping.trackerHits, typeMapping.simTrackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "SimTrackerHit" && (toType == "TrackerHit" || toType == "TrackerHitPlane")) {
-      auto mc_a = createAssociationCollection<edm4hep::MCRecoTrackerAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, false>(
           relations, typeMapping.simTrackerHits, typeMapping.trackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "ReconstructedParticle" && toType == "Vertex") {
-      auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, true>(
+      auto mc_a = createAssociationCollection<edm4hep::VertexRecoParticleLinkCollection, true>(
           relations, typeMapping.recoParticles, typeMapping.vertices);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "Vertex" && toType == "ReconstructedParticle") {
-      auto mc_a = createAssociationCollection<edm4hep::RecoParticleVertexAssociationCollection, false>(
+      auto mc_a = createAssociationCollection<edm4hep::VertexRecoParticleLinkCollection, false>(
           relations, typeMapping.vertices, typeMapping.recoParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "CalorimeterHit" && toType == "MCParticle") {
-      auto assoc = createAssociationCollection<edm4hep::MCRecoCaloParticleAssociationCollection, true>(
+      auto assoc = createAssociationCollection<edm4hep::CaloHitMCParticleLinkCollection, true>(
           relations, typeMapping.caloHits, typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(assoc));
     } else if (fromType == "MCParticle" && toType == "CalorimeterHit") {
-      auto assoc = createAssociationCollection<edm4hep::MCRecoCaloParticleAssociationCollection, false>(
+      auto assoc = createAssociationCollection<edm4hep::CaloHitMCParticleLinkCollection, false>(
           relations, typeMapping.mcParticles, typeMapping.caloHits);
       assoCollVec.emplace_back(name, std::move(assoc));
     } else {
