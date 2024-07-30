@@ -130,7 +130,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
-    } else if (edmCollection->getTypeName().find("Association") != std::string_view::npos) {
+    } else if (edmCollection->getTypeName().find("Link") != std::string_view::npos) {
       associations.emplace_back(name, edmCollection);
     } else {
       std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
