@@ -138,13 +138,19 @@ template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
 
 /**
- * Convert LCRelation collections into the corresponding Association collections
- * in EDM4hep
+ * Convert LCRelation collections into the corresponding Link collections in
+ * EDM4hep
  */
 template <typename ObjectMappingT>
-std::vector<CollNamePair>
+std::vector<CollNamePair> createLinks(const ObjectMappingT& typeMapping,
+                                      const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation);
+
+template <typename ObjectMappingT>
+[[deprecated("use createLinks instead")]] std::vector<CollNamePair>
 createAssociations(const ObjectMappingT& typeMapping,
-                   const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation);
+                   const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation) {
+  return createLinks(typeMapping, LCRelation);
+}
 
 /**
  * Convert a subset collection, dispatching to the correct function for the
@@ -336,10 +342,10 @@ template <typename CollT, typename ObjectMapT,
 auto handleSubsetColl(EVENT::LCCollection* lcioColl, const ObjectMapT& elemMap);
 
 /**
- * Create an Association collection from an LCRelations collection. Templated
+ * Create an Link collection from an LCRelations collection. Templated
  * on the From and To types as well as the direction of the relations in the
  * input LCRelations collection with respect to the order in which they are
- * mentioned in the Association collection of EDM4hep (since those are not
+ * mentioned in the Link collection of EDM4hep (since those are not
  * directed).
  *
  * Necessary inputs apart from the LCRelations collection are the correct LCIO
@@ -350,8 +356,18 @@ template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT,
           typename ToLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ToMapT>>,
           typename FromEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<FromMapT>,
           typename ToEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ToMapT>>
-std::unique_ptr<CollT> createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap,
-                                                   const ToMapT& toMap);
+std::unique_ptr<CollT> createLinkCollection(EVENT::LCCollection* relations, const FromMapT& fromMap,
+                                            const ToMapT& toMap);
+
+template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT,
+          typename FromLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<FromMapT>>,
+          typename ToLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ToMapT>>,
+          typename FromEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<FromMapT>,
+          typename ToEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ToMapT>>
+[[deprecated("use createLinkCollection instead")]] std::unique_ptr<CollT>
+createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap, const ToMapT& toMap) {
+  return createLinkCollection<CollT, Reverse>(relations, fromMap, toMap);
+}
 
 /**
  * Creates the CaloHitContributions for all SimCaloHits.

@@ -114,7 +114,7 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   // Filling all the OneToMany and OneToOne Relations and creating the
   // AssociationCollections.
   resolveRelations(typeMapping);
-  auto assoCollVec = createAssociations(typeMapping, LCRelations);
+  auto assoCollVec = createLinks(typeMapping, LCRelations);
   auto headerColl = createEventHeader(evt);
 
   for (const auto& [name, coll] : edmevent) {
