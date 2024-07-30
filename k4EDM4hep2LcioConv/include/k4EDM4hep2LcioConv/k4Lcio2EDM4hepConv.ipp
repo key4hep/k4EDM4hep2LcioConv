@@ -170,7 +170,7 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
     // Keep track of the startVertex associations
     if (rval->getStartVertex() != nullptr) {
       auto assoc = startVertexAssocs->create();
-      assoc.setRec(lval);
+      assoc.setTo(lval);
     }
   }
 
@@ -208,7 +208,7 @@ std::vector<CollNamePair> convertVertices(const std::string& name, EVENT::LCColl
     }
 
     auto assoc = assocParticles->create();
-    assoc.setVertex(lval);
+    assoc.setFrom(lval);
 
     const auto [iterator, inserted] = k4EDM4hep2LcioConv::detail::mapInsert(rval, lval, vertexMap);
     if (!inserted) {
@@ -787,15 +787,15 @@ template <typename VertexMapT, typename RecoParticleMapT>
 void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& associations,
                                      const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap) {
   for (auto assoc : associations) {
-    auto assocRec = assoc.getRec();
-    auto assocVtx = assoc.getVertex();
+    auto assocRec = assoc.getTo();
+    auto assocVtx = assoc.getFrom();
 
     if (assocRec.isAvailable()) {
       // This is the association that points from the particles to their start vertex
       if (const auto lcioRec = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocRec, recoParticleMap)) {
         const auto lcioStartVtx = lcioRec.value()->getStartVertex();
         if (const auto startVtx = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioStartVtx, vertexMap)) {
-          assoc.setVertex(startVtx.value());
+          assoc.setFrom(startVtx.value());
         } else {
           std::cerr << "Could not find start vertex while finalizing the RecoParticle - Vertex associations"
                     << std::endl;
@@ -810,7 +810,7 @@ void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& 
       if (const auto lcioVtx = k4EDM4hep2LcioConv::detail::mapLookupFrom(assocVtx, vertexMap)) {
         const auto lcioAssocParticle = lcioVtx.value()->getAssociatedParticle();
         if (const auto assocParticle = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioAssocParticle, recoParticleMap)) {
-          assoc.setRec(assocParticle.value());
+          assoc.setTo(assocParticle.value());
         } else {
           std::cerr << "Could not find an associated particle while finalizing the RecoParticle - Vertex associations"
                     << std::endl;
@@ -856,18 +856,20 @@ std::unique_ptr<CollT> createLinkCollection(EVENT::LCCollection* relations, cons
     if (edm4hepTo.has_value() && edm4hepFrom.has_value()) {
       if constexpr (Reverse) {
         if constexpr (std::is_same_v<k4EDM4hep2LcioConv::detail::mutable_t<ToEDM4hepT>, edm4hep::MutableVertex>) {
-          assoc.setVertex(*edm4hepTo);
+          assoc.setFrom(*edm4hepTo);
+          assoc.setTo(*edm4hepFrom);
         } else {
-          assoc.setSim(*edm4hepTo);
+          assoc.setTo(*edm4hepTo);
+          assoc.setFrom(*edm4hepFrom);
         }
-        assoc.setRec(*edm4hepFrom);
       } else {
         if constexpr (std::is_same_v<k4EDM4hep2LcioConv::detail::mutable_t<FromEDM4hepT>, edm4hep::MutableVertex>) {
-          assoc.setVertex(*edm4hepFrom);
+          assoc.setFrom(*edm4hepFrom);
+          assoc.setTo(*edm4hepTo);
         } else {
-          assoc.setSim(*edm4hepFrom);
+          assoc.setTo(*edm4hepFrom);
+          assoc.setFrom(*edm4hepTo);
         }
-        assoc.setRec(*edm4hepTo);
       }
     }
   }

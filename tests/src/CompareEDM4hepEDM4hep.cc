@@ -366,8 +366,8 @@ bool compare(const edm4hep::VertexRecoParticleLinkCollection& origColl,
     const auto assoc = roundtripColl[i];
 
     REQUIRE_SAME(origAssoc.getWeight(), assoc.getWeight(), "weight in association " << i);
-    REQUIRE_SAME(origAssoc.getVertex().id(), assoc.getVertex().id(), "vertex in association " << i);
-    REQUIRE_SAME(origAssoc.getRec().id(), assoc.getRec().id(), "reco particle in association " << i);
+    REQUIRE_SAME(origAssoc.getFrom().id(), assoc.getFrom().id(), "vertex in association " << i);
+    REQUIRE_SAME(origAssoc.getTo().id(), assoc.getTo().id(), "reco particle in association " << i);
   }
 
   return true;

@@ -1,7 +1,7 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
-#include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
+#include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/ClusterMCParticleLinkCollection.h>
 #include <edm4hep/RecoMCParticleLinkCollection.h>
 #include <edm4hep/TrackMCParticleLinkCollection.h>
@@ -805,7 +805,7 @@ std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> create
       relationColls.emplace_back(name, createLCRelationCollection(*assocs, objectMaps.tracks, objectMaps.mcParticles));
     } else if (const auto assocs = dynamic_cast<const edm4hep::VertexRecoParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(name,
-                                 createLCRelationCollection(*assocs, objectMaps.recoParticles, objectMaps.vertices));
+                                 createLCRelationCollection(*assocs, objectMaps.vertices, objectMaps.recoParticles));
     } else {
       std::cerr << "Trying to create an LCRelation collection from a " << coll->getTypeName()
                 << " which is not supported" << std::endl;
@@ -856,7 +856,7 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
     auto lcioRel = new lcio::LCRelationImpl{};
     lcioRel->setWeight(assoc.getWeight());
 
-    const auto edm4hepFrom = assoc.getRec();
+    const auto edm4hepFrom = assoc.getFrom();
     const auto lcioFrom = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepFrom, fromMap);
     if (lcioFrom) {
       lcioRel->setFrom(lcioFrom.value());
@@ -865,24 +865,13 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT&
                 << std::endl;
     }
 
-    if constexpr (std::is_same_v<AssocCollT, edm4hep::VertexRecoParticleLinkCollection>) {
-      const auto edm4hepTo = assoc.getVertex();
-      const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
-      if (lcioTo) {
-        lcioRel->setTo(lcioTo.value());
-      } else {
-        std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
-                  << std::endl;
-      }
+    const auto edm4hepTo = assoc.getTo();
+    const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
+    if (lcioTo) {
+      lcioRel->setTo(lcioTo.value());
     } else {
-      const auto edm4hepTo = assoc.getSim();
-      const auto lcioTo = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTo, toMap);
-      if (lcioTo) {
-        lcioRel->setTo(lcioTo.value());
-      } else {
-        std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
-                  << std::endl;
-      }
+      std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
+                << std::endl;
     }
 
     lcioColl->addElement(lcioRel);

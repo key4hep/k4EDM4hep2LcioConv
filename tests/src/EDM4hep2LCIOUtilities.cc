@@ -353,8 +353,8 @@ AssocCollT createAssociationCollection(const CollT& collA, const CollU& collB) {
   for (size_t i = 0; i < maxSize; ++i) {
     auto assoc = assocs.create();
     assoc.setWeight(i * 10.f / maxSize);
-    assoc.setSim(collA[i]);
-    assoc.setRec(collB[maxSize - 1 - i]);
+    assoc.setTo(collA[i]);
+    assoc.setFrom(collB[maxSize - 1 - i]);
   }
 
   return assocs;
@@ -392,8 +392,8 @@ createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollecti
   for (const auto& [iV, iP] : recoIdcs) {
     vtxColl[iV].addToParticles(particles[iP]);
     auto assoc = assocColl.create();
-    assoc.setRec(particles[iP]);
-    assoc.setVertex(vtxColl[iV]);
+    assoc.setTo(particles[iP]);
+    assoc.setFrom(vtxColl[iV]);
   }
 
   for (const auto& [iP, iV] : vtxRecoIdcs) {

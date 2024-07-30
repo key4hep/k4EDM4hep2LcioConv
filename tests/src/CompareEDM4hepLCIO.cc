@@ -482,7 +482,7 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
                                  const edm4hep::VertexRecoParticleLink& association, const ObjectMappings& objectMaps) {
   const auto lcioVertex = lcioReco->getStartVertex();
-  const auto edm4hepVertex = association.getVertex();
+  const auto edm4hepVertex = association.getFrom();
   if (!compareRelation(lcioVertex, edm4hepVertex, objectMaps.vertices, "")) {
     return false;
   }

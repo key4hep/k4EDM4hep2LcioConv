@@ -210,25 +210,17 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
   using LcioToT = detail::getLcioToType<AssocT>;
 
   const auto lcioFrom = static_cast<LcioFromT*>(lcio->getFrom());
-  const auto edm4hepFrom = edm4hep.getRec();
+  const auto edm4hepFrom = edm4hep.getFrom();
   if (!compareRelation(lcioFrom, edm4hepFrom, detail::getObjectMap<LcioFromT>(objectMaps),
-                       "from / rec object in relation / association")) {
+                       "from object in relation / association")) {
     return false;
   }
 
   const auto lcioTo = static_cast<LcioToT*>(lcio->getTo());
-  if constexpr (std::is_same_v<AssocT, edm4hep::VertexRecoParticleLink>) {
-    const auto edm4hepTo = edm4hep.getVertex();
-    if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps),
-                         "vertex object in relation / association")) {
-      return false;
-    }
-  } else {
-    const auto edm4hepTo = edm4hep.getSim();
-    if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps),
-                         "to / mc object in relation / association")) {
-      return false;
-    }
+  const auto edm4hepTo = edm4hep.getTo();
+  if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps),
+                       "to object in relation / association")) {
+    return false;
   }
 
   return true;

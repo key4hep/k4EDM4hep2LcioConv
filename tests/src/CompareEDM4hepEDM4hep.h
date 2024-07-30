@@ -49,8 +49,8 @@ bool compare(const AssociationCollT& origColl, const AssociationCollT& roundtrip
     const auto assoc = roundtripColl[i];
 
     REQUIRE_SAME(origAssoc.getWeight(), assoc.getWeight(), "weight in association " << i);
-    REQUIRE_SAME(origAssoc.getSim().id(), assoc.getSim().id(), "MC part(icle) in association " << i);
-    REQUIRE_SAME(origAssoc.getRec().id(), assoc.getRec().id(), "reco part(icle) in association " << i);
+    REQUIRE_SAME(origAssoc.getTo().id(), assoc.getTo().id(), "MC part(icle) in association " << i);
+    REQUIRE_SAME(origAssoc.getFrom().id(), assoc.getFrom().id(), "reco part(icle) in association " << i);
   }
   return true;
 }
