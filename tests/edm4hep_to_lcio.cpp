@@ -19,7 +19,7 @@ int main() {
     const auto typeName = edmColl->getValueTypeName();
     if (typeName == "edm4hep::CaloHitContribution" || typeName == "edm4hep::ParticleID" ||
         typeName == "edm4hep::EventHeader" || typeName == "edm4hep::RecDqdx" ||
-        typeName == "edm4hep::RecoParticleVertexAssociation") {
+        typeName == "edm4hep::VertexRecoParticleLink") {
       continue;
     }
     try {
@@ -44,7 +44,7 @@ int main() {
       continue;
     }
 
-    if (type == "edm4hep::RecoParticleVertexAssociationCollection") {
+    if (type == "edm4hep::VertexRecoParticleLinkCollection") {
       // TODO: Dispatch to correct comparison function depending on name (which
       // in turn again depends on a convention in the conversion)
 
@@ -65,8 +65,8 @@ int main() {
     ASSERT_COMPARE_OR_EXIT(edm4hep::RawTimeSeriesCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::ClusterCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::VertexCollection)
-    ASSERT_COMPARE_OR_EXIT(edm4hep::MCRecoParticleAssociationCollection)
-    ASSERT_COMPARE_OR_EXIT(edm4hep::MCRecoCaloAssociationCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::RecoMCParticleLinkCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::CaloHitSimCaloHitLinkCollection)
 
     // TODO: start vertex association (EDM4hep) vs getStartVertex in LCIO
   }

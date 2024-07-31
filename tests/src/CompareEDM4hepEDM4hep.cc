@@ -358,16 +358,16 @@ bool compare(const edm4hep::VertexCollection& origColl, const edm4hep::VertexCol
   return true;
 }
 
-bool compare(const edm4hep::RecoParticleVertexAssociationCollection& origColl,
-             const edm4hep::RecoParticleVertexAssociationCollection& roundtripColl) {
+bool compare(const edm4hep::VertexRecoParticleLinkCollection& origColl,
+             const edm4hep::VertexRecoParticleLinkCollection& roundtripColl) {
   REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
   for (size_t i = 0; i < origColl.size(); ++i) {
     const auto origAssoc = origColl[i];
     const auto assoc = roundtripColl[i];
 
     REQUIRE_SAME(origAssoc.getWeight(), assoc.getWeight(), "weight in association " << i);
-    REQUIRE_SAME(origAssoc.getVertex().id(), assoc.getVertex().id(), "vertex in association " << i);
-    REQUIRE_SAME(origAssoc.getRec().id(), assoc.getRec().id(), "reco particle in association " << i);
+    REQUIRE_SAME(origAssoc.getFrom().id(), assoc.getFrom().id(), "vertex in association " << i);
+    REQUIRE_SAME(origAssoc.getTo().id(), assoc.getTo().id(), "reco particle in association " << i);
   }
 
   return true;

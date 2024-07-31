@@ -5,24 +5,24 @@
 
 // EDM4hep
 #include "edm4hep/CaloHitContributionCollection.h"
+#include "edm4hep/CaloHitMCParticleLinkCollection.h"
+#include "edm4hep/CaloHitSimCaloHitLinkCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/ClusterMCParticleLinkCollection.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
-#include "edm4hep/MCRecoCaloAssociationCollection.h"
-#include "edm4hep/MCRecoCaloParticleAssociationCollection.h"
-#include "edm4hep/MCRecoClusterParticleAssociationCollection.h"
-#include "edm4hep/MCRecoParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackParticleAssociationCollection.h"
-#include "edm4hep/MCRecoTrackerAssociationCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/RawTimeSeriesCollection.h"
-#include "edm4hep/RecoParticleVertexAssociationCollection.h"
+#include "edm4hep/RecoMCParticleLinkCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include "edm4hep/TrackMCParticleLinkCollection.h"
+#include "edm4hep/TrackerHitSimTrackerHitLinkCollection.h"
+#include "edm4hep/VertexRecoParticleLinkCollection.h"
 #if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
 #else
@@ -138,13 +138,19 @@ template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
 
 /**
- * Convert LCRelation collections into the corresponding Association collections
- * in EDM4hep
+ * Convert LCRelation collections into the corresponding Link collections in
+ * EDM4hep
  */
 template <typename ObjectMappingT>
-std::vector<CollNamePair>
+std::vector<CollNamePair> createLinks(const ObjectMappingT& typeMapping,
+                                      const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation);
+
+template <typename ObjectMappingT>
+[[deprecated("use createLinks instead")]] std::vector<CollNamePair>
 createAssociations(const ObjectMappingT& typeMapping,
-                   const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation);
+                   const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation) {
+  return createLinks(typeMapping, LCRelation);
+}
 
 /**
  * Convert a subset collection, dispatching to the correct function for the
@@ -226,7 +232,7 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
  * part of the ReconstructedParticles in LCIO. The name of this collection is
  * <name>_PID_<pid_algo_name> (see getPIDCollName)
  *
- * @note: Also populates one (partially filled) RecoParticleVertexAssociation
+ * @note: Also populates one (partially filled) VertexRecoParticleLink
  * collection for keeping the startVertex information
  */
 template <typename RecoMapT>
@@ -237,7 +243,7 @@ std::vector<CollNamePair> convertReconstructedParticles(const std::string& name,
  * Convert a Vertex collection and return the resulting collection.
  * Simultaneously populates the mapping from LCIO to EDM4hep objects.
  *
- * @note: Also creates a (partially filled) RecoParticleVertexAssociation
+ * @note: Also creates a (partially filled) VertexRecoParticleLink
  * collection for keeping the associatedParticle information
  */
 template <typename VertexMapT>
@@ -336,10 +342,10 @@ template <typename CollT, typename ObjectMapT,
 auto handleSubsetColl(EVENT::LCCollection* lcioColl, const ObjectMapT& elemMap);
 
 /**
- * Create an Association collection from an LCRelations collection. Templated
+ * Create an Link collection from an LCRelations collection. Templated
  * on the From and To types as well as the direction of the relations in the
  * input LCRelations collection with respect to the order in which they are
- * mentioned in the Association collection of EDM4hep (since those are not
+ * mentioned in the Link collection of EDM4hep (since those are not
  * directed).
  *
  * Necessary inputs apart from the LCRelations collection are the correct LCIO
@@ -350,8 +356,18 @@ template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT,
           typename ToLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ToMapT>>,
           typename FromEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<FromMapT>,
           typename ToEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ToMapT>>
-std::unique_ptr<CollT> createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap,
-                                                   const ToMapT& toMap);
+std::unique_ptr<CollT> createLinkCollection(EVENT::LCCollection* relations, const FromMapT& fromMap,
+                                            const ToMapT& toMap);
+
+template <typename CollT, bool Reverse, typename FromMapT, typename ToMapT,
+          typename FromLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<FromMapT>>,
+          typename ToLCIOT = std::remove_pointer_t<k4EDM4hep2LcioConv::detail::key_t<ToMapT>>,
+          typename FromEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<FromMapT>,
+          typename ToEDM4hepT = k4EDM4hep2LcioConv::detail::mapped_t<ToMapT>>
+[[deprecated("use createLinkCollection instead")]] std::unique_ptr<CollT>
+createAssociationCollection(EVENT::LCCollection* relations, const FromMapT& fromMap, const ToMapT& toMap) {
+  return createLinkCollection<CollT, Reverse>(relations, fromMap, toMap);
+}
 
 /**
  * Creates the CaloHitContributions for all SimCaloHits.
@@ -404,8 +420,8 @@ void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRP
                               const LURecoParticleMapT& lookupRPMap);
 
 template <typename VertexMapT, typename RecoParticleMapT>
-void finalizeRecoParticleVertexAssociations(edm4hep::RecoParticleVertexAssociationCollection& associations,
-                                            const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
+void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& associations,
+                                     const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
 
 /**
  * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search
