@@ -42,7 +42,7 @@ k4edm4hep2lcioconv_set_compiler_flags()
 
 find_package(LCIO 2.20.1 REQUIRED)
 find_package(podio REQUIRED)
-find_package(EDM4HEP 0.10.1 REQUIRED)
+find_package(EDM4HEP 0.99 REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS MathCore)
 
 add_subdirectory(k4EDM4hep2LcioConv)
