@@ -924,9 +924,13 @@ std::vector<CollNamePair> createLinks(const ObjectMappingT& typeMapping,
       auto mc_a = createLinkCollection<edm4hep::TrackMCParticleLinkCollection, true>(relations, typeMapping.tracks,
                                                                                      typeMapping.mcParticles);
       assoCollVec.emplace_back(name, std::move(mc_a));
-    } else if ((fromType == "TrackerHit" || fromType == "TrackerHitPlane") && toType == "SimTrackerHit") {
+    } else if (fromType == "TrackerHit" && toType == "SimTrackerHit") {
       auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, true>(
           relations, typeMapping.trackerHits, typeMapping.simTrackerHits);
+      assoCollVec.emplace_back(name, std::move(mc_a));
+    } else if (fromType == "TrackerHitPlane" && toType == "SimTrackerHit") {
+      auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, true>(
+          relations, typeMapping.trackerHitPlanes, typeMapping.simTrackerHits);
       assoCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "SimTrackerHit" && (toType == "TrackerHit" || toType == "TrackerHitPlane")) {
       auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, false>(
