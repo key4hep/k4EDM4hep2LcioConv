@@ -188,7 +188,7 @@ namespace detail {
       if (insertMode == InsertMode::Checked) {
         if (auto existing = mapLookupTo(key, map)) {
           // Explicitly casting to the actual key type here to make return
-          // type deductoin work even in cases where we have a Map<Base*, V>
+          // type deduction work even in cases where we have a Map<Base*, V>
           // but the KeyT has been deduced as Derived*
           return std::make_pair(std::make_tuple(key_t<MapT>(key), existing.value()), false);
         }
