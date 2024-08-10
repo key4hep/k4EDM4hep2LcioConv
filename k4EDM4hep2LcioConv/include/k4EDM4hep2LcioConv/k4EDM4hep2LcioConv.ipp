@@ -342,7 +342,10 @@ std::unique_ptr<lcio::LCCollectionVec> convertTPCHits(const edm4hep::RawTimeSeri
     if (edm_tpchit.isAvailable()) {
       auto* lcio_tpchit = new lcio::TPCHitImpl();
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #warning "unsigned long long conversion to int"
+#pragma GCC diagnostic pop
       lcio_tpchit->setCellID(edm_tpchit.getCellID());
       lcio_tpchit->setTime(edm_tpchit.getTime());
       lcio_tpchit->setCharge(edm_tpchit.getCharge());
