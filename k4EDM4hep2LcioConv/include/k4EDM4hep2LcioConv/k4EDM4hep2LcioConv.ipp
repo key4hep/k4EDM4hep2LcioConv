@@ -48,6 +48,13 @@ std::unique_ptr<lcio::LCCollectionVec> convertTracks(const edm4hep::TrackCollect
         }
       }
 
+      lcio_tr->setNholes(edm_tr.getNholes());
+      const auto edmHoleNumbers = edm_tr.getSubdetectorHoleNumbers();
+      lcio_tr->subdetectorHoleNumbers().resize(edmHoleNumbers.size());
+      for (auto i = 0u; i < edmHoleNumbers.size(); ++i) {
+        lcio_tr->subdetectorHoleNumbers()[i] = edmHoleNumbers[i];
+      }
+
       // Loop over the track states in the track
       const auto edm_track_states = edm_tr.getTrackStates();
       for (const auto& tr_state : edm_track_states) {

@@ -367,16 +367,22 @@ std::vector<CollNamePair> convertTracks(const std::string& name, EVENT::LCCollec
     lval.setType(rval->getType());
     lval.setChi2(rval->getChi2());
     lval.setNdf(rval->getNdf());
+    lval.setNholes(rval->getNholes());
 
     auto& dqdx = trackDqdx.getDQdx();
     dqdx.value = rval->getdEdx();
     dqdx.error = rval->getdEdxError();
 
-    auto subdetectorHitNum = rval->getSubdetectorHitNumbers();
+    const auto& subdetectorHitNum = rval->getSubdetectorHitNumbers();
     for (auto hitNum : subdetectorHitNum) {
       lval.addToSubdetectorHitNumbers(hitNum);
     }
-    auto& trackStates = rval->getTrackStates();
+    const auto& subdetectorHoleNum = rval->getSubdetectorHoleNumbers();
+    for (auto holeNum : subdetectorHoleNum) {
+      lval.addToSubdetectorHoleNumbers(holeNum);
+    }
+
+    const auto& trackStates = rval->getTrackStates();
     for (auto& trackState : trackStates) {
       lval.addToTrackStates(convertTrackState(trackState));
     }
