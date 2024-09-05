@@ -147,6 +147,14 @@ bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackColle
 
     REQUIRE_SAME(origTrack.getChi2(), track.getChi2(), "chi2 in track " << i);
     REQUIRE_SAME(origTrack.getNdf(), track.getNdf(), "chi2 in track " << i);
+    REQUIRE_SAME(origTrack.getNholes(), track.getNholes(), "Nholes in track " << i);
+
+    const auto origSubDetHoles = origTrack.getSubdetectorHoleNumbers();
+    const auto subDetHoles = track.getSubdetectorHoleNumbers();
+    REQUIRE_SAME(origSubDetHoles.size(), subDetHoles.size(), "number of subdetector holes in track " << i);
+    for (size_t iSN = 0; iSN < origSubDetHoles.size(); ++iSN) {
+      REQUIRE_SAME(origSubDetHoles[iSN], subDetHoles[iSN], "subdetector hole numbers " << iSN << " in track " << i);
+    }
 
     const auto origSubDetHitNumbers = origTrack.getSubdetectorHitNumbers();
     const auto subDetHitNumbers = track.getSubdetectorHitNumbers();

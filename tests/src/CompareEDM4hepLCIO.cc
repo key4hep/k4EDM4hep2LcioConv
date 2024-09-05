@@ -316,6 +316,10 @@ bool compare(const EVENT::Track* lcioElem, const edm4hep::Track& edm4hepElem, co
   ASSERT_COMPARE(lcioElem, edm4hepElem, getType, "type in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getChi2, "chi2 in Track");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getNdf, "ndf in Track");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getNholes, "Nholes in Track");
+
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getSubdetectorHitNumbers, "subdetectorHitNumbers");
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getSubdetectorHoleNumbers, "subdetectorHitNumbers");
 
   // EDM4hep does not have the dEdx information inside the track, but rather
   // inside a RecDqdx object
