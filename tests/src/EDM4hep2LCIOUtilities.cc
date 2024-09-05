@@ -182,6 +182,10 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
     for (int j = 0; j < subdetectorhitnumbers; ++j) {
       elem.addToSubdetectorHitNumbers(i + 10 * j);
     }
+    elem.setNholes(i + 3);
+    for (int j = 0; j < subdetectorhitnumbers; ++j) {
+      elem.addToSubdetectorHoleNumbers(j + 10 * i);
+    }
 
     for (auto& idx : link_trackerhit_idcs) {
       elem.addToTrackerHits(trackerHits[idx]);
