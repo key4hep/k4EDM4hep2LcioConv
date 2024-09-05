@@ -37,6 +37,26 @@ The easiest way to obtain such a file is to use the `check_missing_cols`
 executable that comes with LCIO using the `--minimal` flag. The output of this
 can be directly consumed by `lcio2edm4hep`
 
+### Patching missing ParticleID information on the fly
+
+EDM4hep also assumes that the `ParticleID` objects that are attached to elements
+of a `ReconstructedParticle` are consistent, i.e. the same PID algo names have
+been used throughout the processing. In order to guarantee this for the
+conversion it is possible to attach missing information on the fly, the grammar
+for this is
+
+```
+pid-algo-name  reco-coll-name|[parameter-names[,param-names]]
+```
+
+This will use the (LCIO) `PIDHandler` to add a PID algorithm with name
+`pid-algo-name` to the collection `reco-coll-name`. Optionally if any parameter
+names are present it will also set the parameter names for this PID algorithm.
+
+```{note}
+This is only available from LCIO versions **larger** than `v02-22-01`!
+```
+
 #### Example:
 1. Get the patch file
 ```bash
