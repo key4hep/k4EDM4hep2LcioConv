@@ -11,6 +11,7 @@ include(cmake/Key4hepConfig.cmake)
 
 include(GNUInstallDirs)
 
+-include(cmake/build_flags.cmake)
 k4edm4hep2lcioconv_set_linker_flags()
 find_package(LCIO 2.22 REQUIRED)
 find_package(podio 1.0 REQUIRED)
