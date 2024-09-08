@@ -7,39 +7,11 @@ set( ${PROJECT_NAME}_VERSION_MINOR 8 )
 set( ${PROJECT_NAME}_VERSION_PATCH 2 )
 set( ${PROJECT_NAME}_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}" )
 
-# Define a default build type can be overriden by passing
-# ``-DCMAKE_BUILD_TYPE=<type>`` when invoking CMake
-if(NOT CMAKE_CONFIGURATION_TYPES)
-  if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE RelWithDebInfo
-      CACHE STRING "Choose the type of build, options are: None Release MinSizeRel Debug RelWithDebInfo"
-      FORCE
-      )
-  else()
-    set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
-      CACHE STRING "Choose the type of build, options are: None Release MinSizeRel Debug RelWithDebInfo"
-      FORCE
-      )
-  endif()
-endif()
-
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+include(cmake/Key4hepConfig.cmake)
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
-
-if(NOT CMAKE_CXX_STANDARD MATCHES "20")
-  message(FATAL_ERROR "Unsupported C++ standard: ${CMAKE_CXX_STANDARD}")
-endif()
-
-# Ninja compiler output
-include(cmake/compiler_output.cmake)
-include(cmake/build_flags.cmake)
-k4edm4hep2lcioconv_set_compiler_flags()
-
+k4edm4hep2lcioconv_set_linker_flags()
 find_package(LCIO 2.22 REQUIRED)
 find_package(podio 1.0 REQUIRED)
 find_package(EDM4HEP 0.99 REQUIRED)
