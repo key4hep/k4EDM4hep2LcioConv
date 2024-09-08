@@ -70,14 +70,14 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   const auto collNames = [&collsToConvert, &evt]() {
     if (collsToConvert.empty()) {
       const auto evtColls = evt->getCollectionNames();
-      std::vector<std::pair<std::string, std::string>> collNames{};
-      collNames.reserve(evtColls->size());
+      std::vector<std::pair<std::string, std::string>> resCollNames{};
+      resCollNames.reserve(evtColls->size());
       for (const auto& name : *evtColls) {
-        collNames.emplace_back(name, name);
+        resCollNames.emplace_back(name, name);
       }
-      return collNames;
+      return resCollNames;
     }
-    return std::move(collsToConvert);
+    return collsToConvert;
   }();
 
   // In this loop the data gets converted.

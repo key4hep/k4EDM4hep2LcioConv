@@ -84,9 +84,9 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
               >;
 
   if constexpr (isVectorLike) {
-    const auto vecSize = [](EDM4hepT& edm4hepV) -> std::size_t {
+    const auto vecSize = [](EDM4hepT& edm4hepVal) -> std::size_t {
       if constexpr (has_size_method<EDM4hepT>::value) {
-        return edm4hepV.size();
+        return edm4hepVal.size();
       } else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector3f> || std::is_same_v<EDM4hepT, edm4hep::Vector3d>) {
         return 3u;
       } else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector2i> || std::is_same_v<EDM4hepT, edm4hep::Vector2f>) {

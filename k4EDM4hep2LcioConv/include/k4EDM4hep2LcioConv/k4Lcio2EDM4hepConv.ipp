@@ -743,8 +743,8 @@ void resolveRelationsTracks(TrackMapT& tracksMap, const TrackHitMapT& trackerHit
       if (th == nullptr) {
         continue;
       }
-      if (const auto typedTH = dynamic_cast<EVENT::TrackerHitPlane*>(th)) {
-        if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(typedTH, trackerHitPlaneMap)) {
+      if (const auto typedTHPlane = dynamic_cast<EVENT::TrackerHitPlane*>(th)) {
+        if (const auto trHit = k4EDM4hep2LcioConv::detail::mapLookupTo(typedTHPlane, trackerHitPlaneMap)) {
           edm.addToTrackerHits(trHit.value());
           found = true;
         }
