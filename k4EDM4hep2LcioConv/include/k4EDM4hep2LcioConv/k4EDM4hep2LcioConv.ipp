@@ -765,25 +765,28 @@ createLCRelationCollections(const std::vector<std::tuple<std::string, const podi
 
   for (const auto& [name, coll] : linkCollections) {
     if (const auto recoMCParticleLink = dynamic_cast<const edm4hep::RecoMCParticleLinkCollection*>(coll)) {
-      relationColls.emplace_back(name,
-                                 createLCRelationCollection(*recoMCParticleLink, objectMaps.recoParticles, objectMaps.mcParticles));
-    } else if (const auto caloHitSimCaloHitLink = dynamic_cast<const edm4hep::CaloHitSimCaloHitLinkCollection*>(coll)) {
-      relationColls.emplace_back(name,
-                                 createLCRelationCollection(*caloHitSimCaloHitLink, objectMaps.caloHits, objectMaps.simCaloHits));
-    } else if (const auto trackerHitSimTrackerHitLink = dynamic_cast<const edm4hep::TrackerHitSimTrackerHitLinkCollection*>(coll)) {
       relationColls.emplace_back(
-          name, createLCRelationCollection(*trackerHitSimTrackerHitLink, objectMaps.trackerHits, objectMaps.simTrackerHits));
+          name, createLCRelationCollection(*recoMCParticleLink, objectMaps.recoParticles, objectMaps.mcParticles));
+    } else if (const auto caloHitSimCaloHitLink = dynamic_cast<const edm4hep::CaloHitSimCaloHitLinkCollection*>(coll)) {
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*caloHitSimCaloHitLink, objectMaps.caloHits, objectMaps.simCaloHits));
+    } else if (const auto trackerHitSimTrackerHitLink =
+                   dynamic_cast<const edm4hep::TrackerHitSimTrackerHitLinkCollection*>(coll)) {
+      relationColls.emplace_back(name, createLCRelationCollection(*trackerHitSimTrackerHitLink, objectMaps.trackerHits,
+                                                                  objectMaps.simTrackerHits));
     } else if (const auto caloHitMCParticleLink = dynamic_cast<const edm4hep::CaloHitMCParticleLinkCollection*>(coll)) {
-      relationColls.emplace_back(name,
-                                 createLCRelationCollection(*caloHitMCParticleLink, objectMaps.caloHits, objectMaps.mcParticles));
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*caloHitMCParticleLink, objectMaps.caloHits, objectMaps.mcParticles));
     } else if (const auto clusterMCParticleLink = dynamic_cast<const edm4hep::ClusterMCParticleLinkCollection*>(coll)) {
-      relationColls.emplace_back(name,
-                                 createLCRelationCollection(*clusterMCParticleLink, objectMaps.clusters, objectMaps.mcParticles));
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*clusterMCParticleLink, objectMaps.clusters, objectMaps.mcParticles));
     } else if (const auto trackMCParticleLink = dynamic_cast<const edm4hep::TrackMCParticleLinkCollection*>(coll)) {
-      relationColls.emplace_back(name, createLCRelationCollection(*trackMCParticleLink, objectMaps.tracks, objectMaps.mcParticles));
-    } else if (const auto vertexRecoParticleLink = dynamic_cast<const edm4hep::VertexRecoParticleLinkCollection*>(coll)) {
-      relationColls.emplace_back(name,
-                                 createLCRelationCollection(*vertexRecoParticleLink, objectMaps.vertices, objectMaps.recoParticles));
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*trackMCParticleLink, objectMaps.tracks, objectMaps.mcParticles));
+    } else if (const auto vertexRecoParticleLink =
+                   dynamic_cast<const edm4hep::VertexRecoParticleLinkCollection*>(coll)) {
+      relationColls.emplace_back(
+          name, createLCRelationCollection(*vertexRecoParticleLink, objectMaps.vertices, objectMaps.recoParticles));
     } else {
       std::cerr << "Trying to create an LCRelation collection from a " << coll->getTypeName()
                 << " which is not supported" << std::endl;
