@@ -85,48 +85,52 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
     const auto& cellIDStr =
         metadata.getParameter<std::string>(podio::collMetadataParamName(name, edm4hep::labels::CellIDEncoding));
 
-    if (auto coll = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
-      auto lcColl = convertTracks(coll, objectMappings.tracks);
+    if (const auto trackColl = dynamic_cast<const edm4hep::TrackCollection*>(edmCollection)) {
+      auto lcColl = convertTracks(trackColl, objectMappings.tracks);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
-      auto lcColl = convertTrackerHits(coll, cellIDStr, objectMappings.trackerHits);
+    } else if (const auto trackerHit3DColl = dynamic_cast<const edm4hep::TrackerHit3DCollection*>(edmCollection)) {
+      auto lcColl = convertTrackerHits(trackerHit3DColl, cellIDStr, objectMappings.trackerHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::TrackerHitPlaneCollection*>(edmCollection)) {
-      auto lcColl = convertTrackerHitPlanes(coll, cellIDStr, objectMappings.trackerHitPlanes);
+    } else if (const auto trackerHitPlaneColl =
+                   dynamic_cast<const edm4hep::TrackerHitPlaneCollection*>(edmCollection)) {
+      auto lcColl = convertTrackerHitPlanes(trackerHitPlaneColl, cellIDStr, objectMappings.trackerHitPlanes);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
-      auto lcColl = convertSimTrackerHits(coll, cellIDStr, objectMappings.simTrackerHits);
+    } else if (const auto simTrackerHitColl = dynamic_cast<const edm4hep::SimTrackerHitCollection*>(edmCollection)) {
+      auto lcColl = convertSimTrackerHits(simTrackerHitColl, cellIDStr, objectMappings.simTrackerHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
-      auto lcColl = convertCalorimeterHits(coll, cellIDStr, objectMappings.caloHits);
+    } else if (const auto calorimeterHitColl = dynamic_cast<const edm4hep::CalorimeterHitCollection*>(edmCollection)) {
+      auto lcColl = convertCalorimeterHits(calorimeterHitColl, cellIDStr, objectMappings.caloHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::RawCalorimeterHitCollection*>(edmCollection)) {
-      auto lcColl = convertRawCalorimeterHits(coll, objectMappings.rawCaloHits);
+    } else if (const auto rawCalorimeterHitColl =
+                   dynamic_cast<const edm4hep::RawCalorimeterHitCollection*>(edmCollection)) {
+      auto lcColl = convertRawCalorimeterHits(rawCalorimeterHitColl, objectMappings.rawCaloHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
-      auto lcColl = convertSimCalorimeterHits(coll, cellIDStr, objectMappings.simCaloHits);
+    } else if (const auto simCalorimeterHitColl =
+                   dynamic_cast<const edm4hep::SimCalorimeterHitCollection*>(edmCollection)) {
+      auto lcColl = convertSimCalorimeterHits(simCalorimeterHitColl, cellIDStr, objectMappings.simCaloHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
-      auto lcColl = convertTPCHits(coll, objectMappings.tpcHits);
+    } else if (const auto rawTimeSeriesColl = dynamic_cast<const edm4hep::RawTimeSeriesCollection*>(edmCollection)) {
+      auto lcColl = convertTPCHits(rawTimeSeriesColl, objectMappings.tpcHits);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
-      auto lcColl = convertClusters(coll, objectMappings.clusters);
+    } else if (const auto clusterColl = dynamic_cast<const edm4hep::ClusterCollection*>(edmCollection)) {
+      auto lcColl = convertClusters(clusterColl, objectMappings.clusters);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
-      auto lcColl = convertVertices(coll, objectMappings.vertices);
+    } else if (const auto vertexColl = dynamic_cast<const edm4hep::VertexCollection*>(edmCollection)) {
+      auto lcColl = convertVertices(vertexColl, objectMappings.vertices);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::MCParticleCollection*>(edmCollection)) {
-      auto lcColl = convertMCParticles(coll, objectMappings.mcParticles);
+    } else if (const auto mcParticleColl = dynamic_cast<const edm4hep::MCParticleCollection*>(edmCollection)) {
+      auto lcColl = convertMCParticles(mcParticleColl, objectMappings.mcParticles);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::ReconstructedParticleCollection*>(edmCollection)) {
-      auto lcColl = convertReconstructedParticles(coll, objectMappings.recoParticles);
+    } else if (const auto recoParticleColl =
+                   dynamic_cast<const edm4hep::ReconstructedParticleCollection*>(edmCollection)) {
+      auto lcColl = convertReconstructedParticles(recoParticleColl, objectMappings.recoParticles);
       lcioEvent->addCollection(lcColl.release(), name);
-    } else if (auto coll = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
-      convertEventHeader(coll, lcioEvent.get());
-    } else if (auto coll = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
-      pidCollections.emplace_back(name, coll, edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name));
-    } else if (auto coll = dynamic_cast<const edm4hep::RecDqdxCollection*>(edmCollection)) {
-      dQdxCollections.emplace_back(name, coll);
+    } else if (const auto eventHeaderColl = dynamic_cast<const edm4hep::EventHeaderCollection*>(edmCollection)) {
+      convertEventHeader(eventHeaderColl, lcioEvent.get());
+    } else if (const auto particleIDColl = dynamic_cast<const edm4hep::ParticleIDCollection*>(edmCollection)) {
+      pidCollections.emplace_back(name, particleIDColl, edm4hep::utils::PIDHandler::getAlgoInfo(metadata, name));
+    } else if (const auto recDqdxColl = dynamic_cast<const edm4hep::RecDqdxCollection*>(edmCollection)) {
+      dQdxCollections.emplace_back(name, recDqdxColl);
     } else if (dynamic_cast<const edm4hep::CaloHitContributionCollection*>(edmCollection)) {
       // "converted" during relation resolving later
       continue;
