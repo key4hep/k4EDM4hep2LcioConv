@@ -41,16 +41,16 @@ bool compare(const edm4hep::VertexCollection& origColl, const edm4hep::VertexCol
 bool compare(const edm4hep::VertexRecoParticleLinkCollection& origColl,
              const edm4hep::VertexRecoParticleLinkCollection& roundtripColl);
 
-template <typename AssociationCollT>
-bool compare(const AssociationCollT& origColl, const AssociationCollT& roundtripColl) {
+template <typename LinkCollT>
+bool compare(const LinkCollT& origColl, const LinkCollT& roundtripColl) {
   REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
   for (size_t i = 0; i < origColl.size(); ++i) {
-    const auto origAssoc = origColl[i];
-    const auto assoc = roundtripColl[i];
+    const auto origLink = origColl[i];
+    const auto link = roundtripColl[i];
 
-    REQUIRE_SAME(origAssoc.getWeight(), assoc.getWeight(), "weight in association " << i);
-    REQUIRE_SAME(origAssoc.getTo().id(), assoc.getTo().id(), "MC part(icle) in association " << i);
-    REQUIRE_SAME(origAssoc.getFrom().id(), assoc.getFrom().id(), "reco part(icle) in association " << i);
+    REQUIRE_SAME(origLink.getWeight(), link.getWeight(), "weight in link " << i);
+    REQUIRE_SAME(origLink.getTo().id(), link.getTo().id(), "MC part(icle) in link " << i);
+    REQUIRE_SAME(origLink.getFrom().id(), link.getFrom().id(), "reco part(icle) in link " << i);
   }
   return true;
 }

@@ -474,19 +474,19 @@ bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEven
   return true;
 }
 
-// bool compareStartVertexRelations(const edm4hep::VertexRecoParticleLinkCollection& startVtxAssociations, const
+// bool compareStartVertexRelations(const edm4hep::VertexRecoParticleLinkCollection& startVtxLinks, const
 // ObjectMappings& objectMaps, const podio::Frame& event) {
-//   for (const auto& assoc : startVtxAssociations) {
-//     const auto edmVtx = assoc.getVertex();
-//     const auto edmReco = assoc.getRec();
+//   for (const auto& link : startVtxLinks) {
+//     const auto edmVtx = link.getVertex();
+//     const auto edmReco = link.getRec();
 
 //   }
 // }
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
-                                 const edm4hep::VertexRecoParticleLink& association, const ObjectMappings& objectMaps) {
+                                 const edm4hep::VertexRecoParticleLink& link, const ObjectMappings& objectMaps) {
   const auto lcioVertex = lcioReco->getStartVertex();
-  const auto edm4hepVertex = association.getFrom();
+  const auto edm4hepVertex = link.getFrom();
   if (!compareRelation(lcioVertex, edm4hepVertex, objectMaps.vertices, "")) {
     return false;
   }
@@ -494,7 +494,7 @@ bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
   return true;
 }
 
-bool compareVertexRecoAssociation(const EVENT::Vertex*, const edm4hep::VertexRecoParticleLink&, const ObjectMappings&) {
+bool compareVertexRecoLink(const EVENT::Vertex*, const edm4hep::VertexRecoParticleLink&, const ObjectMappings&) {
   // TODO: Actually implement the checks
   // TODO: Figure out if this is even the right interface here
   return false;

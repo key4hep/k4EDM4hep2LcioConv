@@ -348,32 +348,32 @@ createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
   return collections;
 }
 
-template <typename AssocCollT, typename CollT, typename CollU>
-AssocCollT createAssociationCollection(const CollT& collA, const CollU& collB) {
+template <typename LinkCollT, typename CollT, typename CollU>
+LinkCollT createLinkCollection(const CollT& collA, const CollU& collB) {
   const auto maxSize = std::min(collA.size(), collB.size());
 
-  auto assocs = AssocCollT{};
+  auto links = LinkCollT{};
 
   for (size_t i = 0; i < maxSize; ++i) {
-    auto assoc = assocs.create();
-    assoc.setWeight(i * 10.f / maxSize);
-    assoc.setTo(collA[i]);
-    assoc.setFrom(collB[maxSize - 1 - i]);
+    auto link = links.create();
+    link.setWeight(i * 10.f / maxSize);
+    link.setTo(collA[i]);
+    link.setFrom(collB[maxSize - 1 - i]);
   }
 
-  return assocs;
+  return links;
 }
 
 edm4hep::RecoMCParticleLinkCollection
-createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
-                           const edm4hep::ReconstructedParticleCollection& recoParticles) {
-  return createAssociationCollection<edm4hep::RecoMCParticleLinkCollection>(mcParticles, recoParticles);
+createMCRecoParticleLinks(const edm4hep::MCParticleCollection& mcParticles,
+                          const edm4hep::ReconstructedParticleCollection& recoParticles) {
+  return createLinkCollection<edm4hep::RecoMCParticleLinkCollection>(mcParticles, recoParticles);
 }
 
-edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
-                                                            const edm4hep::CalorimeterHitCollection& caloHits) {
+edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloLinks(const edm4hep::SimCalorimeterHitCollection& simHits,
+                                                           const edm4hep::CalorimeterHitCollection& caloHits) {
 
-  return createAssociationCollection<edm4hep::CaloHitSimCaloHitLinkCollection>(simHits, caloHits);
+  return createLinkCollection<edm4hep::CaloHitSimCaloHitLinkCollection>(simHits, caloHits);
 }
 
 std::tuple<edm4hep::VertexCollection, edm4hep::ReconstructedParticleCollection,
@@ -391,20 +391,20 @@ createVertices(const int nVertices, const edm4hep::ReconstructedParticleCollecti
     auto reco = recoColl.create();
   }
 
-  auto assocColl = edm4hep::VertexRecoParticleLinkCollection{};
+  auto linkColl = edm4hep::VertexRecoParticleLinkCollection{};
 
   for (const auto& [iV, iP] : recoIdcs) {
     vtxColl[iV].addToParticles(particles[iP]);
-    auto assoc = assocColl.create();
-    assoc.setTo(particles[iP]);
-    assoc.setFrom(vtxColl[iV]);
+    auto link = linkColl.create();
+    link.setTo(particles[iP]);
+    link.setFrom(vtxColl[iV]);
   }
 
   for (const auto& [iP, iV] : vtxRecoIdcs) {
     recoColl[iP].setDecayVertex(vtxColl[iV]);
   }
 
-  return {std::move(vtxColl), std::move(recoColl), std::move(assocColl)};
+  return {std::move(vtxColl), std::move(recoColl), std::move(linkColl)};
 }
 
 std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
@@ -454,14 +454,14 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
     algoId++;
   }
 
-  event.put(createMCRecoParticleAssocs(mcParticles, recoColl), "mcRecoAssocs");
-  event.put(createMCCaloAssocs(simCaloHits, caloHits), "mcCaloHitsAssocs");
+  event.put(createMCRecoParticleLinks(mcParticles, recoColl), "mcRecoLinks");
+  event.put(createMCCaloLinks(simCaloHits, caloHits), "mcCaloHitsLinks");
 
-  auto [vtxColl, vtxRecos, startVtxAssocs] =
+  auto [vtxColl, vtxRecos, startVtxLinks] =
       createVertices(test_config::nVertices, recoColl, test_config::vtxParticleIdcs, test_config::recoVtxIdcs);
   event.put(std::move(vtxColl), "vertices");
   event.put(std::move(vtxRecos), "vtx_recos");
-  event.put(std::move(startVtxAssocs), "startVtxAssocs");
+  event.put(std::move(startVtxLinks), "startVtxLinks");
 
   return retTuple;
 }

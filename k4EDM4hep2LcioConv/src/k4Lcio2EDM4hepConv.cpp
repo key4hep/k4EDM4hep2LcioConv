@@ -86,7 +86,7 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
     const auto& lciotype = lcioColl->getTypeName();
     if (lciotype == "LCRelation") {
       LCRelations.push_back(std::make_pair(lcioname, lcioColl));
-      // We handle Relations (aka Associations) once we have converted all the
+      // We handle Relations (aka Links) once we have converted all the
       // data parts.
       continue;
     }
@@ -112,9 +112,9 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   }
 
   // Filling all the OneToMany and OneToOne Relations and creating the
-  // AssociationCollections.
+  // LinkCollections.
   resolveRelations(typeMapping);
-  auto assoCollVec = createLinks(typeMapping, LCRelations);
+  auto linksCollVec = createLinks(typeMapping, LCRelations);
   auto headerColl = createEventHeader(evt);
 
   for (const auto& [name, coll] : edmevent) {
@@ -139,7 +139,7 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
   for (auto& [name, coll] : edmevent) {
     event.put(std::move(coll), name);
   }
-  for (auto& [name, coll] : assoCollVec) {
+  for (auto& [name, coll] : linksCollVec) {
     event.put(std::move(coll), name);
   }
   return event;

@@ -128,7 +128,7 @@ handles all the type details and can obviously also be used directly.
 available in EDM4hep. They use the `"FromType"` and `"ToType"` collection
 parameters to get the necessary type information.
 
-The AssociationCollections in EDM4hep are then created using `createAssociations`.
+The LinkCollections in EDM4hep are then created using `createLinks`.
 
 ## Converting entire events
 Converting an entire event can be done calling the `convertEvent`. This can also

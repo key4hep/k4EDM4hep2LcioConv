@@ -183,8 +183,8 @@ createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
                   const edm4hep::ReconstructedParticleCollection& recoParticles);
 
 edm4hep::RecoMCParticleLinkCollection
-createMCRecoParticleAssocs(const edm4hep::MCParticleCollection& mcParticles,
-                           const edm4hep::ReconstructedParticleCollection& recoParticles);
+createMCRecoParticleLinks(const edm4hep::MCParticleCollection& mcParticles,
+                          const edm4hep::ReconstructedParticleCollection& recoParticles);
 
 edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
                                                             const edm4hep::CalorimeterHitCollection& caloHits);
