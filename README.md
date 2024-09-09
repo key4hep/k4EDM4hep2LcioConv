@@ -32,7 +32,7 @@ auto* lcio_converted_sim_tracker_hit_ptr = convSimTrackerHits(
   collection_pairs.simtrackerhits,
   collection_pairs.mcparticles);
 
-// Run function to fix missing associations between collections.
+// Run function to fix missing links between collections.
 // Some collections that need to be linked to other collections may be converted
 // after these are linked. Running this function after all conversions guarantees correct links
 // between collections.

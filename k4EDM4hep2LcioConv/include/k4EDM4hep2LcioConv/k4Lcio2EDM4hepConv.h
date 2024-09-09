@@ -403,8 +403,8 @@ void resolveRelationsVertices(VertexMapT& vertexMap, URecoParticleMapT& updateRP
                               const LURecoParticleMapT& lookupRPMap);
 
 template <typename VertexMapT, typename RecoParticleMapT>
-void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& associations,
-                                     const VertexMapT& vertexMap, const RecoParticleMapT& recoParticleMap);
+void finalizeVertexRecoParticleLinks(edm4hep::VertexRecoParticleLinkCollection& links, const VertexMapT& vertexMap,
+                                     const RecoParticleMapT& recoParticleMap);
 
 /**
  * Go from chi^2 and probability (1 - CDF(chi^2, ndf)) to ndf by a binary search

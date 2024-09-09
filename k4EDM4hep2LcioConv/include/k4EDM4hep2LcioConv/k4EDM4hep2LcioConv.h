@@ -332,18 +332,18 @@ template <typename ObjectMappingT, typename ObjectMappingU>
 void resolveRelations(ObjectMappingT& updateMaps, const ObjectMappingU& lookupMaps);
 
 /**
- * Convert the passed associatoin collections to LCRelation collections
+ * Convert the passed link collections to LCRelation collections
  */
 template <typename ObjectMappingT>
-std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>> createLCRelationCollections(
-    const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& associationCollections,
-    const ObjectMappingT& objectMaps);
+std::vector<std::tuple<std::string, std::unique_ptr<lcio::LCCollection>>>
+createLCRelationCollections(const std::vector<std::tuple<std::string, const podio::CollectionBase*>>& linkCollections,
+                            const ObjectMappingT& objectMaps);
 
 /**
- * Create an LCRelation collection from the passed Association Collection
+ * Create an LCRelation collection from the passed Link Collection
  */
-template <typename AssocCollT, typename FromMapT, typename ToMapT>
-std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const AssocCollT& associations, const FromMapT& fromMap,
+template <typename LinkCollT, typename FromMapT, typename ToMapT>
+std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const LinkCollT& links, const FromMapT& fromMap,
                                                                const ToMapT& toMap);
 
 bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);

@@ -75,7 +75,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
 
   // We convert these at the very end, once all the necessary information is
   // available
-  std::vector<std::tuple<std::string, const podio::CollectionBase*>> associations{};
+  std::vector<std::tuple<std::string, const podio::CollectionBase*>> linkCollections{};
   std::vector<TrackDqdxConvData> dQdxCollections{};
 
   const auto& collections = edmEvent.getAvailableCollections();
@@ -131,7 +131,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
       // "converted" during relation resolving later
       continue;
     } else if (edmCollection->getTypeName().find("Link") != std::string_view::npos) {
-      associations.emplace_back(name, edmCollection);
+      linkCollections.emplace_back(name, edmCollection);
     } else {
       std::cerr << "Error trying to convert requested " << edmCollection->getValueTypeName() << " with name " << name
                 << "\n"
@@ -155,7 +155,7 @@ std::unique_ptr<lcio::LCEventImpl> convertEvent(const podio::Frame& edmEvent, co
 
   resolveRelations(objectMappings);
 
-  for (auto& [name, coll] : createLCRelationCollections(associations, objectMappings)) {
+  for (auto& [name, coll] : createLCRelationCollections(linkCollections, objectMappings)) {
     lcioEvent->addCollection(coll.release(), name);
   }
 

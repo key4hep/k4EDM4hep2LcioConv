@@ -118,14 +118,14 @@ bool compare(const EVENT::ParticleID* lcio, const edm4hep::ParticleID& edm4hep);
 
 bool compareEventHeader(const EVENT::LCEvent* lcevt, const podio::Frame* edmEvent);
 
-template <typename AssocCollT>
-bool compare(const lcio::LCCollection* lcioCollection, const AssocCollT& edm4hepCollection,
+template <typename LinkCollT>
+bool compare(const lcio::LCCollection* lcioCollection, const LinkCollT& edm4hepCollection,
              const ObjectMappings& objectMaps) {
   return compareCollection<EVENT::LCRelation>(lcioCollection, edm4hepCollection, objectMaps);
 }
 
 namespace detail {
-template <typename AssocT>
+template <typename LinkT>
 struct LcioFromToTypeHelper;
 
 template <>
@@ -170,11 +170,11 @@ struct LcioFromToTypeHelper<edm4hep::VertexRecoParticleLink> {
   using to_type = EVENT::Vertex;
 };
 
-template <typename AssocT>
-using getLcioFromType = typename LcioFromToTypeHelper<AssocT>::from_type;
+template <typename LinkT>
+using getLcioFromType = typename LcioFromToTypeHelper<LinkT>::from_type;
 
-template <typename AssocT>
-using getLcioToType = typename LcioFromToTypeHelper<AssocT>::to_type;
+template <typename LinkT>
+using getLcioToType = typename LcioFromToTypeHelper<LinkT>::to_type;
 
 template <typename T>
 const auto& getObjectMap(const ObjectMappings& maps) {
@@ -201,25 +201,24 @@ const auto& getObjectMap(const ObjectMappings& maps) {
 
 } // namespace detail
 
-template <typename AssocT>
-bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectMappings& objectMaps) {
+template <typename LinkT>
+bool compare(const EVENT::LCRelation* lcio, const LinkT& edm4hep, const ObjectMappings& objectMaps) {
 
-  ASSERT_COMPARE(lcio, edm4hep, getWeight, "weight in relation / association");
+  ASSERT_COMPARE(lcio, edm4hep, getWeight, "weight in relation / link");
 
-  using LcioFromT = detail::getLcioFromType<AssocT>;
-  using LcioToT = detail::getLcioToType<AssocT>;
+  using LcioFromT = detail::getLcioFromType<LinkT>;
+  using LcioToT = detail::getLcioToType<LinkT>;
 
   const auto lcioFrom = static_cast<LcioFromT*>(lcio->getFrom());
   const auto edm4hepFrom = edm4hep.getFrom();
   if (!compareRelation(lcioFrom, edm4hepFrom, detail::getObjectMap<LcioFromT>(objectMaps),
-                       "from object in relation / association")) {
+                       "from object in relation / link")) {
     return false;
   }
 
   const auto lcioTo = static_cast<LcioToT*>(lcio->getTo());
   const auto edm4hepTo = edm4hep.getTo();
-  if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps),
-                       "to object in relation / association")) {
+  if (!compareRelation(lcioTo, edm4hepTo, detail::getObjectMap<LcioToT>(objectMaps), "to object in relation / link")) {
     return false;
   }
 
@@ -229,11 +228,11 @@ bool compare(const EVENT::LCRelation* lcio, const AssocT& edm4hep, const ObjectM
 /// Compare the information stored in startVertex in LCIO
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
-                                 const edm4hep::VertexRecoParticleLink& association, const ObjectMappings& objectMaps);
+                                 const edm4hep::VertexRecoParticleLink& link, const ObjectMappings& objectMaps);
 
 /// Compare the information stored in associatedParticle in LCIO
-bool compareVertexRecoAssociation(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRecoParticleLink& association,
-                                  const ObjectMappings& objectMaps);
+bool compareVertexRecoLink(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRecoParticleLink& link,
+                           const ObjectMappings& objectMaps);
 
 #define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \
   if (type == #collType) {                                                                                             \
