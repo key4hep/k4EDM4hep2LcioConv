@@ -1,3 +1,133 @@
+# v00-09
+
+* 2024-09-10 jmcarcell ([PR#96](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/96))
+  - Use the Key4hepConfig flag to set the standard, compiler flags and rpath magic.
+  - Fix warnings about shadowing variables that were not there before
+
+* 2024-09-09 tmadlener ([PR#91](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/91))
+  - Remove deprecated conversion functions now that all downstream consumers have switched.
+  - Remove *association* (and derived terms) from documentation, variable names and comments.
+
+* 2024-09-05 tmadlener ([PR#95](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/95))
+  - Convert `Nholes` and `subdetectorHoleNumbers` for tracks
+  - Bump the minimum LCIO version to `2.22` since this information is not available before that
+
+* 2024-09-05 tmadlener ([PR#94](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/94))
+  - Adjust the standalone conversion for the new capabilities of LCIO to also patch ParticleID (meta) information on the fly (see [LCIO#193](https://github.com/iLCSoft/LCIO/pull/193)).
+
+* 2024-08-10 jmcarcell ([PR#89](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/89))
+  - Don't throw a pedantic warning because of #warning
+
+* 2024-08-10 jmcarcell ([PR#80](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/80))
+  - Delete the version checks for Podio before 1.0
+
+* 2024-08-09 Andre Sailer ([PR#88](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/88))
+  - LCIO2EDM4hep collection: fix linking of simtrackerhits and trackerhitplanes. The wrong map was used for associating the converted (edm4hep) trackerhitplanes, since the other map is for TrackerHit3D, fixes https://github.com/key4hep/CLDConfig/issues/48
+
+* 2024-08-02 tmadlener ([PR#87](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/87))
+  - Depend on EDM4hep v00-99 in CMake configuration
+
+* 2024-07-31 tmadlener ([PR#86](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/86))
+  - Switch from `Association` to the newer `Link` types (key4hep/EDM4hep#341) and use the non-deprecated methods on them
+  - Update some conversion functions and docstrings to also reflect this renaming
+
+* 2024-07-25 tmadlener ([PR#84](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/84))
+  - Make sure that all the necessary definitions are available
+  - Force the evaluation of some string constants to compile time to detect undefined functions earlier
+
+* 2024-07-24 Leonhard Reichenbach ([PR#83](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/83))
+  - Fix a typo in the type checks for creating Associations between `TrackerHit`s and `SimTrackerHit`s.
+
+* 2024-07-19 tmadlener ([PR#82](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/82))
+  - Adapt the conversion of `Vertex` and `ReconstructedParticle` to follow the new relation schema introduce in [key4hep/EDM4hep#332](https://github.com/key4hep/EDM4hep/pull/332). **NOTE: This is not yet 100 % debugged and tested, due to the inherent complexities of getting both conventions to work simultaneously and together**. Please report any issues that you observe.
+
+* 2024-07-16 tmadlener ([PR#69](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/69))
+  - Make the conversion handle the fact that EDM4hep tracks do no longer have any dQ/dx information but rather store this in a separate `RecDqdx` collection.
+    - From LCIO to EDM4hep: Create a `RecDqdx` collection for every converted track collection with the suffix `_dQdx`
+    - From EDM4hep to LCIO: Offer functionality to attach the information stored in `RecDqdx` collections to converted tracks via the `attachDqdxInfo` function(s).
+
+* 2024-07-12 tmadlener ([PR#81](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/81))
+  - Add conversion of EDM4hep `Association` collections to `LCRelation` collections in LCIO.
+    - The order of the relation in LCIO follows the following pattern: `From` will be the reconstruction part and `To` will be the simulation / mc part.
+
+* 2024-07-08 tmadlener ([PR#74](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/74))
+  - Switch to the new `Vertex::isPrimary` functionality after its introduction in [EDM4hep#329](https://github.com/key4hep/EDM4hep/pull/329)
+
+* 2024-07-04 tmadlener ([PR#79](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/79))
+  - Always put a `CaloHitContribution` collection into the event, even if no `SimCalorimeterHit`s have been converted in `lcio2edm4hep`. Fixes [#78](https://github.com/key4hep/k4EDM4hep2LcioConv/issues/78)
+
+* 2024-07-03 jmcarcell ([PR#72](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/72))
+  - Don't use radiusOfInnermostHit for EDM4hep tracks, compute it from track state at first hit when going from LCIO to EDM4hep.
+
+* 2024-07-02 tmadlener ([PR#76](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/76))
+  - Make sure to still convert assocations between `TrackerHitPlane` and `SimTrackerHit`
+
+* 2024-07-01 jmcarcell ([PR#77](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/77))
+  - Find `MathCore` from ROOT since it is being linked to later
+
+* 2024-06-28 jmcarcell ([PR#71](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/71))
+  - Use ndf instead of probability for vertexes in EDM4hep
+  - Add a utility function to find ndf from chi^2 and the probability to go from LCIO to EDM4hep
+  - Add a utility macro to compare float values
+
+* 2024-06-27 tmadlener ([PR#73](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/73))
+  - Remove the `MCRecoTrackerHitPlaneAssociation` since it has been / will be removed from EDM4hep in [EDM4hep#331](https://github.com/key4hep/EDM4hep/pull/331)
+
+* 2024-06-20 jmcarcell ([PR#70](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/70))
+  - Use edm4hep::labels for `cellIDEncoding`
+
+* 2024-06-11 tmadlener ([PR#68](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/68))
+  - Switch to member function access for `algoType` in ParticleID conversion (See https://github.com/key4hep/EDM4hep/pull/307 for more details)
+
+* 2024-06-03 Leonhard Reichenbach ([PR#66](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/66))
+  - Standalone printout only for every 10% of processed events instead of every 10 events
+
+* 2024-05-16 tmadlener ([PR#64](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/64))
+  - Introduce pre-processor checks to transparently switch to the new `std::optional` return values of `podio::Frame::getParameter` (introduced with [AIDASoft/podio#580](https://github.com/AIDASoft/podio/pull/580))
+
+* 2024-05-16 tmadlener ([PR#63](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/63))
+  - Format the `.ipp` files according to the new `.clang-format` configuration and make sure that `pre-commit` enforces it.
+
+* 2024-05-16 tmadlener ([PR#61](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/61))
+  - Introduce possibility to remap collection names during the standalone conversion from LCIO to EDM4hep (fixes [#58](https://github.com/key4hep/k4EDM4hep2LcioConv/issues/58))
+    - Make the patch file grammar accept an optional `[:output-name]` as part of the collection name that will be used for the output collection
+
+* 2024-05-03 tmadlener ([PR#60](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/60))
+  - Synchronize `.clang-format` configuration with the one from `key4hep-dev-utils/defaults` to have the same configuration as in other Key4hep repositories.
+  - Make necessary format changes.
+  - Switch the pre-commit CI workflow to use the key4hep nightlies as environment.
+
+* 2024-05-03 jmcarcell ([PR#59](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/59))
+  - Fix narrowing in Cov3f from int to float. This triggers a warning in GCC 13 and a compiler error in Clang 17. 
+  - Fix a compiler error and a warning with Clang. The first one about constness of the LCIO pid handler and the other one about a lambda parameter not being used
+
+* 2024-05-01 tmadlener ([PR#56](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/56))
+  - Make the introduction of covariance matrix [key4hep/EDM4hep#287](https://github.com/key4hep/EDM4hep/pull/287) components transparent
+
+* 2024-05-01 tmadlener ([PR#51](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/51))
+  - Adapt the conversion of `ReconstructedParticle` and `ParticleID` after the reversal of the relations in https://github.com/key4hep/EDM4hep/pull/268
+
+* 2024-03-27 Leonhard Reichenbach ([PR#57](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/57))
+  - Fix typo in run header parameter `detectoName` to `detectorName` in k4Lcio2EDM4hepConv.cpp
+
+* 2024-03-12 tmadlener ([PR#54](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/54))
+  - Rename all `convXYZ` methods to `convertXYZ` and deprecate the former versions for the EDM4hep to LCIO direction to make it more consistent with the other direction.
+  - Cleanly split the EDM4hep to LCIO conversion into two steps, doing data conversion only in the first step and relation resolving in a second step.
+    - Introduce `resolveXYZRelations` functions for all types where it is necessary and remove preliminary relation resolving from data conversion functions
+    - All `convertXYZ` functions now only take one map that is populated as they no longer have to do any relation resolving
+  - Add roundtrip tests for ReconstructedParticle conversion
+    - Fix issue that was lurking here in passing by cleanly splitting conversion process into two steps
+
+* 2024-03-12 tmadlener ([PR#53](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/53))
+  - Add compiler warnings to the build process
+  - Fix compiler warnings
+
+* 2024-03-11 tmadlener ([PR#55](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/55))
+  - Switch to non-deprecated access methods after original methods have been deprecated in [EDM4hep#267](https://github.com/key4hep/EDM4hep/pull/267), [EDM4hep#256](https://github.com/key4hep/EDM4hep/pull/256) and [EDM4hep#273](https://github.com/key4hep/EDM4hep/pull/273)
+
+* 2024-02-23 tmadlener ([PR#49](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/49))
+  - Convert all TrackerHit types now that EDM4hep has a TrackerHit interface
+
 # v00-08-02
 
 * 2024-02-07 tmadlener ([PR#50](https://github.com/key4hep/k4edm4hep2lcioconv/pull/50))
