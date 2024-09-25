@@ -16,7 +16,7 @@ conversion tool for LCIO to EDM4hep.
 - LCIO >= v02-22
 - EMD4hep >= v00-99
 - podio >= v01-00
-- ROOT 
+- ROOT
 
 ## Build and install
 
