@@ -1,40 +1,42 @@
-# EDM4hep to LCIO in-memory converter
+# k4EDM4hep2LcioConv
+
+[![Key4hep build](https://github.com/key4hep/k4EDM4hep2LcioConv/actions/workflows/key4hep-build.yaml/badge.svg)](https://github.com/key4hep/k4EDM4hep2LcioConv/actions/workflows/key4hep-build.yaml)
+[![DOI](https://zenodo.org/badge/478554694.svg)](https://zenodo.org/doi/10.5281/zenodo.13837370)
 
 <p align="center">
   <img src="doc/k4EDM4hep2LcioConv_logo.svg"/>
 </p>
 
-Sample usage:
 
-```cpp
-// Declare struct to hold the converted collections
-CollectionsPairVectors collection_pairs{};
+Converter library to convert between the EDM4hep and LCIO event data models.
+Supports in-memory conversion in both directions and provides a standalone
+conversion tool for LCIO to EDM4hep.
 
-// Pointer to edm4hep collection
-edm4hep::ReconstructedParticleCollection* rp_collection;
+## Dependencies
+- LCIO >= v02-22
+- EMD4hep >= v00-99
+- podio >= v01-00
+- ROOT
 
-// Converting a collection of Reconstructed Particles to LCIO
-auto* lcio_converted_reconstructed_particle_ptr = convReconstructedParticles(
-  rp_collection, // input collection to be converted
-  collection_pairs.recoparticles, // vector holding converted and original collections
-  collection_pairs.tracks, // Tracks related to Reconstructed Particles to link them
-  collection_pairs.vertices, // Vertices related to Reconstructed Particles to link them
-  collection_pairs.clusters); // Clusters related to Reconstructed Particles to link them
+## Build and install
 
-// Some collections need the cellID string
-edm4hep::SimTrackerHitCollection* sth_collection;
-// Example from k4FWCore Data Handle
-const auto collID    = sth_collection->getID();
-const auto cellIDstr = simtrackerhits_handle.getCollMetadataCellID(collID);
-auto* lcio_converted_sim_tracker_hit_ptr = convSimTrackerHits(
-  sth_collection,
-  cellIDstr,
-  collection_pairs.simtrackerhits,
-  collection_pairs.mcparticles);
+If you have an environment that fulfills all dependencies (e.g. a Key4hep stack), simply do
 
-// Run function to fix missing links between collections.
-// Some collections that need to be linked to other collections may be converted
-// after these are linked. Running this function after all conversions guarantees correct links
-// between collections.
-resolveRelations(collection_pairs);
+- Get the sources to build from
+```bash
+git clone https://github.com/key4hep/k4EDM4hep2LcioConv
+cd k4EDM4hep2LcioConv
+```
+- Run CMake and configure it to use `install` in the current directory as install prefix
+```bash
+cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$(pwd)/install
+```
+- Build the library and tests and run the tests
+```bash
+cmake --build build
+ctest --test-dir build
+```
+- Install the library and the standalone conversion tools
+```bash
+cmake --build build --target install
 ```
