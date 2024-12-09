@@ -23,15 +23,7 @@
 #include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
 #include <edm4hep/VertexRecoParticleLinkCollection.h>
-#if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
-#else
-#include "edm4hep/TrackerHitCollection.h"
-namespace edm4hep {
-using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
-using TrackerHit3D = edm4hep::TrackerHit;
-} // namespace edm4hep
-#endif
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/VertexCollection.h>
 #include <edm4hep/utils/ParticleIDUtils.h>

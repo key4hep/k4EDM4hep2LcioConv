@@ -20,14 +20,7 @@
 
 #include "edm4hep/TrackCollection.h"
 #include <edm4hep/RecDqdxCollection.h>
-#if __has_include("edm4hep/TrackerHit3DCollection.h")
 #include "edm4hep/TrackerHit3DCollection.h"
-#else
-#include "edm4hep/TrackerHitCollection.h"
-namespace edm4hep {
-using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
-} // namespace edm4hep
-#endif
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/MCParticleCollection.h"
