@@ -2,20 +2,35 @@
 
 #include <UTIL/PIDHandler.h>
 
+#include "podio/Frame.h"
+
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
 
+#include "k4FWCore/MetadataUtils.h"
+
 namespace LCIO2EDM4hepConv {
 template <typename LCIOType>
-void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
+void convertObjectParameters(LCIOType* lcioobj, std::optional<std::reference_wrapper<podio::Frame>>& event) {
   const auto& params = lcioobj->getParameters();
+
+  // When using the PodioDataSvc there is always access to the event frame
+  // but when using IOSvc there is not a frame
+  auto putParamFun = [&](const std::string& key, const auto& value) {
+    if (event) {
+      event->get().putParameter(key, value);
+    } else {
+      k4FWCore::putParameter(key, value);
+    }
+  };
+
   // handle srting params
   EVENT::StringVec keys;
   const auto stringKeys = params.getStringKeys(keys);
   for (auto i = 0u; i < stringKeys.size(); i++) {
     EVENT::StringVec sValues;
     const auto stringVals = params.getStringVals(stringKeys[i], sValues);
-    event.putParameter(stringKeys[i], stringVals);
+    putParamFun(stringKeys[i], stringVals);
   }
   // handle float params
   EVENT::StringVec fkeys;
@@ -23,7 +38,7 @@ void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
   for (auto i = 0u; i < floatKeys.size(); i++) {
     EVENT::FloatVec fValues;
     const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
-    event.putParameter(floatKeys[i], floatVals);
+    putParamFun(floatKeys[i], floatVals);
   }
   // handle int params
   EVENT::StringVec ikeys;
@@ -31,7 +46,7 @@ void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
   for (auto i = 0u; i < intKeys.size(); i++) {
     EVENT::IntVec iValues;
     const auto intVals = params.getIntVals(intKeys[i], iValues);
-    event.putParameter(intKeys[i], intVals);
+    putParamFun(intKeys[i], intVals);
   }
   // handle double params
   EVENT::StringVec dkeys;
@@ -39,7 +54,7 @@ void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
   for (auto i = 0u; i < dKeys.size(); i++) {
     EVENT::DoubleVec dValues;
     const auto dVals = params.getDoubleVals(dKeys[i], dValues);
-    event.putParameter(dKeys[i], dVals);
+    putParamFun(dKeys[i], dVals);
   }
 }
 

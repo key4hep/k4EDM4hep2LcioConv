@@ -126,8 +126,9 @@ podio::Frame convertEvent(EVENT::LCEvent* evt, const std::vector<std::pair<std::
 
   // Now everything is done and we simply populate a Frame
   podio::Frame event;
+  std::optional<std::reference_wrapper<podio::Frame>> eventOpt = event;
   // convert put the event parameters into the frame
-  convertObjectParameters<EVENT::LCEvent>(evt, event);
+  convertObjectParameters<EVENT::LCEvent>(evt, eventOpt);
 
   // only create CaloHitContributions if necessary (i.e. if we have converted
   // SimCalorimeterHits)
@@ -154,7 +155,8 @@ podio::Frame convertRunHeader(EVENT::LCRunHeader* rheader) {
   runHeaderFrame.putParameter("activeSubdetectors", *subdetectors);
 
   // convert everything set as a parameter
-  convertObjectParameters<EVENT::LCRunHeader>(rheader, runHeaderFrame);
+  std::optional<std::reference_wrapper<podio::Frame>> runHeaderFrameOpt = runHeaderFrame;
+  convertObjectParameters<EVENT::LCRunHeader>(rheader, runHeaderFrameOpt);
 
   return runHeaderFrame;
 }
