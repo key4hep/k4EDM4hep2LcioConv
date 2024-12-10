@@ -4,6 +4,7 @@
 #include "k4EDM4hep2LcioConv/MappingUtils.h"
 
 // EDM4hep
+#include "edm4hep/TrackerHit3DCollection.h"
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
 #include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
@@ -21,19 +22,10 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/TrackCollection.h>
 #include <edm4hep/TrackMCParticleLinkCollection.h>
-#include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
-#include <edm4hep/VertexRecoParticleLinkCollection.h>
-#if __has_include("edm4hep/TrackerHit3DCollection.h")
-#include "edm4hep/TrackerHit3DCollection.h"
-#else
-#include "edm4hep/TrackerHitCollection.h"
-namespace edm4hep {
-using TrackerHit3DCollection = edm4hep::TrackerHitCollection;
-using TrackerHit3D = edm4hep::TrackerHit;
-} // namespace edm4hep
-#endif
 #include <edm4hep/TrackerHitPlaneCollection.h>
+#include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
 #include <edm4hep/VertexCollection.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"

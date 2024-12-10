@@ -7,12 +7,10 @@
 #include "edm4hep/Vector2i.h"
 #include "edm4hep/Vector3d.h"
 #include "edm4hep/Vector3f.h"
-#if __has_include("edm4hep/CovMatrix3f.h")
 #include <edm4hep/CovMatrix2f.h>
 #include <edm4hep/CovMatrix3f.h>
 #include <edm4hep/CovMatrix4f.h>
 #include <edm4hep/CovMatrix6f.h>
-#endif
 
 #include "EVENT/LCCollection.h"
 #include "UTIL/LCIterator.h"
@@ -74,14 +72,10 @@ template <typename LCIO, typename EDM4hepT>
 bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg) {
   constexpr auto isVectorLike =
       has_size_method<EDM4hepT>::value ||
-      isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f, edm4hep::Vector2i
-#if __has_include("edm4hep/CovMatrix3f.h")
-              ,
+      isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f, edm4hep::Vector2i,
               // These also effectively behave like vectors for
               // the purposes of this function
-              edm4hep::CovMatrix2f, edm4hep::CovMatrix3f, edm4hep::CovMatrix4f, edm4hep::CovMatrix6f
-#endif
-              >;
+              edm4hep::CovMatrix2f, edm4hep::CovMatrix3f, edm4hep::CovMatrix4f, edm4hep::CovMatrix6f>;
 
   if constexpr (isVectorLike) {
     const auto vecSize = [](EDM4hepT& edm4hepVal) -> std::size_t {
