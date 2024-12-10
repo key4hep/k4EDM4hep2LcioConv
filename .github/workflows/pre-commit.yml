@@ -8,10 +8,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: cvmfs-contrib/github-action-cvmfs@v4
-    - name: Run pre-commit
-      run: |
-        source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
-        cd ${GITHUB_WORKSPACE}
+    - uses: aidasoft/run-lcg-view@v4
+      with:
+        container: el9
+        view-path: /cvmfs/sw-nightlies.hsf.org/key4hep
+        run: |
+          echo "::group::Setup pre-commit"
+          # Newer versions of git are more cautious around the github runner
+          # environment and without this git rev-parse --show-cdup in pre-commit
+          # fails
+          git config --global --add safe.directory $(pwd)
+          python -m venv /root/pre-commit-venv
+          source /root/pre-commit-venv/bin/activate
+          pip install pre-commit
+          export PYTHONPATH=$VIRTUAL_ENV/lib/python3.$(python3 -c 'import sys; print(f"{sys.version_info[1]}")')/site-packages:$PYTHONPATH
+          echo "::endgroup::"
+          echo "::group::Run pre-commit"
           pre-commit run --show-diff-on-failure \
             --color=always \
             --all-files
+          echo "::endgroup::"
