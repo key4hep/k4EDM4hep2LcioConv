@@ -9,6 +9,7 @@
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/TrackCollection.h"
+#include "edm4hep/TrackerHit3DCollection.h"
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
 #include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/ClusterMCParticleLinkCollection.h>
@@ -20,9 +21,8 @@
 #include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitPlaneCollection.h>
 #include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
-#include <edm4hep/VertexRecoParticleLinkCollection.h>
-#include "edm4hep/TrackerHit3DCollection.h"
 #include <edm4hep/VertexCollection.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
 
 #include <cstddef>
 #include <tuple>

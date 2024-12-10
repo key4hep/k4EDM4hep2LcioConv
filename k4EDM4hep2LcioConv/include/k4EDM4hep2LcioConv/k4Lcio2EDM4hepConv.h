@@ -21,11 +21,11 @@
 #include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackMCParticleLinkCollection.h"
-#include "edm4hep/TrackerHitSimTrackerHitLinkCollection.h"
-#include "edm4hep/VertexRecoParticleLinkCollection.h"
 #include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
+#include "edm4hep/TrackerHitSimTrackerHitLinkCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include "edm4hep/VertexRecoParticleLinkCollection.h"
 #include "edm4hep/utils/ParticleIDUtils.h"
 
 // LCIO

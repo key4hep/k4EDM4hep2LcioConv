@@ -18,9 +18,6 @@
 #include "UTIL/LCIterator.h"
 #include "UTIL/PIDHandler.h"
 
-#include "edm4hep/TrackCollection.h"
-#include <edm4hep/RecDqdxCollection.h>
-#include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/MCParticleCollection.h"
@@ -30,8 +27,11 @@
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
 #include "edm4hep/SimTrackerHitCollection.h"
+#include "edm4hep/TrackCollection.h"
+#include "edm4hep/TrackerHit3DCollection.h"
 #include "edm4hep/TrackerHitPlaneCollection.h"
 #include "edm4hep/VertexCollection.h"
+#include <edm4hep/RecDqdxCollection.h>
 
 #include "podio/Frame.h"
 
