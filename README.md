@@ -20,7 +20,7 @@ conversion tool for LCIO to EDM4hep.
 
 ## Build and install
 
-If you have an environment that fulfills all dependencies (e.g. a Key4hep stack), simply do
+If you have an environment that fulfils all dependencies (e.g. a Key4hep stack), simply do
 
 - Get the sources to build from
 ```bash
