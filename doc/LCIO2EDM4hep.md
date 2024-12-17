@@ -142,7 +142,7 @@ This can be done by calling `convertObjectParameters` that will put all the even
 There are a few small differences between LCIO and EDM4hep that shine through in the conversion, these are:
 
 - `CaloHitContributions` are part of the SimCalorimeterHits in LCIO while being their own data type in EDM4hep. They are created by [`createCaloHitContributions`](https://github.com/key4hep/k4EDM4hep2LcioConv/blob/main/k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h).
-- The event information like an event number is part of the `LCEvent` in LCIO. In EDM4hep there is a separate  EventHeader Collection. It can be created using [`EventHeaderCollection`](https://github.com/key4hep/k4EDM4hep2LcioConv/blob/main/k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
+- The event information like an event number is part of the `LCEvent` in LCIO. In EDM4hep there is a separate EventHeader Collection. It can be created using [`EventHeaderCollection`](https://github.com/key4hep/k4EDM4hep2LcioConv/blob/main/k4EDM4hep2LcioConv/include/k4EDM4hep2LcioConv/k4Lcio2EDM4hepConv.h) which is stored under the name `"EventHeader"`.
 - Particle IDs are converted during the conversion of the the reconstructed Particle collection.
 
 ## Example for a ReconstructedParticle Collection
