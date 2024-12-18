@@ -111,7 +111,6 @@ bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4h
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentumAtEndpoint, "momentumAtEndpoint in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getSpin, "spin in MCParticle");
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getColorFlow, "colorFlow in MCParticle");
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getDaughters, objectMaps.mcParticles, "daughters in MCParticle");
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParents, objectMaps.mcParticles, "parents in MCParticle");
