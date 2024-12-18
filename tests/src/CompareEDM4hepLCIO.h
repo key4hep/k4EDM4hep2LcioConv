@@ -27,7 +27,6 @@
 #include "edm4hep/VertexCollection.h"
 #include "edm4hep/VertexRecoParticleLinkCollection.h"
 #include "edm4hep/utils/ParticleIDUtils.h"
-#include <edm4hep/VertexRecoParticleLink.h>
 
 #include "podio/Frame.h"
 
