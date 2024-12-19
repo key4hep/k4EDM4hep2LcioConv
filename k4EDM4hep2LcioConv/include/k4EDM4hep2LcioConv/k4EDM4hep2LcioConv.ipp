@@ -484,7 +484,7 @@ std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(const edm4hep::MCParti
       lcio_mcp->setCharge(edm_mcp.getCharge());
       float spin[3] = {edm_mcp.getSpin()[0], edm_mcp.getSpin()[1], edm_mcp.getSpin()[2]};
       lcio_mcp->setSpin(spin);
-      int colorflow[2] = {edm_mcp.getColorFlow()[0], edm_mcp.getColorFlow()[1]};
+      int colorflow[2] = {0, 0};
       lcio_mcp->setColorFlow(colorflow);
 
       lcio_mcp->setCreatedInSimulation(edm_mcp.isCreatedInSimulation());

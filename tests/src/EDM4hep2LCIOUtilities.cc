@@ -53,7 +53,6 @@ edm4hep::MCParticleCollection createMCParticles(const int num_elements,
     elem.setMomentumAtEndpoint({i * 3.f, i * 2.f, i * 1.f});
     elem.setMass(125. * i);
     elem.setSpin({i * 0.5f, i * 0.25f, i * 0.25f});
-    elem.setColorFlow({i, i * 2});
     elem.setCreatedInSimulation(1);
     elem.setBackscatter(0);
     elem.setVertexIsNotEndpointOfParent(1);

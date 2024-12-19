@@ -98,7 +98,6 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
     lval.setTime(rval->getTime());
     lval.setMass(rval->getMass());
     lval.setSpin(edm4hep::Vector3f(rval->getSpin()));
-    lval.setColorFlow(edm4hep::Vector2i(rval->getColorFlow()));
     lval.setVertex(edm4hep::Vector3d(rval->getVertex()));
     lval.setEndpoint(edm4hep::Vector3d(rval->getEndpoint()));
     lval.setMomentum(rval->getMomentum());

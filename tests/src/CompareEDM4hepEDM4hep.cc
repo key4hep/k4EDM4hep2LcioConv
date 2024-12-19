@@ -59,7 +59,6 @@ bool compare(const edm4hep::MCParticleCollection& origColl, const edm4hep::MCPar
     REQUIRE_SAME(origPart.getMass(), part.getMass(), "mass in particle " << i);
     REQUIRE_SAME(origPart.getCharge(), part.getCharge(), "charge in particle " << i);
     REQUIRE_SAME(origPart.getSpin(), part.getSpin(), "spin in particle " << i);
-    REQUIRE_SAME(origPart.getColorFlow(), part.getColorFlow(), "colorFlow in particle " << i);
 
     REQUIRE_SAME(origPart.isCreatedInSimulation(), part.isCreatedInSimulation(), " in particle " << i);
     REQUIRE_SAME(origPart.isBackscatter(), part.isBackscatter(), " in particle " << i);

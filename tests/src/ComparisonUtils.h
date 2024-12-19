@@ -4,7 +4,6 @@
 #include "ObjectMapping.h"
 
 #include "edm4hep/Vector2f.h"
-#include "edm4hep/Vector2i.h"
 #include "edm4hep/Vector3d.h"
 #include "edm4hep/Vector3f.h"
 #include <edm4hep/CovMatrix2f.h>
@@ -72,7 +71,7 @@ template <typename LCIO, typename EDM4hepT>
 bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg) {
   constexpr auto isVectorLike =
       has_size_method<EDM4hepT>::value ||
-      isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f, edm4hep::Vector2i,
+      isAnyOf<EDM4hepT, edm4hep::Vector3f, edm4hep::Vector3d, edm4hep::Vector2f,
               // These also effectively behave like vectors for
               // the purposes of this function
               edm4hep::CovMatrix2f, edm4hep::CovMatrix3f, edm4hep::CovMatrix4f, edm4hep::CovMatrix6f>;
@@ -83,7 +82,7 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
         return edm4hepVal.size();
       } else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector3f> || std::is_same_v<EDM4hepT, edm4hep::Vector3d>) {
         return 3u;
-      } else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector2i> || std::is_same_v<EDM4hepT, edm4hep::Vector2f>) {
+      } else if constexpr (std::is_same_v<EDM4hepT, edm4hep::Vector2f>) {
         return 2;
       }
       return 0;
