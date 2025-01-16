@@ -2,8 +2,6 @@
 
 #include <UTIL/PIDHandler.h>
 
-#include "podio/Frame.h"
-
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
 

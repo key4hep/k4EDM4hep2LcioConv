@@ -188,6 +188,15 @@ private:
 template <typename LCIOType, typename PutParamF = ParamFramePutter>
 void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun);
 
+/**
+ * Converting all parameters of an LCIO Object and attaching them to the
+ * passed podio::Frame.
+ */
+template <typename LCIOType>
+void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
+  convertObjectParameters(lcioobj, ParamFramePutter{event});
+}
+
 inline edm4hep::Vector3f Vector3fFrom(const double* v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
 inline edm4hep::Vector3f Vector3fFrom(const EVENT::FloatVec& v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
