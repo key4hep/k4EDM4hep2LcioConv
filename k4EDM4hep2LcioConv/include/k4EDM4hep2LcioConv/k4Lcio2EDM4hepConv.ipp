@@ -7,22 +7,11 @@
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
 
-#include "k4FWCore/MetadataUtils.h"
-
 namespace LCIO2EDM4hepConv {
-template <typename LCIOType>
-void convertObjectParameters(LCIOType* lcioobj, std::optional<std::reference_wrapper<podio::Frame>>& event) {
-  const auto& params = lcioobj->getParameters();
 
-  // When using the PodioDataSvc there is always access to the event frame
-  // but when using IOSvc there is not a frame
-  auto putParamFun = [&](const std::string& key, const auto& value) {
-    if (event) {
-      event->get().putParameter(key, value);
-    } else {
-      k4FWCore::putParameter(key, value);
-    }
-  };
+template <typename LCIOType, typename PutParamF>
+void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun) {
+  const auto& params = lcioobj->getParameters();
 
   // handle srting params
   EVENT::StringVec keys;
