@@ -16,7 +16,6 @@ k4edm4hep2lcioconv_set_linker_flags()
 find_package(LCIO 2.22 REQUIRED)
 find_package(podio 1.0 REQUIRED)
 find_package(EDM4HEP 0.99 REQUIRED)
-find_package(k4FWCore REQUIRED)
 find_package(ROOT REQUIRED COMPONENTS MathCore)
 
 add_subdirectory(k4EDM4hep2LcioConv)

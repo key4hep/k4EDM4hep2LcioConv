@@ -13,7 +13,6 @@ target_link_libraries(k4EDM4hep2LcioConv PUBLIC
   EDM4HEP::edm4hep
   EDM4HEP::utils
   ROOT::MathCore
-  k4FWCore::k4FWCore
 )
 
 set(public_headers
