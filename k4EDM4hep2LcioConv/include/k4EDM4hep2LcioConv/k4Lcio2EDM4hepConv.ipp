@@ -6,18 +6,16 @@
 #include <edm4hep/RecDqdxCollection.h>
 
 namespace LCIO2EDM4hepConv {
-
-template <typename LCIOType, typename PutParamF>
-void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun) {
+template <typename LCIOType>
+void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
   const auto& params = lcioobj->getParameters();
-
   // handle srting params
   EVENT::StringVec keys;
   const auto stringKeys = params.getStringKeys(keys);
   for (auto i = 0u; i < stringKeys.size(); i++) {
     EVENT::StringVec sValues;
     const auto stringVals = params.getStringVals(stringKeys[i], sValues);
-    putParamFun(stringKeys[i], stringVals);
+    event.putParameter(stringKeys[i], stringVals);
   }
   // handle float params
   EVENT::StringVec fkeys;
@@ -25,7 +23,7 @@ void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun) {
   for (auto i = 0u; i < floatKeys.size(); i++) {
     EVENT::FloatVec fValues;
     const auto floatVals = params.getFloatVals(floatKeys[i], fValues);
-    putParamFun(floatKeys[i], floatVals);
+    event.putParameter(floatKeys[i], floatVals);
   }
   // handle int params
   EVENT::StringVec ikeys;
@@ -33,7 +31,7 @@ void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun) {
   for (auto i = 0u; i < intKeys.size(); i++) {
     EVENT::IntVec iValues;
     const auto intVals = params.getIntVals(intKeys[i], iValues);
-    putParamFun(intKeys[i], intVals);
+    event.putParameter(intKeys[i], intVals);
   }
   // handle double params
   EVENT::StringVec dkeys;
@@ -41,7 +39,7 @@ void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun) {
   for (auto i = 0u; i < dKeys.size(); i++) {
     EVENT::DoubleVec dValues;
     const auto dVals = params.getDoubleVals(dKeys[i], dValues);
-    putParamFun(dKeys[i], dVals);
+    event.putParameter(dKeys[i], dVals);
   }
 }
 

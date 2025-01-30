@@ -160,32 +160,11 @@ template <typename LCVecType>
 std::vector<CollNamePair> convertLCVec(const std::string& name, EVENT::LCCollection* LCCollection);
 
 /**
- * Converting all parameters of an LCIO Object and passing them to the PutParamF
- * function that takes care of storing them appropriately.
- *
- * The indirection is necessary for better integration with k4FWCore where
- * direct access to a Frame is not possible, but a putParameter method is
- * available instead.
- *
- * The PutParamF has to provide the following interface
- *
- * template<typename T>
- * void(std::string const&, T const&)
- *
- * It will be called for all T that are currently supported as parameters (int,
- * float, double, std::string resp. std::vector of those).
- */
-template <typename LCIOType, typename PutParamF>
-void convertObjectParameters(LCIOType* lcioobj, PutParamF putParamFun);
-
-/**
  * Converting all parameters of an LCIO Object and attaching them to the
  * passed podio::Frame.
  */
 template <typename LCIOType>
-void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event) {
-  convertObjectParameters(lcioobj, [&event](const std::string& key, const auto& v) { event.putParameter(key, v); });
-}
+void convertObjectParameters(LCIOType* lcioobj, podio::Frame& event);
 
 inline edm4hep::Vector3f Vector3fFrom(const double* v) { return edm4hep::Vector3f(v[0], v[1], v[2]); }
 
