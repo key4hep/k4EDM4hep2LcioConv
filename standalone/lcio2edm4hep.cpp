@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < nEvt; ++i) {
     int tenPercent = nEvt / 10;
     if ((i + 1) % tenPercent == 0) {
-      std::cout << "processed amount of events: " << percEvt << "% (event: " << i << ")" << std::endl;
+      std::cout << "processed amount of events: " << (i + 1) / tenPercent << "% (event: " << i << ")" << std::endl;
     }
     auto evt = lcreader->readNextEvent();
     // Patching the Event to make sure all events contain the same Collections.
