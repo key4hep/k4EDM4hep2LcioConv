@@ -50,10 +50,25 @@ inline std::ostream& operator<<(std::ostream& os, const podio::RelationRange<T>&
   return printContainer(os, range);
 }
 
+// Remove the -Wsign-compare warning because there are numbers in the
+// EDM4hep EventHeader that are unsigned after https://github.com/key4hep/EDM4hep/pull/398
+// and are signed for LCIO
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-compare"
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
 template <typename T, typename U>
 inline bool nanSafeComp(T x, U y) {
   return (x == y) || (std::isnan(x) && std::isnan(y));
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#else
+#pragma GCC diagnostic pop
+#endif
 
 // Only enable for vectors
 template <typename T, typename = void>
