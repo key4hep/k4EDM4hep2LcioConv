@@ -21,12 +21,12 @@ superset of all collections appearing in at least one event in the input LCIO
 file. The format looks like this
 
 ```
-name[:output-name]  type-name
+name[:output-name]  type-name[*]
 ```
 
 Each collection is a single line containing the name first (including an
 optional output name [see below](#renaming-collections-on-the-fly)) and than its
-type. The simplest form looks like this:
+type. An additional `*` signifies a *subset collection*. The simplest form looks like this:
 
 ```
 SETSpacePoints             TrackerHit
@@ -57,6 +57,30 @@ names are present it will also set the parameter names for this PID algorithm.
 This is only available from LCIO versions **larger** than `v02-22-01`!
 ```
 
+### Patching `LCRelation` collections
+For collections of `LCRelation` type it is necessary to define the `FromType` and
+`ToType` as well, as otherwise the converter will not be able to create the
+correct edm4hep file. The `check_missing_cols` executable will try to determine
+these types from the collection parameters and will warn if it cannot do it for
+certain collections. In this case it is the **users responsibility to provide
+the missing types** as otherwise the conversion will simply skip these
+collections, or potentially even crash.
+
+### Patching collections as subset collections
+A single `*` (star) after the type name tells the patching to flip the *subset*
+collection flag for a newly created collection. This can be necessary for
+producing consistent outputs in EDM4hep. As an example
+
+```
+FTD_STRIPCollection      SimTrackerHit*
+```
+will create a `SimTrackerHit` subset collection with the name `FTD_STRIPCollection`.
+
+
+```{note}
+This is only available from LCIO versions **larger** than `v02-22-03`!
+```
+
 #### Example:
 1. Get the patch file
 ```bash
@@ -72,14 +96,6 @@ lcio2edm4hep \
   patch.txt
 ```
 
-### Converting `LCRelation` collections
-For collections of `LCRelation` type it is necessary to define the `FromType` and
-`ToType` as well, as otherwise the converter will not be able to create the
-correct edm4hep file. The `check_missing_cols` executable will try to determine
-these types from the collection parameters and will warn if it cannot do it for
-certain collections. In this case it is the **users responsibility to provide
-the missing types** as otherwise the conversion will simply skip these
-collections, or potentially even crash.
 
 ## Converting only a subset of collections
 Using the same mechanism as for patching collections it is also possible to only
