@@ -1,3 +1,35 @@
+# v00-10
+
+* 2025-02-04 Thomas Madlener ([PR#109](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/109))
+  - Update the documentation to include the new capabilities of patching subset collections, introduced in [iLCSoft/LCIO#201](https://github.com/iLCSoft/LCIO/pull/201)
+
+* 2025-02-03 jmcarcell ([PR#108](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/108))
+  - Fix compilation warning about comparing integers with different signs, related to https://github.com/key4hep/EDM4hep/pull/398
+
+* 2024-12-19 Thomas Madlener ([PR#104](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/104))
+  - Remove the conversion of the `colorFlow` from the MCParticle. For LCIO the color flow will be set to `{0, 0}` during the conversion. (`colorFlow` is removed from the `edm4hep::MCParticle` in [EDM4hep#389](https://github.com/key4hep/EDM4hep/pull/389))
+
+* 2024-12-18 Thomas Madlener ([PR#103](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/103))
+  - Remove the inclusion of a no longer existing header in the tests.
+
+* 2024-12-17 Mateusz Jakub Fila ([PR#101](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/101))
+  - Replaced link to local file with link to github, so the page build correctly in keyhep documentation
+
+* 2024-12-10 Thomas Madlener ([PR#100](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/100))
+  - Make the pre-commit CI workflow run on EL9
+
+* 2024-12-10 jmcarcell ([PR#99](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/99))
+  - Remove the check for TrackerHit3D from edm4hep
+  - Remove the check for `CovMatrix3f.h`
+
+* 2024-09-25 tmadlener ([PR#98](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/98))
+  - Update README and remove outdated content
+    - Add zenodo and CI status badges
+    - Add description of how to build
+
+* 2024-09-12 tmadlener ([PR#97](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/97))
+  - Exclude the release notes from pre-commit check for trailing whitespaces
+
 # v00-09
 
 * 2024-09-10 jmcarcell ([PR#96](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/96))
