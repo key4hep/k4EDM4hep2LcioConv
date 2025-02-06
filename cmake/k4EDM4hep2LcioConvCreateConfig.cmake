@@ -3,8 +3,8 @@ include(CMakePackageConfigHelpers)
 
 # - Versioning
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/k4EDM4hep2LcioConvConfigVersion.cmake
-  VERSION k4EDM4hep2LcioConv_VERSION
+  ${PROJECT_BINARY_DIR}/k4EDM4hep2LcioConvConfigVersion.cmake
+  VERSION ${k4EDM4hep2LcioConv_VERSION}
   COMPATIBILITY SameMajorVersion)
 
 # - Install time config and target files
