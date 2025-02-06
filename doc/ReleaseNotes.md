@@ -1,3 +1,8 @@
+# v00-11
+
+* 2025-02-06 jmcarcell ([PR#110](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/110))
+  - Fix setting the version in k4EDM4hep2LcioConvConfigVersion.cmake
+
 # v00-10
 
 * 2025-02-04 Thomas Madlener ([PR#109](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/109))
