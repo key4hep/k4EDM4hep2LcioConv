@@ -10,6 +10,7 @@
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ClusterMCParticleLinkCollection.h"
+#include "edm4hep/EDM4hepVersion.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
@@ -238,6 +239,7 @@ bool compareVertexRecoLink(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRe
     }                                                                                                                  \
   }
 
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 2)
 #define ASSERT_COMPARE_LINK_OR_EXIT(fromType, toType)                                                                  \
   if (type == "podio::LinkCollection<" #fromType "," #toType ">") {                                                    \
     auto& edmcoll = edmEvent.get<podio::LinkCollection<fromType, toType>>(name);                                       \
@@ -246,5 +248,6 @@ bool compareVertexRecoLink(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRe
       return 1;                                                                                                        \
     }                                                                                                                  \
   }
+#endif
 
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H

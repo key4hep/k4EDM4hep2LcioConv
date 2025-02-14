@@ -298,8 +298,8 @@ createSimTrackerHitTrackerHitLinks(const std::vector<edm4hep::TrackerHit>& track
 
   for (const auto& [hitIdx, simIdx] : linkIdcs) {
     auto link = links.create();
-    link.set(simHits[simIdx]);
-    link.set(trackerHits[hitIdx]);
+    link.setTo(simHits[simIdx]);
+    link.setFrom(trackerHits[hitIdx]);
   }
 
   return links;

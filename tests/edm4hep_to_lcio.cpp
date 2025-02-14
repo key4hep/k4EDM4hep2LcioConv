@@ -65,9 +65,15 @@ int main() {
     ASSERT_COMPARE_OR_EXIT(edm4hep::RawTimeSeriesCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::ClusterCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::VertexCollection)
-    ASSERT_COMPARE_OR_EXIT(edm4hep::RecoMCParticleLinkCollection)
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 2)
+    ASSERT_COMPARE_LINK_OR_EXIT(edm4hep::ReconstructedParticle, edm4hep::MCParticle)
     ASSERT_COMPARE_LINK_OR_EXIT(edm4hep::CalorimeterHit, edm4hep::SimCalorimeterHit)
     ASSERT_COMPARE_LINK_OR_EXIT(edm4hep::TrackerHit, edm4hep::SimTrackerHit)
+#else
+    ASSERT_COMPARE_OR_EXIT(edm4hep::RecoMCParticleLinkCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::CaloHitSimCaloHitLinkCollection)
+    ASSERT_COMPARE_OR_EXIT(edm4hep::TrackerHitSimTrackerHitLinkCollection)
+#endif
 
     // TODO: start vertex association (EDM4hep) vs getStartVertex in LCIO
   }

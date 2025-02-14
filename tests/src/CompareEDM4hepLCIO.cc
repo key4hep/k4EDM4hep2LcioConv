@@ -461,12 +461,12 @@ bool compare(const EVENT::LCRelation* lcioRel, const edm4hep::TrackerHitSimTrack
   ASSERT_COMPARE(lcioRel, edm4hepLink, getWeight, "weight in relation / link");
 
   const auto lcioSimHit = static_cast<EVENT::SimTrackerHit*>(lcioRel->getTo());
-  const auto edm4hepSimHit = edm4hepLink.get<edm4hep::SimTrackerHit>();
+  const auto edm4hepSimHit = edm4hepLink.getTo();
   if (!compareRelation(lcioSimHit, edm4hepSimHit, objectMaps.simTrackerHits, "sim hit in relation / link")) {
     return false;
   }
 
-  const auto edm4hepHit = edm4hepLink.get<edm4hep::TrackerHit>();
+  const auto edm4hepHit = edm4hepLink.getFrom();
   bool anyMatch = false;
   if (edm4hepHit.isA<edm4hep::TrackerHit3D>()) {
     const auto lcioHit = static_cast<EVENT::TrackerHit*>(lcioRel->getFrom());
