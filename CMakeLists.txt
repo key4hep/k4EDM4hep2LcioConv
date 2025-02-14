@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(k4EDM4hep2LcioConv)
+project(k4EDM4hep2LcioConv LANGUAGES CXX)
 
 # project version
 set( ${PROJECT_NAME}_VERSION_MAJOR 0 )
