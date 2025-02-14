@@ -66,7 +66,8 @@ int main() {
     ASSERT_COMPARE_OR_EXIT(edm4hep::ClusterCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::VertexCollection)
     ASSERT_COMPARE_OR_EXIT(edm4hep::RecoMCParticleLinkCollection)
-    ASSERT_COMPARE_OR_EXIT(edm4hep::CaloHitSimCaloHitLinkCollection)
+    ASSERT_COMPARE_LINK_OR_EXIT(edm4hep::CalorimeterHit, edm4hep::SimCalorimeterHit)
+    ASSERT_COMPARE_LINK_OR_EXIT(edm4hep::TrackerHit, edm4hep::SimTrackerHit)
 
     // TODO: start vertex association (EDM4hep) vs getStartVertex in LCIO
   }

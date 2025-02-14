@@ -152,6 +152,14 @@ edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements);
 edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements);
 
 /**
+ * Create a collection linking sim hits with reco hits
+ */
+edm4hep::TrackerHitSimTrackerHitLinkCollection
+createSimTrackerHitTrackerHitLinks(const std::vector<edm4hep::TrackerHit>& trackerHits,
+                                   const edm4hep::SimTrackerHitCollection& simHits,
+                                   const std::vector<test_config::IdxPair>& linkIdcs);
+
+/**
  * Create a track collection with tracks that have links to other tracks (in the
  * same collection) and tracker hits
  */

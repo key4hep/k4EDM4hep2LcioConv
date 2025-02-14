@@ -194,7 +194,6 @@ const auto& getObjectMap(const ObjectMappings& maps) {
 
 template <typename LinkT>
 bool compare(const EVENT::LCRelation* lcio, const LinkT& edm4hep, const ObjectMappings& objectMaps) {
-
   ASSERT_COMPARE(lcio, edm4hep, getWeight, "weight in relation / link");
 
   using LcioFromT = detail::getLcioFromType<LinkT>;
@@ -228,6 +227,15 @@ bool compareVertexRecoLink(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRe
 #define ASSERT_COMPARE_OR_EXIT(collType)                                                                               \
   if (type == #collType) {                                                                                             \
     auto& edmcoll = edmEvent.get<collType>(name);                                                                      \
+    if (!compare(lcioColl, edmcoll, objectMapping)) {                                                                  \
+      std::cerr << "in collection: " << name << std::endl;                                                             \
+      return 1;                                                                                                        \
+    }                                                                                                                  \
+  }
+
+#define ASSERT_COMPARE_LINK_OR_EXIT(fromType, toType)                                                                  \
+  if (type == "podio::LinkCollection<" #fromType "," #toType ">") {                                                    \
+    auto& edmcoll = edmEvent.get<podio::LinkCollection<fromType, toType>>(name);                                       \
     if (!compare(lcioColl, edmcoll, objectMapping)) {                                                                  \
       std::cerr << "in collection: " << name << std::endl;                                                             \
       return 1;                                                                                                        \
