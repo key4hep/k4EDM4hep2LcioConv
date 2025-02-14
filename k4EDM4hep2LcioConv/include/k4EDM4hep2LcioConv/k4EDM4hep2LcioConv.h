@@ -338,6 +338,17 @@ template <typename LinkCollT, typename FromMapT, typename ToMapT>
 std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const LinkCollT& links, const FromMapT& fromMap,
                                                                const ToMapT& toMap);
 
+/**
+ * Convert the passed link collection to an LCRelation collection
+ *
+ * Dedicated overload for handling tracker hit - sim tracker hit relations since
+ * lookups have to happen in multiple places
+ */
+template <typename Hit3DMap, typename HitPlaneMap, typename SimHitMap>
+std::unique_ptr<lcio::LCCollection>
+createLCRelationCollection(const edm4hep::TrackerHitSimTrackerHitLinkCollection& links, const Hit3DMap& hits3DMap,
+                           const HitPlaneMap& hitsPlaneMap, const SimHitMap& simHitMap);
+
 bool collectionExist(const std::string& collection_name, const lcio::LCEventImpl* lcio_event);
 
 /**

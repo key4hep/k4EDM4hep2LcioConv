@@ -215,6 +215,11 @@ bool compare(const EVENT::LCRelation* lcio, const LinkT& edm4hep, const ObjectMa
   return true;
 }
 
+// Dedicated overload for tracker hit - sim tracker hit links since they might
+// require double lookup
+bool compare(const EVENT::LCRelation* lcioRel, const edm4hep::TrackerHitSimTrackerHitLink& edm4hepLink,
+             const ObjectMappings& objectMaps);
+
 /// Compare the information stored in startVertex in LCIO
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
