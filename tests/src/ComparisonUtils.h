@@ -145,27 +145,34 @@ bool compareValuesNanSafe(LCIO lcioV, EDM4hepT edm4hepV, const std::string& msg)
  */
 template <typename LcioT, typename EDM4hepT, typename MapT>
 inline bool compareRelation(const LcioT* lcioElem, const EDM4hepT& edm4hepElem, const MapT& objectMap,
-                            const std::string& msg) {
+                            const std::string& msg = "") {
   if (lcioElem == nullptr && !edm4hepElem.isAvailable()) {
     // Both elements are "empty". Nothing more to do here
     return true;
   }
   if ((lcioElem == nullptr && edm4hepElem.isAvailable()) || (lcioElem != nullptr && !edm4hepElem.isAvailable())) {
-    const auto emptyOrNot = [](const bool b) { return b ? "not empty" : "empty"; };
-    std::cerr << msg << " LCIO element is " << emptyOrNot(lcioElem) << " but edm4hep element is "
-              << emptyOrNot(edm4hepElem.isAvailable()) << std::endl;
+    if (!msg.empty()) {
+      const auto emptyOrNot = [](const bool b) { return b ? "not empty" : "empty"; };
+      std::cerr << msg << " LCIO element is " << emptyOrNot(lcioElem) << " but edm4hep element is "
+                << emptyOrNot(edm4hepElem.isAvailable()) << std::endl;
+    }
     return false;
   }
 
   // Now we know for sure that
   if (const auto it = objectMap.find(lcioElem); it != objectMap.end()) {
     if (!(it->second == edm4hepElem.getObjectID())) {
-      std::cerr << msg << " LCIO element " << lcioElem << " points to " << it->second << " but should point to "
-                << edm4hepElem.getObjectID() << std::endl;
+      if (!msg.empty()) {
+        std::cerr << msg << " LCIO element " << lcioElem << " points to " << it->second << " but should point to "
+                  << edm4hepElem.getObjectID() << std::endl;
+      }
       return false;
     }
   } else {
-    std::cerr << msg << " cannot find LCIO object " << lcioElem << " in object map for relation checking" << std::endl;
+    if (!msg.empty()) {
+      std::cerr << msg << " cannot find LCIO object " << lcioElem << " in object map for relation checking"
+                << std::endl;
+    }
     return false;
   }
 

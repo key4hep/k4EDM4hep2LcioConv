@@ -345,6 +345,19 @@ std::unique_ptr<CollT> createLinkCollection(EVENT::LCCollection* relations, cons
                                             const ToMapT& toMap);
 
 /**
+ * Create a TrackerHitSimTrackerHitLinkCollection. This is a dedicated function
+ * (and not part of the createLinkCollection overload-set!) because this
+ * requires lookups in two dedicated tracker hit maps, depending on which type
+ * they actually are.
+ *
+ * Templated on all involved maps to allow for different choices there.
+ */
+template <typename SimHitMap, typename Hit3DMap, typename HitPlaneMap>
+std::unique_ptr<edm4hep::TrackerHitSimTrackerHitLinkCollection>
+createLinkCollection(EVENT::LCCollection* relations, const SimHitMap& simHitMap, const Hit3DMap& hit3DMap,
+                     const HitPlaneMap& hitPlaneMap, bool reverse);
+
+/**
  * Creates the CaloHitContributions for all SimCaloHits.
  * has to be done this way, since the converted McParticles are needeed.
  * The contributions are also attached to their corresponding

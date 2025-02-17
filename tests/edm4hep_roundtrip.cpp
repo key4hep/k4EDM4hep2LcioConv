@@ -22,9 +22,11 @@ int main() {
   ASSERT_SAME_OR_ABORT(edm4hep::CalorimeterHitCollection, "caloHits");
   ASSERT_SAME_OR_ABORT(edm4hep::MCParticleCollection, "mcParticles");
   ASSERT_SAME_OR_ABORT(edm4hep::SimCalorimeterHitCollection, "simCaloHits");
+  ASSERT_SAME_OR_ABORT(edm4hep::SimTrackerHitCollection, "simTrackerHits");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackCollection, "tracks");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHit3DCollection, "trackerHits");
   ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes");
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitSimTrackerHitLinkCollection, "simTrackerHitLinks");
   ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters");
   ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "recos");
   ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_1");

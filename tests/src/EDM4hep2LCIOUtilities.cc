@@ -266,6 +266,45 @@ createSimCalorimeterHits(const int num_elements, const int num_contributions,
   return {std::move(simcalohit_coll), std::move(contrib_coll)};
 }
 
+edm4hep::SimTrackerHitCollection
+createSimTrackerHitCollection(int num_elements, const edm4hep::MCParticleCollection& mcParticles,
+                              const std::vector<test_config::IdxPair>& mcParticleIdcs) {
+  auto simHits = edm4hep::SimTrackerHitCollection{};
+
+  for (int i = 0; i < num_elements; ++i) {
+    auto hit = simHits.create();
+    hit.setCellID(createCellID(i));
+    hit.setEDep(i * 3.14f);
+    hit.setTime(i * 1.23f + 1);
+    hit.setPathLength(i * 10.f);
+    hit.setQuality(42);
+    hit.setPosition({1.f, 2.f * i, 3.f + i});
+    hit.setMomentum({3.f * i, 2.f + i, 1.f});
+  }
+
+  // relate to MCParticles
+  for (const auto& [hitIdx, mcIdx] : mcParticleIdcs) {
+    simHits[hitIdx].setParticle(mcParticles[mcIdx]);
+  }
+
+  return simHits;
+}
+
+edm4hep::TrackerHitSimTrackerHitLinkCollection
+createSimTrackerHitTrackerHitLinks(const std::vector<edm4hep::TrackerHit>& trackerHits,
+                                   const edm4hep::SimTrackerHitCollection& simHits,
+                                   const std::vector<test_config::IdxPair>& linkIdcs) {
+  auto links = edm4hep::TrackerHitSimTrackerHitLinkCollection{};
+
+  for (const auto& [hitIdx, simIdx] : linkIdcs) {
+    auto link = links.create();
+    link.setTo(simHits[simIdx]);
+    link.setFrom(trackerHits[hitIdx]);
+  }
+
+  return links;
+}
+
 edm4hep::EventHeaderCollection createEventHeader() {
   auto evtHeaderColl = edm4hep::EventHeaderCollection{};
   auto evtHeader = evtHeaderColl.create();
@@ -417,10 +456,22 @@ std::tuple<podio::Frame, podio::Frame> createExampleEvent() {
   const auto& caloHits = event.put(createCalorimeterHits(test_config::nCaloHits), "caloHits");
   event.put(createRawCalorimeterHits(test_config::nRawCaloHits), "rawCaloHits");
   event.put(createTPCHits(test_config::nTPCHits, test_config::nTPCRawWords), "tpcHits");
-  const auto& trackerHits = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
+
+  const auto& simTrackerHits = event.put(
+      createSimTrackerHitCollection(test_config::nSimTrackerHits, mcParticles, test_config::simTrackHitMCIdcs),
+      "simTrackerHits");
+
+  const auto& trackerHits3D = event.put(createTrackerHits(test_config::nTrackerHits), "trackerHits");
   const auto& trackerHitPlanes = event.put(createTrackerHitPlanes(test_config::nTrackerHits), "trackerHitPlanes");
+
+  const std::vector<edm4hep::TrackerHit> trackerHits = {trackerHits3D[0], trackerHitPlanes[1], trackerHits3D[1],
+                                                        trackerHitPlanes[2], trackerHitPlanes[3]};
+  const std::vector<test_config::IdxPair> simTHLinkIdcs = {{1, 0}, {0, 1}, {2, 2}, {4, 3}, {3, 4}};
+
+  event.put(createSimTrackerHitTrackerHitLinks(trackerHits, simTrackerHits, simTHLinkIdcs), "simTrackerHitLinks");
+
   const auto& tracks = event.put(createTracks(test_config::nTracks, test_config::nSubdetectorHitNumbers,
-                                              test_config::nTrackStates, trackerHits, trackerHitPlanes,
+                                              test_config::nTrackStates, trackerHits3D, trackerHitPlanes,
                                               test_config::trackTrackerHitIdcs, test_config::trackTrackIdcs),
                                  "tracks");
   event.put(createDqDxColl(tracks), "tracks_dQdx");

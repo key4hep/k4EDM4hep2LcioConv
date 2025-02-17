@@ -10,6 +10,7 @@
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
 #include "edm4hep/ClusterMCParticleLinkCollection.h"
+#include "edm4hep/EDM4hepVersion.h"
 #include "edm4hep/EventHeaderCollection.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
@@ -194,7 +195,6 @@ const auto& getObjectMap(const ObjectMappings& maps) {
 
 template <typename LinkT>
 bool compare(const EVENT::LCRelation* lcio, const LinkT& edm4hep, const ObjectMappings& objectMaps) {
-
   ASSERT_COMPARE(lcio, edm4hep, getWeight, "weight in relation / link");
 
   using LcioFromT = detail::getLcioFromType<LinkT>;
@@ -216,6 +216,11 @@ bool compare(const EVENT::LCRelation* lcio, const LinkT& edm4hep, const ObjectMa
   return true;
 }
 
+// Dedicated overload for tracker hit - sim tracker hit links since they might
+// require double lookup
+bool compare(const EVENT::LCRelation* lcioRel, const edm4hep::TrackerHitSimTrackerHitLink& edm4hepLink,
+             const ObjectMappings& objectMaps);
+
 /// Compare the information stored in startVertex in LCIO
 
 bool compareStartVertexRelations(const EVENT::ReconstructedParticle* lcioReco,
@@ -233,5 +238,16 @@ bool compareVertexRecoLink(const EVENT::Vertex* lcioVtx, const edm4hep::VertexRe
       return 1;                                                                                                        \
     }                                                                                                                  \
   }
+
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 2)
+#define ASSERT_COMPARE_LINK_OR_EXIT(fromType, toType)                                                                  \
+  if (type == "podio::LinkCollection<" #fromType "," #toType ">") {                                                    \
+    auto& edmcoll = edmEvent.get<podio::LinkCollection<fromType, toType>>(name);                                       \
+    if (!compare(lcioColl, edmcoll, objectMapping)) {                                                                  \
+      std::cerr << "in collection: " << name << std::endl;                                                             \
+      return 1;                                                                                                        \
+    }                                                                                                                  \
+  }
+#endif
 
 #endif // K4EDM4HEP2LCIOCONV_TEST_COMPAREEDM4HEPLCIO_H

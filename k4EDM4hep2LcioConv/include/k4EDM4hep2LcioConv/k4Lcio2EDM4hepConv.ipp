@@ -880,6 +880,53 @@ std::unique_ptr<CollT> createLinkCollection(EVENT::LCCollection* relations, cons
   return linkColl;
 }
 
+template <typename SimHitMap, typename Hit3DMap, typename HitPlaneMap>
+std::unique_ptr<edm4hep::TrackerHitSimTrackerHitLinkCollection>
+createLinkCollection(EVENT::LCCollection* relations, const SimHitMap& simHitMap, const Hit3DMap& hit3DMap,
+                     const HitPlaneMap& hitPlaneMap, bool reverse) {
+  auto linkColl = std::make_unique<edm4hep::TrackerHitSimTrackerHitLinkCollection>();
+  auto relIter = UTIL::LCIterator<EVENT::LCRelation>(relations);
+
+  while (const auto rel = relIter.next()) {
+    auto link = linkColl->create();
+    link.setWeight(rel->getWeight());
+
+    const auto lcioSimHit = [&]() {
+      if (reverse) {
+        return static_cast<EVENT::SimTrackerHit*>(rel->getFrom());
+      } else {
+        return static_cast<EVENT::SimTrackerHit*>(rel->getTo());
+      }
+    }();
+
+    const auto lcioHit = [&]() {
+      if (reverse) {
+        return static_cast<EVENT::TrackerHit*>(rel->getTo());
+      } else {
+        return static_cast<EVENT::TrackerHit*>(rel->getFrom());
+      }
+    }();
+
+    const auto edm4hepSimHit = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioSimHit, simHitMap);
+    if (edm4hepSimHit) {
+      link.setTo(edm4hepSimHit.value());
+    }
+
+    // Have to look in both maps here to be sure
+    const auto hit3D = k4EDM4hep2LcioConv::detail::mapLookupTo(lcioHit, hit3DMap);
+    if (hit3D) {
+      link.setFrom(hit3D.value());
+      continue; // skip a lookup that will fail in any case
+    }
+    const auto hitPlane =
+        k4EDM4hep2LcioConv::detail::mapLookupTo(static_cast<EVENT::TrackerHitPlane*>(lcioHit), hitPlaneMap);
+    if (hitPlane) {
+      link.setFrom(hitPlane.value());
+    }
+  }
+  return linkColl;
+}
+
 template <typename ObjectMappingT>
 std::vector<CollNamePair> createLinks(const ObjectMappingT& typeMapping,
                                       const std::vector<std::pair<std::string, EVENT::LCCollection*>>& LCRelation) {
@@ -927,17 +974,13 @@ std::vector<CollNamePair> createLinks(const ObjectMappingT& typeMapping,
       auto mc_a = createLinkCollection<edm4hep::TrackMCParticleLinkCollection, true>(relations, typeMapping.tracks,
                                                                                      typeMapping.mcParticles);
       linksCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "TrackerHit" && toType == "SimTrackerHit") {
-      auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, true>(
-          relations, typeMapping.trackerHits, typeMapping.simTrackerHits);
-      linksCollVec.emplace_back(name, std::move(mc_a));
-    } else if (fromType == "TrackerHitPlane" && toType == "SimTrackerHit") {
-      auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, true>(
-          relations, typeMapping.trackerHitPlanes, typeMapping.simTrackerHits);
+    } else if ((fromType == "TrackerHit" || fromType == "TrackerHitPlane") && toType == "SimTrackerHit") {
+      auto mc_a = createLinkCollection(relations, typeMapping.simTrackerHits, typeMapping.trackerHits,
+                                       typeMapping.trackerHitPlanes, false);
       linksCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "SimTrackerHit" && (toType == "TrackerHit" || toType == "TrackerHitPlane")) {
-      auto mc_a = createLinkCollection<edm4hep::TrackerHitSimTrackerHitLinkCollection, false>(
-          relations, typeMapping.simTrackerHits, typeMapping.trackerHits);
+      auto mc_a = createLinkCollection(relations, typeMapping.simTrackerHits, typeMapping.trackerHits,
+                                       typeMapping.trackerHitPlanes, true);
       linksCollVec.emplace_back(name, std::move(mc_a));
     } else if (fromType == "ReconstructedParticle" && toType == "Vertex") {
       auto mc_a = createLinkCollection<edm4hep::VertexRecoParticleLinkCollection, true>(

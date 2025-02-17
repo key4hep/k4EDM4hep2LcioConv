@@ -120,6 +120,24 @@ bool compare(const edm4hep::SimCalorimeterHitCollection& origColl,
   return true;
 }
 
+bool compare(const edm4hep::SimTrackerHitCollection& origColl, const edm4hep::SimTrackerHitCollection& roundtripColl) {
+  for (size_t i = 0; i < origColl.size(); ++i) {
+    auto origHit = origColl[i];
+    auto hit = roundtripColl[i];
+
+    REQUIRE_SAME(origHit.getCellID(), hit.getCellID(), "cellID in hit " << i);
+    REQUIRE_SAME(origHit.getEDep(), hit.getEDep(), "energy in hit " << i);
+    REQUIRE_SAME(origHit.getTime(), hit.getTime(), "time in hit " << i);
+    REQUIRE_SAME(origHit.getPathLength(), hit.getPathLength(), "pathLength in hit " << i);
+    REQUIRE_SAME(origHit.getQuality(), hit.getQuality(), "quality in hit " << i);
+    REQUIRE_SAME(origHit.getPosition(), hit.getPosition(), "position in hit " << i);
+    REQUIRE_SAME(origHit.getMomentum(), hit.getMomentum(), "momentum in hit " << i);
+    REQUIRE_SAME(origHit.getParticle().id(), hit.getParticle().id(), "related particle in hit " << i);
+  }
+
+  return true;
+}
+
 bool compare(const edm4hep::TrackState& orig, const edm4hep::TrackState& roundtrip) {
   REQUIRE_SAME(orig.location, roundtrip.location, "location in TrackState");
   REQUIRE_SAME(orig.D0, roundtrip.D0, "D0 in TrackState");

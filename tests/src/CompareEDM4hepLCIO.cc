@@ -456,6 +456,37 @@ bool compare(const EVENT::Vertex* lcioElem, const edm4hep::Vertex& edm4hepElem, 
   return true;
 }
 
+bool compare(const EVENT::LCRelation* lcioRel, const edm4hep::TrackerHitSimTrackerHitLink& edm4hepLink,
+             const ObjectMappings& objectMaps) {
+  ASSERT_COMPARE(lcioRel, edm4hepLink, getWeight, "weight in relation / link");
+
+  const auto lcioSimHit = static_cast<EVENT::SimTrackerHit*>(lcioRel->getTo());
+  const auto edm4hepSimHit = edm4hepLink.getTo();
+  if (!compareRelation(lcioSimHit, edm4hepSimHit, objectMaps.simTrackerHits, "sim hit in relation / link")) {
+    return false;
+  }
+
+  const auto edm4hepHit = edm4hepLink.getFrom();
+  bool anyMatch = false;
+  if (edm4hepHit.isA<edm4hep::TrackerHit3D>()) {
+    const auto lcioHit = static_cast<EVENT::TrackerHit*>(lcioRel->getFrom());
+    anyMatch |= compareRelation(lcioHit, edm4hepHit, objectMaps.trackerHits);
+  } else if (edm4hepHit.isA<edm4hep::TrackerHitPlane>()) {
+    const auto lcioHit = static_cast<EVENT::TrackerHitPlane*>(lcioRel->getFrom());
+    anyMatch |= compareRelation(lcioHit, edm4hepHit, objectMaps.trackerHitPlanes);
+  } else {
+    std::cerr << "Encountered unknown type in TrackerHitSimTrackerHitLink. Please fix the tests" << std::endl;
+    return false;
+  }
+
+  if (!anyMatch) {
+    std::cerr << "Could not find a linked TrackerHit in a relation / link" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
 bool compare(const lcio::LCCollection* lcioCollection, const edm4hep::VertexCollection& edm4hepCollection,
              const ObjectMappings& objectMaps) {
   return compareCollection<EVENT::Vertex>(lcioCollection, edm4hepCollection, objectMaps);

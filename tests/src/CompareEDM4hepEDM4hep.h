@@ -22,6 +22,8 @@ bool compare(const edm4hep::MCParticleCollection& origColl, const edm4hep::MCPar
 bool compare(const edm4hep::SimCalorimeterHitCollection& origColl,
              const edm4hep::SimCalorimeterHitCollection& roundtripColl);
 
+bool compare(const edm4hep::SimTrackerHitCollection& origColl, const edm4hep::SimTrackerHitCollection& roundtripColl);
+
 bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackCollection& roundtripColl);
 
 bool compare(const edm4hep::TrackerHit3DCollection& origColl, const edm4hep::TrackerHit3DCollection& roundtripColl);

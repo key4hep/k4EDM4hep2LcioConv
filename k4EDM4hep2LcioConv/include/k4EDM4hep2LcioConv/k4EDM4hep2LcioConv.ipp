@@ -772,8 +772,9 @@ createLCRelationCollections(const std::vector<std::tuple<std::string, const podi
           name, createLCRelationCollection(*caloHitSimCaloHitLink, objectMaps.caloHits, objectMaps.simCaloHits));
     } else if (const auto trackerHitSimTrackerHitLink =
                    dynamic_cast<const edm4hep::TrackerHitSimTrackerHitLinkCollection*>(coll)) {
-      relationColls.emplace_back(name, createLCRelationCollection(*trackerHitSimTrackerHitLink, objectMaps.trackerHits,
-                                                                  objectMaps.simTrackerHits));
+      relationColls.emplace_back(name,
+                                 createLCRelationCollection(*trackerHitSimTrackerHitLink, objectMaps.trackerHits,
+                                                            objectMaps.trackerHitPlanes, objectMaps.simTrackerHits));
     } else if (const auto caloHitMCParticleLink = dynamic_cast<const edm4hep::CaloHitMCParticleLinkCollection*>(coll)) {
       relationColls.emplace_back(
           name, createLCRelationCollection(*caloHitMCParticleLink, objectMaps.caloHits, objectMaps.mcParticles));
@@ -852,6 +853,52 @@ std::unique_ptr<lcio::LCCollection> createLCRelationCollection(const LinkCollT& 
       lcioRel->setTo(lcioTo.value());
     } else {
       std::cerr << "Cannot find an objects for building an LCRelation of type " << detail::getTypeName<ToLCIOT>()
+                << std::endl;
+    }
+
+    lcioColl->addElement(lcioRel);
+  }
+
+  return lcioColl;
+}
+
+template <typename Hit3DMap, typename HitPlaneMap, typename SimHitMap>
+std::unique_ptr<lcio::LCCollection>
+createLCRelationCollection(const edm4hep::TrackerHitSimTrackerHitLinkCollection& links, const Hit3DMap& hits3DMap,
+                           const HitPlaneMap& hitsPlaneMap, const SimHitMap& simHitMap) {
+  auto lcioColl = std::make_unique<lcio::LCCollectionVec>(lcio::LCIO::LCRELATION);
+  lcioColl->parameters().setValue("FromType", detail::getTypeName<EVENT::TrackerHit>());
+  lcioColl->parameters().setValue("ToType", detail::getTypeName<EVENT::SimTrackerHit>());
+
+  for (const auto link : links) {
+    auto lcioRel = new lcio::LCRelationImpl{};
+    lcioRel->setWeight(link.getWeight());
+
+    // Have to look in both maps to figure out where it actually is
+    const auto edm4hepTH = link.getFrom();
+    const auto lcioTH = [&]() -> EVENT::LCObject* {
+      auto lcioHit = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTH, hits3DMap);
+      if (lcioHit) {
+        return lcioHit.value();
+      }
+      auto lcioHitPlane = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepTH, hitsPlaneMap);
+
+      return lcioHitPlane.value_or(nullptr);
+    }();
+    if (lcioTH) {
+      lcioRel->setFrom(lcioTH);
+    } else {
+      std::cerr
+          << "Cannot find a TrackerHit (3D or Plane) for building an LCRelation from TrackerHits to SimTrackerHits"
+          << std::endl;
+    }
+
+    const auto edm4hepSimTH = link.getTo();
+    const auto lcioSimTH = k4EDM4hep2LcioConv::detail::mapLookupFrom(edm4hepSimTH, simHitMap);
+    if (lcioSimTH) {
+      lcioRel->setTo(lcioSimTH.value());
+    } else {
+      std::cerr << "Cannot find a SimTrackerHit for building an LCRelation from TrackerHits to SimTrackerHits"
                 << std::endl;
     }
 

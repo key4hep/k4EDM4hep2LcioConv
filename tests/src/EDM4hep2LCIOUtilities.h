@@ -8,6 +8,7 @@
 #include "edm4hep/RawCalorimeterHitCollection.h"
 #include "edm4hep/ReconstructedParticleCollection.h"
 #include "edm4hep/SimCalorimeterHitCollection.h"
+#include "edm4hep/SimTrackerHitCollection.h"
 #include "edm4hep/TrackCollection.h"
 #include "edm4hep/TrackerHit3DCollection.h"
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
@@ -67,6 +68,11 @@ using CaloContIdx = std::tuple<int, int, int>;
 const static std::vector<CaloContIdx> simCaloHitMCIdcs = {{0, 0, 0}, {0, 1, 2}, {0, 2, 1}, {0, 3, 4},
                                                           {1, 0, 1}, {1, 1, 3}, {1, 2, 4}, {1, 3, 4},
                                                           {2, 0, 0}, {2, 1, 3}, {2, 2, 2}, {2, 3, 0}};
+
+constexpr static int nSimTrackerHits = 5; ///< The number of SimTrackeHits to create
+/// The indices of MCParticles to which the SimTrackerHits should be linked.
+/// First index is the sim hit, second index is the MCParticle
+const static std::vector<IdxPair> simTrackHitMCIdcs = {{0, 0}, {1, 0}, {2, 0}, {3, 2}, {4, 1}};
 
 /// The number of clusters to create
 constexpr static int nClusters = 5;
@@ -141,6 +147,19 @@ edm4hep::RawTimeSeriesCollection createTPCHits(const int num_elements, const int
 edm4hep::TrackerHit3DCollection createTrackerHits(const int num_elements);
 
 /**
+ * Create a TrackerHitPlane collection
+ */
+edm4hep::TrackerHitPlaneCollection createTrackerHitPlanes(const int num_elements);
+
+/**
+ * Create a collection linking sim hits with reco hits
+ */
+edm4hep::TrackerHitSimTrackerHitLinkCollection
+createSimTrackerHitTrackerHitLinks(const std::vector<edm4hep::TrackerHit>& trackerHits,
+                                   const edm4hep::SimTrackerHitCollection& simHits,
+                                   const std::vector<test_config::IdxPair>& linkIdcs);
+
+/**
  * Create a track collection with tracks that have links to other tracks (in the
  * same collection) and tracker hits
  */
@@ -157,6 +176,13 @@ std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionColl
 createSimCalorimeterHits(const int num_elements, const int num_contributions,
                          const edm4hep::MCParticleCollection& mcParticles,
                          const std::vector<test_config::CaloContIdx>& link_mcparticles_idcs);
+
+/**
+ * Create a SimTrackerHitCollection
+ */
+edm4hep::SimTrackerHitCollection createSimTrackerHitCollection(int num_elements,
+                                                               const edm4hep::MCParticleCollection& mcParticles,
+                                                               const std::vector<test_config::IdxPair>& mcParticleIdcs);
 
 edm4hep::EventHeaderCollection createEventHeader();
 
