@@ -888,7 +888,9 @@ createLCRelationCollection(const edm4hep::TrackerHitSimTrackerHitLinkCollection&
     if (lcioTH) {
       lcioRel->setFrom(lcioTH);
     } else {
-      std::cerr << "Cannot find a TrackerHit (3D  or Plane) for building an LCRelation from TrackerHits to SimTrackerHits" << std::endl;
+      std::cerr
+          << "Cannot find a TrackerHit (3D or Plane) for building an LCRelation from TrackerHits to SimTrackerHits"
+          << std::endl;
     }
 
     const auto edm4hepSimTH = link.getTo();
@@ -896,7 +898,8 @@ createLCRelationCollection(const edm4hep::TrackerHitSimTrackerHitLinkCollection&
     if (lcioSimTH) {
       lcioRel->setTo(lcioSimTH.value());
     } else {
-      std::cerr << "Cannot find a SimTrackerHit for building an LCRelation from TrackerHits to SimTrackerHits" << std::endl;
+      std::cerr << "Cannot find a SimTrackerHit for building an LCRelation from TrackerHits to SimTrackerHits"
+                << std::endl;
     }
 
     lcioColl->addElement(lcioRel);
