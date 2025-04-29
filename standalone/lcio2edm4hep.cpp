@@ -206,10 +206,6 @@ int main(int argc, char* argv[]) {
   bool haveSimCaloHits{false};
   const int tenPercent = nEvt / 10;
   for (int i = 0; i < nEvt; ++i) {
-    if (tenPercent && ((i + 1) % tenPercent == 0)) {
-      std::cout << "processed amount of events: " << (i + 1) / tenPercent * 10. << "% (event: " << i << ")"
-                << std::endl;
-    }
     auto evt = lcreader->readNextEvent();
     // Patching the Event to make sure all events contain the same Collections.
     if (patching == true) {
@@ -244,6 +240,10 @@ int main(int argc, char* argv[]) {
     }
 
     writer.writeFrame(edmEvent, "events");
+    if (tenPercent && ((i + 1) % tenPercent == 0)) {
+      std::cout << "processed amount of events: " << (i + 1) / tenPercent * 10. << "% (event: " << i << ")"
+                << std::endl;
+    }
   }
 
   writer.writeFrame(metadata, podio::Category::Metadata);
