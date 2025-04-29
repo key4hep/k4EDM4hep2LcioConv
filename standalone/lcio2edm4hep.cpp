@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
   bool haveSimCaloHits{false};
   const int tenPercent = nEvt / 10;
   for (int i = 0; i < nEvt; ++i) {
-    if ((i + 1) % tenPercent == 0) {
+    if (tenPercent && ((i + 1) % tenPercent == 0)) {
       std::cout << "processed amount of events: " << (i + 1) / tenPercent * 10. << "% (event: " << i << ")"
                 << std::endl;
     }
