@@ -1,3 +1,17 @@
+# v00-12
+
+* 2025-05-02 jmcarcell ([PR#118](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/118))
+  - Link `k4EDM4hep2LcioConv` (needed because of `getRadiusOfStateAtFirstHit`) and `EDM4HEP::utils` (needed because of `edm4hep::utils::TrackPIDHandler`) for `edmCompare` for tests.
+
+* 2025-04-29 Leonhard Reichenbach ([PR#107](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/107))
+  - Optimize standalone printout
+
+* 2025-02-17 Thomas Madlener ([PR#112](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/112))
+  - Make sure that `TrackerHitSimTrackerHitLinkCollection`s are properly converted by ensuring that lookups also happen into the `TrackerHitPlane` maps.
+
+* 2025-02-14 jmcarcell ([PR#113](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/113))
+  - Add LANGUAGES CXX to CMakeLists.txt to disable checks for a C compiler
+
 # v00-11
 
 * 2025-02-06 jmcarcell ([PR#110](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/110))
