@@ -94,7 +94,7 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
     lval.setPDG(rval->getPDG());
     lval.setGeneratorStatus(rval->getGeneratorStatus());
 
-    // Convert LCIO simulator status to EDM4hep simulator status inline bit by
+    // Convert LCIO simulator status to EDM4hep simulator status bit by
     // bit to avoid issues with different ordering
     lval.setCreatedInSimulation(rval->isCreatedInSimulation());
     lval.setBackscatter(rval->isBackscatter());
