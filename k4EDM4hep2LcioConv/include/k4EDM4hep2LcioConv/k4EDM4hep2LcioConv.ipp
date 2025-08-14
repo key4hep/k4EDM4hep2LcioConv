@@ -465,10 +465,17 @@ std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(const edm4hep::MCParti
     if (edm_mcp.isAvailable()) {
       lcio_mcp->setPDG(edm_mcp.getPDG());
       lcio_mcp->setGeneratorStatus(edm_mcp.getGeneratorStatus());
-      // Note LCIO sets some Bits during writing which makes a trivial integer
-      // conversion afterwards not work
-      int status = edm_mcp.getSimulatorStatus();
-      lcio_mcp->setSimulatorStatus(status);
+
+      // Convert EDM4hep simulator status to LCIO simulator status bit by bit to
+      // avoid any assumptions about ordering
+      lcio_mcp->setCreatedInSimulation(edm_mcp.isCreatedInSimulation());
+      lcio_mcp->setBackscatter(edm_mcp.isBackscatter());
+      lcio_mcp->setVertexIsNotEndpointOfParent(edm_mcp.vertexIsNotEndpointOfParent());
+      lcio_mcp->setDecayedInTracker(edm_mcp.isDecayedInTracker());
+      lcio_mcp->setDecayedInCalorimeter(edm_mcp.isDecayedInCalorimeter());
+      lcio_mcp->setHasLeftDetector(edm_mcp.hasLeftDetector());
+      lcio_mcp->setStopped(edm_mcp.isStopped());
+      lcio_mcp->setOverlay(edm_mcp.isOverlay());
 
       double vertex[3] = {edm_mcp.getVertex()[0], edm_mcp.getVertex()[1], edm_mcp.getVertex()[2]};
       lcio_mcp->setVertex(vertex);

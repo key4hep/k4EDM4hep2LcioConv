@@ -93,7 +93,18 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
 
     lval.setPDG(rval->getPDG());
     lval.setGeneratorStatus(rval->getGeneratorStatus());
-    lval.setSimulatorStatus(rval->getSimulatorStatus());
+
+    // Convert LCIO simulator status to EDM4hep simulator status inline bit by
+    // bit to avoid issues with different ordering
+    lval.setCreatedInSimulation(rval->isCreatedInSimulation());
+    lval.setBackscatter(rval->isBackscatter());
+    lval.setVertexIsNotEndpointOfParent(rval->vertexIsNotEndpointOfParent());
+    lval.setDecayedInTracker(rval->isDecayedInTracker());
+    lval.setDecayedInCalorimeter(rval->isDecayedInCalorimeter());
+    lval.setHasLeftDetector(rval->hasLeftDetector());
+    lval.setStopped(rval->isStopped());
+    lval.setOverlay(rval->isOverlay());
+
     lval.setCharge(rval->getCharge());
     lval.setTime(rval->getTime());
     lval.setMass(rval->getMass());
