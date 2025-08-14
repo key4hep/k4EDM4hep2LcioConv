@@ -1,5 +1,6 @@
 #include "EDM4hep2LCIOUtilities.h"
 
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
@@ -52,7 +53,11 @@ edm4hep::MCParticleCollection createMCParticles(const int num_elements,
     elem.setMomentum({i * 1.f, i * 2.f, i * 3.f});
     elem.setMomentumAtEndpoint({i * 3.f, i * 2.f, i * 1.f});
     elem.setMass(125. * i);
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 2)
     elem.setSpin({i * 0.5f, i * 0.25f, i * 0.25f});
+#else
+    elem.setHelicity(i * 42); // avoid ever hitting the magic value of 9
+#endif
     elem.setCreatedInSimulation(1);
     elem.setBackscatter(0);
     elem.setVertexIsNotEndpointOfParent(1);

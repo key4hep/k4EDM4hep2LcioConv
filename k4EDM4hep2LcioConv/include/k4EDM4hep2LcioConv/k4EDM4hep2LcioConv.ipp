@@ -3,6 +3,7 @@
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
 #include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/ClusterMCParticleLinkCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/RecoMCParticleLinkCollection.h>
 #include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
@@ -489,7 +490,11 @@ std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(const edm4hep::MCParti
       lcio_mcp->setMomentumAtEndpoint(momentumEndpoint);
       lcio_mcp->setMass(edm_mcp.getMass());
       lcio_mcp->setCharge(edm_mcp.getCharge());
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 2)
       float spin[3] = {edm_mcp.getSpin()[0], edm_mcp.getSpin()[1], edm_mcp.getSpin()[2]};
+#else
+      float spin[3] = {0, 0, edm_mcp.getHelicity()};
+#endif
       lcio_mcp->setSpin(spin);
       int colorflow[2] = {0, 0};
       lcio_mcp->setColorFlow(colorflow);

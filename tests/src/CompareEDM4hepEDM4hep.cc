@@ -3,6 +3,7 @@
 
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
+#include "edm4hep/EDM4hepVersion.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RecDqdxCollection.h"
@@ -58,7 +59,11 @@ bool compare(const edm4hep::MCParticleCollection& origColl, const edm4hep::MCPar
                  "momentumAtEndpoint in particle " << i);
     REQUIRE_SAME(origPart.getMass(), part.getMass(), "mass in particle " << i);
     REQUIRE_SAME(origPart.getCharge(), part.getCharge(), "charge in particle " << i);
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 2)
     REQUIRE_SAME(origPart.getSpin(), part.getSpin(), "spin in particle " << i);
+#else
+    REQUIRE_SAME(origPart.getHelicity(), part.getHelicity(), "helicity in particle " << i);
+#endif
 
     REQUIRE_SAME(origPart.isCreatedInSimulation(), part.isCreatedInSimulation(), " in particle " << i);
     REQUIRE_SAME(origPart.isBackscatter(), part.isBackscatter(), " in particle " << i);

@@ -4,9 +4,11 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
+#include <edm4hep/EDM4hepVersion.h>
+#include <edm4hep/VertexRecoParticleLinkCollection.h>
+
 #include <cmath>
 #include <cstdint>
-#include <edm4hep/VertexRecoParticleLinkCollection.h>
 
 #include "TMath.h"
 
@@ -110,7 +112,11 @@ bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4h
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEndpoint, "endpoint in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentumAtEndpoint, "momentumAtEndpoint in MCParticle");
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 2)
   ASSERT_COMPARE(lcioElem, edm4hepElem, getSpin, "spin in MCParticle");
+#else
+  ASSERT_COMPARE_VALS(lcioElem->getSpin()[2], edm4hepElem.getHelicity(), "spin.z / helicity in MCParticle");
+#endif
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getDaughters, objectMaps.mcParticles, "daughters in MCParticle");
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getParents, objectMaps.mcParticles, "parents in MCParticle");
