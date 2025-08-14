@@ -4,7 +4,6 @@
 
 #include "IMPL/TrackerHitImpl.h"
 
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/VertexRecoParticleLinkCollection.h>
 
 #include <cmath>

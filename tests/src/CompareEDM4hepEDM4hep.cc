@@ -3,7 +3,6 @@
 
 #include "edm4hep/CalorimeterHitCollection.h"
 #include "edm4hep/ClusterCollection.h"
-#include "edm4hep/EDM4hepVersion.h"
 #include "edm4hep/MCParticleCollection.h"
 #include "edm4hep/ParticleIDCollection.h"
 #include "edm4hep/RecDqdxCollection.h"

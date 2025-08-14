@@ -3,7 +3,6 @@
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
 #include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/ClusterMCParticleLinkCollection.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/RecoMCParticleLinkCollection.h>
 #include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>

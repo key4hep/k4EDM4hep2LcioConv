@@ -2,7 +2,6 @@
 
 #include <UTIL/PIDHandler.h>
 
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
 

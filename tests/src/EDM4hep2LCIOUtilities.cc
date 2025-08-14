@@ -1,6 +1,5 @@
 #include "EDM4hep2LCIOUtilities.h"
 
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/Frame.h"
