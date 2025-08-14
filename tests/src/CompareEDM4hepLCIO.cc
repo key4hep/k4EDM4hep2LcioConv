@@ -112,10 +112,10 @@ bool compare(const EVENT::MCParticle* lcioElem, const edm4hep::MCParticle& edm4h
   ASSERT_COMPARE(lcioElem, edm4hepElem, getEndpoint, "endpoint in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentum, "momentum in MCParticle");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getMomentumAtEndpoint, "momentumAtEndpoint in MCParticle");
-#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 2)
-  ASSERT_COMPARE(lcioElem, edm4hepElem, getSpin, "spin in MCParticle");
-#else
+#ifdef EDM4HEP_MCPARTICLE_HAS_HELICITY
   ASSERT_COMPARE_VALS(lcioElem->getSpin()[2], edm4hepElem.getHelicity(), "spin.z / helicity in MCParticle");
+#else
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getSpin, "spin in MCParticle");
 #endif
 
   ASSERT_COMPARE_RELATION(lcioElem, edm4hepElem, getDaughters, objectMaps.mcParticles, "daughters in MCParticle");
