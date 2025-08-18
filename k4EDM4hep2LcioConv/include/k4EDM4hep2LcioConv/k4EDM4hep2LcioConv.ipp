@@ -489,7 +489,11 @@ std::unique_ptr<lcio::LCCollectionVec> convertMCParticles(const edm4hep::MCParti
       lcio_mcp->setMomentumAtEndpoint(momentumEndpoint);
       lcio_mcp->setMass(edm_mcp.getMass());
       lcio_mcp->setCharge(edm_mcp.getCharge());
+#ifdef EDM4HEP_MCPARTICLE_HAS_HELICITY
+      float spin[3] = {0, 0, static_cast<float>(edm_mcp.getHelicity())};
+#else
       float spin[3] = {edm_mcp.getSpin()[0], edm_mcp.getSpin()[1], edm_mcp.getSpin()[2]};
+#endif
       lcio_mcp->setSpin(spin);
       int colorflow[2] = {0, 0};
       lcio_mcp->setColorFlow(colorflow);

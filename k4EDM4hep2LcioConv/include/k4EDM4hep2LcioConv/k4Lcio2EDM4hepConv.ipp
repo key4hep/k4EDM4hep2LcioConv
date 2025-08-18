@@ -108,7 +108,11 @@ convertMCParticles(const std::string& name, EVENT::LCCollection* LCCollection, M
     lval.setCharge(rval->getCharge());
     lval.setTime(rval->getTime());
     lval.setMass(rval->getMass());
+#ifdef EDM4HEP_MCPARTICLE_HAS_HELICITY
+    lval.setHelicity(rval->getSpin()[2]);
+#else
     lval.setSpin(edm4hep::Vector3f(rval->getSpin()));
+#endif
     lval.setVertex(edm4hep::Vector3d(rval->getVertex()));
     lval.setEndpoint(edm4hep::Vector3d(rval->getEndpoint()));
     lval.setMomentum(rval->getMomentum());

@@ -58,7 +58,11 @@ bool compare(const edm4hep::MCParticleCollection& origColl, const edm4hep::MCPar
                  "momentumAtEndpoint in particle " << i);
     REQUIRE_SAME(origPart.getMass(), part.getMass(), "mass in particle " << i);
     REQUIRE_SAME(origPart.getCharge(), part.getCharge(), "charge in particle " << i);
+#ifdef EDM4HEP_MCPARTICLE_HAS_HELICITY
+    REQUIRE_SAME(origPart.getHelicity(), part.getHelicity(), "helicity in particle " << i);
+#else
     REQUIRE_SAME(origPart.getSpin(), part.getSpin(), "spin in particle " << i);
+#endif
 
     REQUIRE_SAME(origPart.isCreatedInSimulation(), part.isCreatedInSimulation(), " in particle " << i);
     REQUIRE_SAME(origPart.isBackscatter(), part.isBackscatter(), " in particle " << i);
