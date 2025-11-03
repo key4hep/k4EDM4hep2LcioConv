@@ -1,3 +1,14 @@
+# v00-13
+
+* 2025-08-18 Thomas Madlener ([PR#120](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/120))
+  - Make the conversion accept MCParticles that have a `helicity` instead of a 3D `spin` following the developments in [key4hep/EDM4hep#404](https://github.com/key4hep/EDM4hep/pull/404)
+
+* 2025-08-14 Thomas Madlener ([PR#121](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/121))
+  - Convert the simulator status bits individually instead of copying the bitfield as a whole to avoid potential future issues when bit numbers might start to differ between EDM4hep and LCIO.
+
+* 2025-08-13 Juan Miguel Carceller ([PR#119](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/119))
+  - Fix compiler error in GCC < 15 by avoiding an ambiguous operator=
+
 # v00-12
 
 * 2025-05-02 jmcarcell ([PR#118](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/118))
