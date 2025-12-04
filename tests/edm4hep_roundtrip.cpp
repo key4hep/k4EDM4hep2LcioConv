@@ -19,25 +19,22 @@ int main() {
   const auto lcioEvent = EDM4hep2LCIOConv::convertEvent(origEvent, metadata);
   const auto roundtripEvent = LCIO2EDM4hepConv::convertEvent(lcioEvent.get());
 
-  ASSERT_SAME_OR_ABORT(edm4hep::CalorimeterHitCollection, "caloHits");
-  ASSERT_SAME_OR_ABORT(edm4hep::MCParticleCollection, "mcParticles");
-  ASSERT_SAME_OR_ABORT(edm4hep::SimCalorimeterHitCollection, "simCaloHits");
-  ASSERT_SAME_OR_ABORT(edm4hep::SimTrackerHitCollection, "simTrackerHits");
-  ASSERT_SAME_OR_ABORT(edm4hep::TrackCollection, "tracks");
-  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHit3DCollection, "trackerHits");
-  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes");
-  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitSimTrackerHitLinkCollection, "simTrackerHitLinks");
-  ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters");
-  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "recos");
-  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_1");
-  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_2");
-  ASSERT_SAME_OR_ABORT(edm4hep::ParticleIDCollection, "ParticleID_coll_3");
-  ASSERT_SAME_OR_ABORT(edm4hep::RecoMCParticleLinkCollection, "mcRecoLinks");
-  ASSERT_SAME_OR_ABORT(edm4hep::CaloHitSimCaloHitLinkCollection, "mcCaloHitsLinks");
+  ASSERT_SAME_OR_ABORT(edm4hep::CalorimeterHitCollection, "caloHits")
+  ASSERT_SAME_OR_ABORT(edm4hep::MCParticleCollection, "mcParticles")
+  ASSERT_SAME_OR_ABORT(edm4hep::SimCalorimeterHitCollection, "simCaloHits")
+  ASSERT_SAME_OR_ABORT(edm4hep::SimTrackerHitCollection, "simTrackerHits")
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackCollection, "tracks")
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHit3DCollection, "trackerHits")
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitPlaneCollection, "trackerHitPlanes")
+  ASSERT_SAME_OR_ABORT(edm4hep::TrackerHitSimTrackerHitLinkCollection, "simTrackerHitLinks")
+  ASSERT_SAME_OR_ABORT(edm4hep::ClusterCollection, "clusters")
+  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "recos")
+  ASSERT_SAME_OR_ABORT(edm4hep::RecoMCParticleLinkCollection, "mcRecoLinks")
+  ASSERT_SAME_OR_ABORT(edm4hep::CaloHitSimCaloHitLinkCollection, "mcCaloHitsLinks")
   ASSERT_SAME_OR_ABORT(edm4hep::RecDqdxCollection, "tracks_dQdx")
-  ASSERT_SAME_OR_ABORT(edm4hep::VertexCollection, "vertices");
-  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "vtx_recos");
-  ASSERT_SAME_OR_ABORT(edm4hep::VertexRecoParticleLinkCollection, "startVtxLinks");
+  ASSERT_SAME_OR_ABORT(edm4hep::VertexCollection, "vertices")
+  ASSERT_SAME_OR_ABORT(edm4hep::ReconstructedParticleCollection, "vtx_recos")
+  ASSERT_SAME_OR_ABORT(edm4hep::VertexRecoParticleLinkCollection, "startVtxLinks")
 
   return 0;
 }
