@@ -3,6 +3,7 @@
 #include <edm4hep/CaloHitMCParticleLinkCollection.h>
 #include <edm4hep/CaloHitSimCaloHitLinkCollection.h>
 #include <edm4hep/ClusterMCParticleLinkCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/RecoMCParticleLinkCollection.h>
 #include <edm4hep/TrackMCParticleLinkCollection.h>
 #include <edm4hep/TrackerHitSimTrackerHitLinkCollection.h>
@@ -367,7 +368,11 @@ std::unique_ptr<lcio::LCCollectionVec> convertClusters(const edm4hep::ClusterCol
 
       lcio_cluster->setPositionError(edm_cluster.getPositionError().data());
       lcio_cluster->setITheta(edm_cluster.getITheta());
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 4)
       lcio_cluster->setIPhi(edm_cluster.getPhi());
+#else
+      lcio_cluster->setIPhi(edm_cluster.getIPhi());
+#endif
       std::array<float, 3> edm_cluster_dir_err = {edm_cluster.getPosition().x, edm_cluster.getPosition().y,
                                                   edm_cluster.getPosition().z};
       lcio_cluster->setDirectionError(edm_cluster_dir_err.data());
