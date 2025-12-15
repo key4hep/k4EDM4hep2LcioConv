@@ -64,8 +64,12 @@ bool compare(const EVENT::Cluster* lcioElem, const edm4hep::Cluster& edm4hepElem
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPosition, "position in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getPositionError, "positionError in Cluster");
   ASSERT_COMPARE(lcioElem, edm4hepElem, getITheta, "iTheta in Cluster");
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 4)
   // LCIO has getIPhi and EDM4hep has getPhi
   ASSERT_COMPARE_VALS(lcioElem->getIPhi(), edm4hepElem.getPhi(), "phi in Cluster");
+#else
+  ASSERT_COMPARE(lcioElem, edm4hepElem, getIPhi, "iPhi in Cluster");
+#endif
   ASSERT_COMPARE(lcioElem, edm4hepElem, getDirectionError, "directionError in Cluster");
 
   ASSERT_COMPARE(lcioElem, edm4hepElem, getSubdetectorEnergies, "subdetectorEnergies in Cluster");

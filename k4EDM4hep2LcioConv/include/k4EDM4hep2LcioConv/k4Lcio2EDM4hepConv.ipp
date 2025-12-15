@@ -2,6 +2,7 @@
 
 #include <UTIL/PIDHandler.h>
 
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/RecDqdxCollection.h>
 
@@ -510,7 +511,11 @@ std::unique_ptr<edm4hep::ClusterCollection> convertClusters(const std::string& n
     lval.setEnergy(rval->getEnergy());
     lval.setEnergyError(rval->getEnergyError());
     lval.setITheta(rval->getITheta());
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 99, 4)
     lval.setPhi(rval->getIPhi());
+#else
+    lval.setIPhi(rval->getIPhi());
+#endif
     lval.setPosition(rval->getPosition());
     auto& m = rval->getPositionError();
     lval.setPositionError({m[0], m[1], m[2], m[3], m[4], m[5]});
