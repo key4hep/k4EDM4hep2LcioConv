@@ -4,10 +4,12 @@
 #include <IOIMPL/LCFactory.h>
 #include <UTIL/CheckCollections.h>
 
+#include <edm4hep/Constants.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
 #include "podio/ROOTWriter.h"
 
+#include <array>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -147,6 +149,24 @@ ParsedArgs parseArgs(std::vector<std::string> argv) {
   return args;
 }
 
+const static std::array<std::tuple<std::string, std::string>, 1> STRING_PARAMS_TO_CONVERT = {
+    {{EVENT::LCIO::CellIDEncoding, edm4hep::labels::CellIDEncoding}}};
+
+void attachCollectionParamters(podio::Frame& metadata, const EVENT::LCCollection* coll, const std::string& name) {
+  const auto& collParams = coll->getParameters();
+  std::vector<std::string> stringKeys;
+  collParams.getStringKeys(stringKeys);
+
+  for (const auto& [lcioParam, edm4hepParam] : STRING_PARAMS_TO_CONVERT) {
+    if (std::ranges::find(stringKeys, lcioParam) != stringKeys.end()) {
+      // We copy the full vector because in both cases that is what actually is persisted
+      std::vector<std::string> vals{};
+      collParams.getStringVals(lcioParam, vals);
+      metadata.putParameter(podio::collMetadataParamName(name, edm4hepParam), std::move(vals));
+    }
+  }
+}
+
 int main(int argc, char* argv[]) {
   const auto args = parseArgs({argv, argv + argc});
 
@@ -226,10 +246,15 @@ int main(int argc, char* argv[]) {
     }
 
     // For the first event we also convert some meta information for the
-    // ParticleID handling
+    // ParticleID handling as well as for the collection level parameters
     if (i == 0) {
       for (const auto& name : *evt->getCollectionNames()) {
         auto coll = evt->getCollection(name);
+        const auto edm4hepName = k4EDM4hep2LcioConv::detail::mapLookupFrom(name, collsToConvert);
+        if (edm4hepName.has_value()) {
+          attachCollectionParamters(metadata, coll, edm4hepName.value());
+        }
+
         if (coll->getTypeName() == "ReconstructedParticle") {
           for (const auto& pidInfo : LCIO2EDM4hepConv::getPIDMetaInfo(coll)) {
             edm4hep::utils::PIDHandler::setAlgoInfo(metadata, LCIO2EDM4hepConv::getPIDCollName(name, pidInfo.algoName),
