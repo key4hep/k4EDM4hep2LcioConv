@@ -43,6 +43,11 @@ void sortParticleIDs(std::vector<ParticleIDConvData>& pidCollections) {
 std::optional<int32_t> attachParticleIDMetaData(IMPL::LCEventImpl* lcEvent, const podio::Frame& edmEvent,
                                                 const ParticleIDConvData& pidCollMetaInfo) {
   const auto& [name, coll, pidMetaInfo] = pidCollMetaInfo;
+  // We need to access th first element of the collection to get to a
+  // reconstructed particle
+  if (coll->empty()) {
+    return std::nullopt;
+  }
   const auto recoName = edmEvent.getName((*coll)[0].getParticle().id().collectionID);
   // If we can't get the reconstructed particle collection name there is not
   // much we can do
