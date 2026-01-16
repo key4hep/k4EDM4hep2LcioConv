@@ -12,8 +12,8 @@ set(k4EDM4hep2LcioConv_VERSION "@PROJECT_VERSION@")
 set_and_check(k4EDM4hep2LcioConv_INCLUDE_DIR "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
 
 include(CMakeFindDependencyMacro)
-find_dependency(LCIO REQUIRED)
-find_dependency(EDM4HEP REQUIRED)
+find_dependency(LCIO @LCIO_VERSION@ REQUIRED)
+find_dependency(EDM4HEP @EDM4HEP_VERSION@ REQUIRED)
 
 # - Include the targets file to create the imported targets that a client can
 # link to (libraries) or execute (programs)
