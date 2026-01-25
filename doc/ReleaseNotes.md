@@ -1,3 +1,23 @@
+# v00-14
+
+* 2026-01-16 Thomas Madlener ([PR#130](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/130))
+  - Make sure we can still configure with EDM4hep 1.0
+
+* 2025-12-18 Thomas Madlener ([PR#129](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/129))
+  - Make sure to not invoke UB by accessing empty collections
+
+* 2025-12-18 Thomas Madlener ([PR#127](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/127))
+  - Add conversion of CellIDEncoding collection parameter to standalone converter
+
+* 2025-12-16 Thomas Madlener ([PR#128](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/128))
+  - Use correct collection names in roundtrip tests
+
+* 2025-12-15 Thomas Madlener ([PR#126](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/126))
+  - Start to use the non-deprecated accessors for the intrinsic Cluster angle once they become available
+
+* 2025-12-04 Juan Miguel Carceller ([PR#125](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/125))
+  - Fix roundtrip test by not checking for collections that are not there, and remove unnecessary `;` after macros
+
 # v00-13
 
 * 2025-08-18 Thomas Madlener ([PR#120](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/120))
