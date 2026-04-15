@@ -7,7 +7,7 @@
 #include <edm4hep/Constants.h>
 #include <edm4hep/utils/ParticleIDUtils.h>
 
-#include "podio/ROOTWriter.h"
+#include "podio/Writer.h"
 
 #include <array>
 #include <cstdlib>
@@ -69,7 +69,7 @@ std::vector<NamesType> getNamesAndTypes(const std::string& collTypeFile) {
   return names_types;
 }
 
-constexpr auto usageMsg = R"(usage: lcio2edm4hep [-h] inputfile outputfile [colltypefile] [-n N])";
+constexpr auto usageMsg = R"(usage: lcio2edm4hep [-h] inputfile outputfile [colltypefile] [-n N] [-t TYPE])";
 
 constexpr auto helpMsg = R"(
 Convert an LCIO file to EDM4hep
@@ -83,6 +83,10 @@ positional arguments:
 optional arguments:
   -h, --help        show this help message and exit
   -n N              Limit the number of events to convert to N (default = -1, all events)
+  -t TYPE           The output file type / backend to use. Valid options are:
+                    "default" (determined by file extension and environment),
+                    "root" (ROOT TTree-based), "rntuple" (ROOT RNTuple), "sio".
+                    (default = "default")
 
 Examples:
 - print this message:
@@ -92,12 +96,17 @@ lcio2edm4hep infile.slcio outfile_edm4hep.root
 - the same but providing complete set of collections (either to patch collections in,
   or to only convert a subset):
 lcio2edm4hep infile.slcio outfile_edm4hep.root coltype.txt
+- convert to ROOT RNTuple format:
+lcio2edm4hep infile.slcio outfile_edm4hep.root -t rntuple
+- convert to SIO format:
+lcio2edm4hep infile.slcio outfile_edm4hep.sio
 )";
 
 struct ParsedArgs {
   std::string inputFile{};
   std::string outputFile{};
   std::string patchFile{};
+  std::string outputType{"default"};
   int nEvents{-1};
 };
 
@@ -115,7 +124,7 @@ ParsedArgs parseArgs(std::vector<std::string> argv) {
   }
 
   int argc = argv.size();
-  if (argc < 3 || argc > 7) {
+  if (argc < 3 || argc > 9) {
     printUsageAndExit();
   }
 
@@ -135,6 +144,18 @@ ParsedArgs parseArgs(std::vector<std::string> argv) {
       printUsageAndExit();
     }
     argv.erase(nEventIt, nEventIt + 2);
+  }
+
+  auto typeIt = std::find(argv.begin(), argv.end(), "-t");
+  if (typeIt != argv.end()) {
+    const auto index = std::distance(argv.begin(), typeIt);
+    argc = argv.size();
+    if (index > argc - 2) {
+      // No argument left to parse
+      printUsageAndExit();
+    }
+    args.outputType = argv[index + 1];
+    argv.erase(typeIt, typeIt + 2);
   }
 
   argc = argv.size();
@@ -208,7 +229,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Number of events in file: " << lcreader->getNumberOfEvents() << '\n';
   std::cout << "Number of runs in file: " << lcreader->getNumberOfRuns() << '\n';
 
-  podio::ROOTWriter writer(args.outputFile);
+  auto writer = podio::makeWriter(args.outputFile, args.outputType);
 
   podio::Frame metadata{};
 
