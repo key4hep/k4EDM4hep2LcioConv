@@ -124,7 +124,7 @@ ParsedArgs parseArgs(std::vector<std::string> argv) {
   }
 
   int argc = argv.size();
-  if (argc < 3 || argc > 9) {
+  if (argc < 3 || argc > 8) {
     printUsageAndExit();
   }
 
