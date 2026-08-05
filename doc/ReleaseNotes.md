@@ -1,3 +1,8 @@
+# v00-14-01
+
+* 2026-04-17 Thomas Madlener ([PR#132](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/132))
+  - Use the `podio::Writer` in `lcio2edm4hep` to allow to choose the EDM4hep output format at runtime via the `-t` flag.
+
 # v00-14
 
 * 2026-01-16 Thomas Madlener ([PR#130](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/130))
