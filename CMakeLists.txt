@@ -7,9 +7,9 @@ set( ${PROJECT_NAME}_VERSION_MINOR 14 )
 set( ${PROJECT_NAME}_VERSION_PATCH 1 )
 set( ${PROJECT_NAME}_VERSION  "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}" )
 
-include(cmake/Key4hepConfig.cmake)
-
 include(GNUInstallDirs)
+
+include(cmake/Key4hepConfig.cmake)
 
 include(cmake/build_flags.cmake)
 k4edm4hep2lcioconv_set_linker_flags()
