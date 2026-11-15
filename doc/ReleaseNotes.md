@@ -1,3 +1,11 @@
+# v00-14-02
+
+* 2026-11-03 Juan Miguel Carceller ([PR#136](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/136))
+  - Initialize install directories before setting the install RPATH.
+
+* 2026-09-28 Juan Miguel Carceller ([PR#135](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/135))
+  - Remove obsolete EDM4hep version guards from conversion and comparison code.
+
 # v00-14-01
 
 * 2026-04-17 Thomas Madlener ([PR#132](https://github.com/key4hep/k4EDM4hep2LcioConv/pull/132))
