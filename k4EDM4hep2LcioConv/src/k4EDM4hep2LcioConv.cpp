@@ -11,10 +11,6 @@
 
 namespace EDM4hep2LCIOConv {
 
-void convEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event) {
-  convertEventHeader(header_coll, lcio_event);
-}
-
 void convertEventHeader(const edm4hep::EventHeaderCollection* const header_coll, lcio::LCEventImpl* const lcio_event) {
   if (header_coll->size() != 1) {
     return;
