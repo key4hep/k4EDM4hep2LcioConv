@@ -8,12 +8,14 @@
 #include <cmath>
 #include <cstdint>
 
+namespace {
+
 constexpr std::uint64_t operator""_u64(unsigned long long num) { return static_cast<std::uint64_t>(num); }
 
 // Some pre-defined cellIDs that can be used below
-constexpr static std::array CELLIDS = {0xcaffee_u64, 0xbeef_u64, 0xfe47_u64, 0x12345678_u64, 0_u64, -1_u64};
+constexpr std::array CELLIDS = {0xcaffee_u64, 0xbeef_u64, 0xfe47_u64, 0x12345678_u64, 0_u64, -1_u64};
 
-constexpr static uint64_t createCellID(int i) { return CELLIDS[i % CELLIDS.size()]; }
+constexpr uint64_t createCellID(int i) { return CELLIDS[i % CELLIDS.size()]; }
 
 /// Create a covariance matrix for N dimensions in lower triangular form
 template <size_t N, typename T = float>
@@ -37,6 +39,8 @@ constexpr auto createCov() {
 
   return result;
 }
+
+} // namespace
 
 edm4hep::MCParticleCollection createMCParticles(const int num_elements,
                                                 const std::vector<test_config::IdxPair>& mcp_parents_idx) {
@@ -219,6 +223,8 @@ edm4hep::TrackCollection createTracks(const int num_elements, const int subdetec
   return track_coll;
 }
 
+namespace {
+
 edm4hep::RecDqdxCollection createDqDxColl(const edm4hep::TrackCollection& tracks) {
   auto dqdxColl = edm4hep::RecDqdxCollection();
 
@@ -233,6 +239,8 @@ edm4hep::RecDqdxCollection createDqDxColl(const edm4hep::TrackCollection& tracks
 
   return dqdxColl;
 }
+
+} // namespace
 
 std::pair<edm4hep::SimCalorimeterHitCollection, edm4hep::CaloHitContributionCollection>
 createSimCalorimeterHits(const int num_elements, const int num_contributions,
@@ -390,6 +398,8 @@ createParticleIDs(const std::vector<std::vector<int>>& recoIdcs,
   return collections;
 }
 
+namespace {
+
 template <typename LinkCollT, typename CollT, typename CollU>
 LinkCollT createLinkCollection(const CollT& collA, const CollU& collB) {
   const auto maxSize = std::min(collA.size(), collB.size());
@@ -405,6 +415,8 @@ LinkCollT createLinkCollection(const CollT& collA, const CollU& collB) {
 
   return links;
 }
+
+} // namespace
 
 edm4hep::RecoMCParticleLinkCollection
 createMCRecoParticleLinks(const edm4hep::MCParticleCollection& mcParticles,

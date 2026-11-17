@@ -19,6 +19,8 @@
 #include <utility>
 #include <vector>
 
+namespace {
+
 /// Simple helper struct to group information about a collection to be converted
 struct NamesType {
   std::string lcioName{};    ///< The name in the lcio file
@@ -170,7 +172,7 @@ ParsedArgs parseArgs(std::vector<std::string> argv) {
   return args;
 }
 
-const static std::array<std::tuple<std::string, std::string>, 1> STRING_PARAMS_TO_CONVERT = {
+const std::array<std::tuple<std::string, std::string>, 1> STRING_PARAMS_TO_CONVERT = {
     {{EVENT::LCIO::CellIDEncoding, edm4hep::labels::CellIDEncoding}}};
 
 void attachCollectionParamters(podio::Frame& metadata, const EVENT::LCCollection* coll, const std::string& name) {
@@ -187,6 +189,8 @@ void attachCollectionParamters(podio::Frame& metadata, const EVENT::LCCollection
     }
   }
 }
+
+} // namespace
 
 int main(int argc, char* argv[]) {
   const auto args = parseArgs({argv, argv + argc});

@@ -142,6 +142,8 @@ bool compare(const edm4hep::SimTrackerHitCollection& origColl, const edm4hep::Si
   return true;
 }
 
+namespace {
+
 bool compare(const edm4hep::TrackState& orig, const edm4hep::TrackState& roundtrip) {
   REQUIRE_SAME(orig.location, roundtrip.location, "location in TrackState");
   REQUIRE_SAME(orig.D0, roundtrip.D0, "D0 in TrackState");
@@ -158,6 +160,8 @@ bool compare(const edm4hep::TrackState& orig, const edm4hep::TrackState& roundtr
 
   return true;
 }
+
+} // namespace
 
 bool compare(const edm4hep::TrackCollection& origColl, const edm4hep::TrackCollection& roundtripColl) {
   REQUIRE_SAME(origColl.size(), roundtripColl.size(), "collection sizes");
