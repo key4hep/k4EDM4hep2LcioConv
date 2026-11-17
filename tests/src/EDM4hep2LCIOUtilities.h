@@ -165,6 +165,7 @@ createSimTrackerHitTrackerHitLinks(const std::vector<edm4hep::TrackerHit>& track
  */
 edm4hep::TrackCollection createTracks(const int num_elements, const int subdetectorhitnumbers,
                                       const int num_track_states, const edm4hep::TrackerHit3DCollection& trackerHits,
+                                      const edm4hep::TrackerHitPlaneCollection& trackerHitPlanes,
                                       const std::vector<std::size_t>& link_trackerhit_idcs,
                                       const std::vector<test_config::IdxPair>& track_link_tracks_idcs);
 
@@ -205,8 +206,8 @@ edm4hep::RecoMCParticleLinkCollection
 createMCRecoParticleLinks(const edm4hep::MCParticleCollection& mcParticles,
                           const edm4hep::ReconstructedParticleCollection& recoParticles);
 
-edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloAssocs(const edm4hep::SimCalorimeterHitCollection& simHits,
-                                                            const edm4hep::CalorimeterHitCollection& caloHits);
+edm4hep::CaloHitSimCaloHitLinkCollection createMCCaloLinks(const edm4hep::SimCalorimeterHitCollection& simHits,
+                                                           const edm4hep::CalorimeterHitCollection& caloHits);
 
 /**
  * Create a Vertex collection and an accompanyin ReconstructedParticle
