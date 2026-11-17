@@ -26,6 +26,8 @@
  * early as possible.
  */
 
+namespace {
+
 /// Convert the two 32 bit cellIDs into one 64 bit value
 template <typename LcioT>
 auto to64BitCellID(LcioT* obj) {
@@ -35,6 +37,8 @@ auto to64BitCellID(LcioT* obj) {
   cellID = (cellID << 32) | cellID0;
   return cellID;
 }
+
+} // namespace
 
 // ================= CalorimeterHit ================
 

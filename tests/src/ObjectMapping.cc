@@ -41,6 +41,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace {
+
 template <typename LcioT, typename EDM4hepT, typename MapT>
 void fillMap(MapT& map, EVENT::LCCollection* lcioColl, const EDM4hepT& edmColl) {
   // Simply assume that the collections have the same size here
@@ -82,6 +84,8 @@ void fillRecoPIDMaps(ObjectMappings::Map<const EVENT::ReconstructedParticle*>& r
     }
   }
 }
+
+} // namespace
 
 ObjectMappings ObjectMappings::fromEvent(EVENT::LCEvent* lcEvt, const podio::Frame& edmEvt) {
   ObjectMappings mapping{};
